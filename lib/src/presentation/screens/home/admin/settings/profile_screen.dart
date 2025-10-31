@@ -180,7 +180,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             _buildMenuItem(
               icon: Icons.card_membership_outlined,
               title: 'Manage Subscription Plans',
-              onTap: () {},
+              onTap: () {
+                context.push(AppRoutes.SUBSCRIPTION_PLAN_SCREEN_PATH);
+              },
             ),
             const SizedBox(height: 24),
 

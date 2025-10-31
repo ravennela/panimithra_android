@@ -34,4 +34,7 @@ class AppRoutes {
   static const String EMPLOYEE_SERVICE_SCREEN_PATH = '/employee_service';
 
   static const String CREATE_SERVICE_PATH = "/create_service";
+  static const String SUBSCRIPTION_PLAN_SCREEN_PATH = '/subscription_plan';
+  static const String CREATE_SUBSCRIPTION_PLAN_SCREEN_PATH =
+      '/create_subscription';
 }

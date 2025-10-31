@@ -116,10 +116,13 @@ class ServiceDataSourceImpl implements ServiceDataSource {
               'categoryName': categoryName,
             if (subCategoryName != null && subCategoryName!.isNotEmpty)
               'subCategoryName': subCategoryName,
-            if (priceSort != null) 'sort': "price,${priceSort.toLowerCase()}"
+            if (priceSort != null) 'sort': "price,${priceSort.toLowerCase()}",
+            if (minPrice != null) 'minPrice': minPrice,
+            if (maxPrice != null) 'maxPrice': maxPrice
           },
           url, // Make sure you define this endpoint in ApiConstants
           options: Options(headers: headers));
+      print(response.requestOptions.queryParameters);
       return response.data;
     } catch (e) {
       rethrow;

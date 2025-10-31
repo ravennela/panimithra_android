@@ -11,7 +11,9 @@ import 'package:panimithra/src/presentation/screens/error/error_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/category_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/create_category_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/create_subcategory_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/settings/create_subcripion_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/sub_category_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/settings/subscription_plan_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/create_service.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/my_services_screen.dart';
 import 'package:panimithra/src/presentation/screens/home_screen.dart';
@@ -65,6 +67,14 @@ final router = GoRouter(
     GoRoute(
       path: AppRoutes.CREATE_SERVICE_PATH,
       builder: (context, state) => const CreateServiceScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.SUBSCRIPTION_PLAN_SCREEN_PATH,
+      builder: (context, state) => const SubscriptionPlanScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.CREATE_SUBSCRIPTION_PLAN_SCREEN_PATH,
+      builder: (context, state) => const CreateSubscriptionPlanScreen(),
     ),
     GoRoute(
       path: AppRoutes.SUB_CATEGORY_PATH,

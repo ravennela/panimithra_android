@@ -64,45 +64,49 @@ class SearchServiceItem {
   String? subCategoroyDescription;
   double? avgrating;
   double? price;
+  String? employeeName;
+  String? employeeId;
 
-  SearchServiceItem({
-    this.serviceName,
-    this.description,
-    this.status,
-    this.address,
-    this.latitude,
-    this.longitude,
-    this.duration,
-    this.serviceId,
-    this.bookings,
-    this.categoryName,
-    this.categoryDescription,
-    this.subCategoryName,
-    this.subCategoroyDescription,
-    this.avgrating,
-    this.price,
-  });
+  SearchServiceItem(
+      {this.serviceName,
+      this.description,
+      this.status,
+      this.address,
+      this.latitude,
+      this.longitude,
+      this.duration,
+      this.serviceId,
+      this.bookings,
+      this.categoryName,
+      this.categoryDescription,
+      this.subCategoryName,
+      this.subCategoroyDescription,
+      this.avgrating,
+      this.price,
+      this.employeeId,
+      this.employeeName});
 
   factory SearchServiceItem.fromJson(Map<String, dynamic> json) =>
       SearchServiceItem(
-        serviceName: json["serviceName"],
-        description: json["description"],
-        status: json["status"],
-        address: json["address"],
-        latitude: json["latitude"]?.toDouble(),
-        longitude: json["longitude"]?.toDouble(),
-        duration: json["duration"],
-        serviceId: json["serviceId"],
-        bookings: json["bookings"] == null
-            ? []
-            : List<dynamic>.from(json["bookings"]!.map((x) => x)),
-        categoryName: json["categoryName"],
-        categoryDescription: json["categoryDescription"],
-        subCategoryName: json["subCategoryName"],
-        subCategoroyDescription: json["subCategoroyDescription"],
-        avgrating: json["avgrating"]?.toDouble(),
-        price: json["price"] ?? 0.0,
-      );
+          serviceName: json["serviceName"],
+          description: json["description"],
+          status: json["status"],
+          address: json["address"],
+          latitude: json["latitude"]?.toDouble(),
+          longitude: json["longitude"]?.toDouble(),
+          duration: json["duration"],
+          serviceId: json["serviceId"],
+          bookings: json["bookings"] == null
+              ? []
+              : List<dynamic>.from(json["bookings"]!.map((x) => x)),
+          categoryName: json["categoryName"],
+          categoryDescription: json["categoryDescription"],
+          subCategoryName: json["subCategoryName"],
+          subCategoroyDescription: json["subCategoroyDescription"],
+          avgrating: json["avgrating"]?.toDouble(),
+          price: json["price"] ?? 0.0,
+          employeeId: json["employeeId"] ?? "",
+          employeeName: json["employeeName"] ?? '');
 
   Map<String, dynamic> toJson() => {
         "serviceName": serviceName,

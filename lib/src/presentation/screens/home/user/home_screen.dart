@@ -16,13 +16,15 @@ class FindServicesScreen extends StatefulWidget {
 
 class _FindServicesScreenState extends State<FindServicesScreen> {
   bool showFilters = false;
-  String selectedCategory = 'All';
   final ScrollController _scrollController = ScrollController();
   TextEditingController searchController = TextEditingController();
   RangeValues priceRange = const RangeValues(0, 500);
   String selectedDistance = '50';
+  String sortBy = 'asec';
   double minRating = 0;
-  String sortBy = 'Rating';
+  double minPrice = 0.0;
+  double maxPrice = 0.0;
+  String selectedCategory = 'All';
   int totalRecords = 0;
   int totalLength = 0;
   int page = 0;
@@ -32,7 +34,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   bool isLoading = false;
   final List<String> categories = [
     'All',
-    'Plumbing',
+    'Plumber',
     'Electrical',
     'Cleaning',
     'Carpentry',
@@ -41,7 +43,6 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     'Landscaping'
   ];
   final List<String> sortOptions = [
-    'Rating',
     'Price: Low to High',
     'Price: High to Low',
   ];
@@ -90,11 +91,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
 
   _callApi(String query) {
     if (query.isEmpty) {
-      page = 1;
+      page = 0;
     }
     context
         .read<ServiceBloc>()
-        .add(SearchServiceEvent(page: 1, serviceName: searchController.text));
+        .add(SearchServiceEvent(page: 0, serviceName: searchController.text));
   }
 
   @override
@@ -170,6 +171,10 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
+                  controller: searchController,
+                  onChanged: (value) {
+                    _onSearchChanged(value);
+                  },
                   decoration: InputDecoration(
                     hintText: "Search for 'plumbing', 'electrician'...",
                     hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
@@ -334,15 +339,17 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                             "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop",
                         category: state.items[index].categoryName.toString(),
                         title: state.items[index].serviceName.toString(),
-                        provider: "John's Plumbin",
+                        provider: state.items[index].employeeName ?? "",
                         rating: state.items[index].avgrating ?? 0.0,
                         price: state.items[index].price.toString(),
                         distance: "25 miles");
                   })
               : Column(
                   children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.26),
-                    const Text("No Service Available"),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.12,
+                    ),
+                    Center(child: _buildNoServicesFound()),
                   ],
                 );
         }
@@ -771,6 +778,14 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                             setState(() {
                               showFilters = false;
                             });
+
+                            print(priceRange.start);
+                            print(priceRange.end);
+                            context.read<ServiceBloc>().add(SearchServiceEvent(
+                                page: 0,
+                                categoryName: selectedCategory.toLowerCase(),
+                                minPrice: priceRange.start,
+                                maxPrice: priceRange.end));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
@@ -881,6 +896,8 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                         setState(() {
                           selectedCategory = category;
                         });
+                        context.read<ServiceBloc>().add(SearchServiceEvent(
+                            page: 0, categoryName: selectedCategory));
                         Navigator.pop(context);
                       },
                     );
