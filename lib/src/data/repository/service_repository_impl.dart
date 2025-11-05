@@ -6,6 +6,7 @@ import 'package:panimithra/src/core/error/exceptions.dart';
 import 'package:panimithra/src/data/datasource/remote/service_remote_data_source.dart';
 import 'package:panimithra/src/data/models/fetch_service_model.dart';
 import 'package:panimithra/src/data/models/search_service_model.dart';
+import 'package:panimithra/src/data/models/service_by_id_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 import 'package:panimithra/src/domain/repositories/service_repository.dart';
 
@@ -97,6 +98,31 @@ class ServiceRepositoryImpl implements ServiceRepository {
       return Left(
         e.response?.data['error']?.toString() ??
             "Error occurred. Please try again",
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, ServiceByIdModel>> fetchServiceById(
+      {required String serviceId}) async {
+    try {
+      // Call datasource
+      final raw = await serviceDataSource.fetchServiceById(serviceId);
+
+      // Parse JSON into model
+      ServiceByIdModel model = ServiceByIdModel.fromJson(raw);
+
+      return Right(model);
+    } on SocketException {
+      return const Left("No Internet Connection");
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['error']?.toString() ??
+            "Something went wrong. Please try again.",
       );
     } catch (e) {
       return Left(e.toString());

@@ -16,6 +16,9 @@ import 'package:panimithra/src/presentation/screens/home/admin/settings/sub_cate
 import 'package:panimithra/src/presentation/screens/home/admin/settings/subscription_plan_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/create_service.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/my_services_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/employee/payments/checkout_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/employee/payments/plans_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/dashboard/pre_booking_screen.dart';
 import 'package:panimithra/src/presentation/screens/home_screen.dart';
 import 'package:panimithra/src/presentation/screens/splash/splash_screen.dart';
 
@@ -70,11 +73,34 @@ final router = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.SUBSCRIPTION_PLAN_SCREEN_PATH,
-      builder: (context, state) => const SubscriptionPlanScreen(),
+      builder: (context, state) => const SubscriptionPlansScreen(),
     ),
     GoRoute(
       path: AppRoutes.CREATE_SUBSCRIPTION_PLAN_SCREEN_PATH,
       builder: (context, state) => const CreateSubscriptionPlanScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.EMPLOYEE_PLANS_SCREEN_PATH,
+      builder: (context, state) => const MyPlansScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.CHECKOUT_SCREEN_PATH,
+      builder: (context, state) {
+        final planId = state.extra is Map
+            ? (state.extra as Map)['planId'] as String? ?? ''
+            : '';
+        final planName = state.extra is Map
+            ? (state.extra as Map)['planName'] as String? ?? ''
+            : '';
+        final price = state.extra is Map
+            ? (state.extra as Map)['price'] as double? ?? 0.0
+            : 0.0;
+        return CheckoutScreen(
+          plnaid: planId,
+          price: price,
+          planName: planName,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.SUB_CATEGORY_PATH,
@@ -99,6 +125,17 @@ final router = GoRouter(
             : '';
         return CreateSubCategoryScreen(
           categoryId: categoryId,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.PREBOOKING_SCREEN_PATH,
+      builder: (context, state) {
+        final serviceId = state.extra is Map
+            ? (state.extra as Map)['serviceId'] as String? ?? ''
+            : '';
+        return PreBookingScreen(
+          serviceId: serviceId,
         );
       },
     ),

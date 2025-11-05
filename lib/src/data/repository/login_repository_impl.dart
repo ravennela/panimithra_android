@@ -26,11 +26,10 @@ class LoginRepositoryImpl implements LoginRepository {
       final model = LoginModel.fromJson(raw);
       SharedPreferences preferences = await SharedPreferences.getInstance();
       preferences.setString(ApiConstants.token, model.token.toString());
-      preferences.setString(ApiConstants.role, model.user!.role.toString());
-      preferences.setString(ApiConstants.userId, model.user!.id.toString());
-      preferences.setString(ApiConstants.userName, model.user!.name.toString());
-      preferences.setString(
-          ApiConstants.emailId, model.user!.emailId.toString());
+      preferences.setString(ApiConstants.role, model.role.toString());
+      preferences.setString(ApiConstants.userId, model.userId.toString());
+      preferences.setString(ApiConstants.userName, model.userName.toString());
+      preferences.setString(ApiConstants.emailId, model.emailId.toString());
       preferences.setBool("is_logged_in", true);
       return Right(model);
     } on SocketException {
@@ -41,6 +40,7 @@ class LoginRepositoryImpl implements LoginRepository {
       return Left(e.response?.data['error']?.toString() ??
           "Error occurred. Please try again");
     } catch (e) {
+      print("un expected");
       return Left("Unexpected error: ${e.toString()}");
     }
   }

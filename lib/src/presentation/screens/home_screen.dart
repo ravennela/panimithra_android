@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/presentation/screens/custom_navbar.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/employee_tab/employee_list_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/profile_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/employee/bookings/my_booking_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/my_services_screen.dart';
-import 'package:panimithra/src/presentation/screens/home/user/home_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/employee/payments/payments_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/employee/profile/profile_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/bookings/bookings_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/dashboard/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -26,9 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(
       child: Text("Users"),
     ), // Index 1
-    const Center(
-      child: Text("Employees"),
-    ),
+    const EmployeesScreen(),
     const Center(
       child: Text("Bookings"),
     ), // Index 3 - was ChangePasswordScreen
@@ -38,32 +41,21 @@ class _HomeScreenState extends State<HomeScreen> {
   // For Site Manager (3 screens)
   final List<Widget> employeeScreens = [
     const FindServicesScreen(), // Index 0
-    const Center(
-      child: Text("Bookings"),
-    ), // Index 1
-    const Center(
-      child: Text("Payments"),
-    ),
+    const MyBookingsScreen(), // Index 1
+    const SubscriptionScreen(),
     const MyServicesScreen(),
-
-    const Center(
-      child: Text("Profile"),
-    ),
+    const ProfileScreen()
 
 // Index 2
   ];
 
   final List<Widget> userScreens = [
     const FindServicesScreen(), // Index 0
-    const Center(
-      child: Text("Bookings"),
-    ), // Index 1
+    const BookingsScreen(), // Index 1
     const Center(
       child: Text("Payments"),
     ),
-    const Center(
-      child: Text("Profile"),
-    ),
+    ProfileScreen()
 // Index 2
   ];
 

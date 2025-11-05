@@ -28,7 +28,7 @@ dependencies:
   location: ^8.0.1
   shared_preferences: ^2.5.3
   intl: ^0.20.2
-  flutter_localization: ^0.3.3
+  razorpay_flutter: ^1.4.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

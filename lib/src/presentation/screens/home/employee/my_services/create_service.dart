@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:panimithra/src/common/colors.dart';
 import 'package:panimithra/src/common/toast.dart';
+import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_event.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_state.dart';
@@ -14,6 +15,7 @@ import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_b
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_event.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_state.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateServiceScreen extends StatefulWidget {
   const CreateServiceScreen({super.key});
@@ -617,8 +619,15 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             } catch (e) {
                               print(e.toString());
                             }
+                            SharedPreferences preferences =
+                                await SharedPreferences.getInstance();
+
+                            String employeeId =
+                                preferences.getString(ApiConstants.userId) ??
+                                    '';
 
                             Map<String, dynamic> data = {
+                              "employeeId": employeeId,
                               "name": _serviceNameController.text,
                               "description": _descriptionController.text,
                               "price": _priceController.text.isNotEmpty

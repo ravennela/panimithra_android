@@ -26,6 +26,8 @@ abstract class ServiceDataSource {
     double? price,
     String? priceSort,
   });
+
+  Future<Map<String, dynamic>> fetchServiceById(String serviceId);
 }
 
 // Implementation
@@ -125,6 +127,35 @@ class ServiceDataSourceImpl implements ServiceDataSource {
       print(response.requestOptions.queryParameters);
       return response.data;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> fetchServiceById(String serviceId) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      var headers = {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      };
+
+      // Construct URL with serviceId param
+      String url = "${ApiConstants.getServiceById}?serviceId=$serviceId";
+
+      final response = await dioClient.get(
+        url,
+        options: Options(headers: headers),
+      );
+
+      print("GET: $url");
+      print("Response Status: ${response.statusCode}");
+      return response.data;
+    } catch (e) {
+      print("Error fetching service by ID: $e");
       rethrow;
     }
   }

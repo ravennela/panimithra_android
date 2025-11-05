@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
@@ -342,7 +344,8 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                         provider: state.items[index].employeeName ?? "",
                         rating: state.items[index].avgrating ?? 0.0,
                         price: state.items[index].price.toString(),
-                        distance: "25 miles");
+                        distance: "25 miles",
+                        id: state.items[index].serviceId.toString());
                   })
               : Column(
                   children: [
@@ -395,6 +398,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     required double rating,
     required String price,
     required String distance,
+    required String id,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -508,7 +512,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      print(id);
+                      context.push(AppRoutes.PREBOOKING_SCREEN_PATH,
+                          extra: {"serviceId": id});
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       foregroundColor: Colors.white,
@@ -519,7 +527,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                       elevation: 0,
                     ),
                     child: const Text(
-                      'Book Now',
+                      'View Details',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:panimithra/src/common/toast.dart';
+import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_bloc.dart';
+import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_event.dart';
+import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_state.dart';
 
 class CreateSubscriptionPlanScreen extends StatefulWidget {
   const CreateSubscriptionPlanScreen({super.key});
@@ -389,22 +395,76 @@ class _CreateSubscriptionPlanScreenState
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF7A00),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                child: BlocListener<PlanBloc, PlanState>(
+                  listener: (context, state) {
+                    if (state is CreatePlanLoaded) {
+                      ToastHelper.showToast(
+                          context: context,
+                          type: 'success',
+                          title: "Plan Created Successfully");
+                      context.pop();
+                    }
+                    if (state is CreatePlanError) {
+                      ToastHelper.showToast(
+                          context: context,
+                          type: 'error',
+                          title: state.message);
+                    }
+                  },
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_planNameController.text.isEmpty) {
+                        ToastHelper.showToast(
+                            context: context,
+                            type: 'error',
+                            title: "Please Enter Plan Name");
+                        return;
+                      }
+                      if (_descriptionController.text.isEmpty) {
+                        ToastHelper.showToast(
+                            context: context,
+                            type: 'error',
+                            title: "Please Enter Plan Description");
+                        return;
+                      }
+                      if (_priceController.text.isEmpty) {
+                        ToastHelper.showToast(
+                            context: context,
+                            type: 'error',
+                            title: "Please Enter Plan Price");
+                        return;
+                      }
+                      if (_selectedDuration == "1 Month") {
+                        selectedDuration = 30;
+                      } else if (_selectedDuration == "3 Months") {
+                        selectedDuration = 90;
+                      } else if (_selectedDuration == "6 Months") {
+                        selectedDuration = 180;
+                      } else if (_selectedDuration == "1 Year") {
+                        selectedDuration = 365;
+                      }
+
+                      context.read<PlanBloc>().add(CreatePlanEvent(
+                          planName: _planNameController.text,
+                          description: _descriptionController.text,
+                          price: double.parse(_priceController.text),
+                          duration: selectedDuration));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF7A00),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Create Plan',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    child: const Text(
+                      'Create Plan',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

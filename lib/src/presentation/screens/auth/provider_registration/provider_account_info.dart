@@ -328,7 +328,8 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                                             "name": state.name,
                                             "contactNumber": state.mobileNumber,
                                             "emailId": state.emailId,
-                                            "password": state.password,
+                                            "password":
+                                                _passwordController.text,
                                             "address": state.address,
                                             "latitude": latitude,
                                             "longitude": longitude,

@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:8080';
+  static const String baseUrl = 'http://192.168.21.60:8080';
   static const String login = '$baseUrl/auth/login';
   static const String registration = "/auth/create-user";
   static const String fetchCategoryApi = "$baseUrl/categories/fetch-category";
@@ -13,6 +13,15 @@ class ApiConstants {
   static const String createService = "/service/create-service";
   static const String findServiceScreen = "/service/find-service";
   static const String searchService = "/service/search";
+  static const String createSubscriptionPlanApi = "$baseUrl/auth/plan-creation";
+  static const String fetchPlanApi = "$baseUrl/auth/fetch-plans";
+  static const String fetchUsers = "$baseUrl/auth/getAllUsers";
+  static const String fetchEmployeePlans = "$baseUrl/subcription/employee-plan";
+  static const String orderCreationApi = "$baseUrl/payments/checkout";
+
+  static const String getServiceById = "$baseUrl/service/getServiceById";
+  static const String createBooking = "$baseUrl/bookings/create";
+  static const String fetchBookings = "$baseUrl/bookings/fetch-bookings";
 
   static const String apiKey = 'YOUR_API_KEY_HERE';
   static const String token = "token";

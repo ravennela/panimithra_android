@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:panimithra/src/data/models/fetch_service_model.dart';
 import 'package:panimithra/src/data/models/search_service_model.dart';
 import 'package:panimithra/src/domain/usecase/create_service_usecase.dart';
+import 'package:panimithra/src/domain/usecase/fetch_service_by_id_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
@@ -13,15 +14,18 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
   final FetchServicesUseCase fetchServicesUseCase;
   final CreateServiceUseCase createServiceUseCase;
   final SearchServiSeceUsecase searchServiSeceUsecase;
+  final FetchServiceByIdUseCase fetchServiceByIdUseCase;
 
   ServiceBloc({
     required this.fetchServicesUseCase,
     required this.createServiceUseCase,
     required this.searchServiSeceUsecase,
+    required this.fetchServiceByIdUseCase,
   }) : super(const ServiceInitial()) {
     on<FetchServicesEvent>(_onFetchServices);
     on<CreateServiceEvent>(_onCreateServiceUsecase);
     on<SearchServiceEvent>(_onSearchserviceEvent);
+    on<GetServiceByIdEvent>(_onGetServiceByEvent);
   }
 
   Future<void> _onFetchServices(
@@ -105,5 +109,15 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
           model: fetchServiceModel,
           totalRecords: totalRecords));
     });
+  }
+
+  FutureOr<void> _onGetServiceByEvent(
+      GetServiceByIdEvent event, Emitter<ServiceState> emit) async {
+    emit(ServiceByIdLoading());
+    final result = await fetchServiceByIdUseCase(event.serviceId);
+    result.fold(
+      (error) => emit(ServiceByIdError(error)),
+      (data) => emit(ServiceByIdLoaded(data)),
+    );
   }
 }

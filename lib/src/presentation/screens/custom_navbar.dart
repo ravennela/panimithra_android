@@ -87,7 +87,6 @@ class CustomBottomNavBar extends StatelessWidget {
           label: 'My Service',
           index: 3,
         ),
-        
         _buildNavItem(
           icon: Icons.settings,
           label: 'Profile',
@@ -102,8 +101,8 @@ class CustomBottomNavBar extends StatelessWidget {
           index: 0,
         ),
         _buildNavItem(
-          icon: Icons.business_outlined,
-          label: 'Sites',
+          icon: Icons.book_online,
+          label: 'Bookings',
           index: 1,
         ),
         _buildNavItem(

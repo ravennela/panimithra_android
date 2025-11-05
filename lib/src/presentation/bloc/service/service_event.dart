@@ -51,3 +51,12 @@ class SearchServiceEvent extends ServiceEvent {
       this.serviceName,
       this.subCategoryName});
 }
+
+class GetServiceByIdEvent extends ServiceEvent {
+  final String serviceId;
+
+  const GetServiceByIdEvent(this.serviceId);
+
+  @override
+  List<Object?> get props => [serviceId];
+}

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:panimithra/src/data/models/fetch_service_model.dart';
 import 'package:panimithra/src/data/models/search_service_model.dart';
+import 'package:panimithra/src/data/models/service_by_id_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 
 abstract class ServiceState extends Equatable {
@@ -95,4 +96,27 @@ class SearchServiceLoadedState extends ServiceState {
       required this.items,
       required this.model,
       required this.totalRecords});
+}
+
+// 🟠 Loading State (when API call is in progress)
+class ServiceByIdLoading extends ServiceState {}
+
+// 🟢 Loaded State (when data is successfully fetched)
+class ServiceByIdLoaded extends ServiceState {
+  final ServiceByIdModel service;
+
+  const ServiceByIdLoaded(this.service);
+
+  @override
+  List<Object?> get props => [service];
+}
+
+// 🔴 Error State (when something goes wrong)
+class ServiceByIdError extends ServiceState {
+  final String message;
+
+  const ServiceByIdError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

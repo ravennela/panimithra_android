@@ -80,3 +80,20 @@ String getStatusText(String status) {
   }
   return status;
 }
+
+String planHelper(int duration) {
+  String plan = "";
+  if (duration == 30) {
+    plan = "Month";
+  }
+  if (duration == 90) {
+    plan = "Quaterly";
+  }
+  if (duration == 180) {
+    plan = "Half Yearly";
+  }
+  if (duration == 365) {
+    plan = "Annual Plan";
+  }
+  return plan;
+}
