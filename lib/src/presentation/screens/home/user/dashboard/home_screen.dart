@@ -328,6 +328,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                   controller: _scrollController,
                   itemCount: state.items.length + 1,
                   itemBuilder: (context, index) {
+                    print("total items" + state.items.length.toString());
                     if (index >= state.items.length) {
                       return Visibility(
                           visible: state.totalRecords <= state.items.length

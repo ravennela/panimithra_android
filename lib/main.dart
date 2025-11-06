@@ -8,6 +8,7 @@ import 'package:panimithra/src/presentation/bloc/category_bloc/category_bloc.dar
 import 'package:panimithra/src/presentation/bloc/payments_bloc/payments_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/registration_bloc/registration_bloc.dart';
+import 'package:panimithra/src/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
@@ -36,7 +37,8 @@ void main() async {
         BlocProvider<FetchUsersBloc>(create: (_) => di.sl<FetchUsersBloc>()),
         BlocProvider<EmployeePaymentBloc>(
             create: (_) => di.sl<EmployeePaymentBloc>()),
-        BlocProvider<BookingBloc>(create: (_) => di.sl<BookingBloc>())
+        BlocProvider<BookingBloc>(create: (_) => di.sl<BookingBloc>()),
+        BlocProvider<ReviewBloc>(create: (_) => di.sl<ReviewBloc>())
       ],
       child: const MyApp(),
     ),

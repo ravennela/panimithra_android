@@ -111,7 +111,7 @@ class ServiceDataSourceImpl implements ServiceDataSource {
       final response = await dioClient.get(
           queryParameters: {
             'page': page ?? 0,
-            'size': '10',
+            'size': 10,
             if (serviceName != null && serviceName!.isNotEmpty)
               'serviceName': serviceName,
             if (categoryName != null && categoryName!.isNotEmpty)
@@ -124,9 +124,14 @@ class ServiceDataSourceImpl implements ServiceDataSource {
           },
           url, // Make sure you define this endpoint in ApiConstants
           options: Options(headers: headers));
-      print(response.requestOptions.queryParameters);
+      final Map<String, dynamic> jsonResponse = response.data;
+      print(jsonResponse["totalItems"]);
+      final List<dynamic> services = jsonResponse['data'];
+      print(services.length);
+
       return response.data;
     } catch (e) {
+      print("res" + e.toString());
       rethrow;
     }
   }

@@ -80,9 +80,11 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
 
   FutureOr<void> _onSearchserviceEvent(
       SearchServiceEvent event, Emitter<ServiceState> emit) async {
-    if (event.page == 0) {
-      emit(SearchServiceLoadingState());
+    List<SearchServiceItem> newData = [];
+    if (event.page != 0) {
+      newData = List.from((state as SearchServiceLoadedState).items);
     }
+    emit(SearchServiceLoadingState());
     final result = await searchServiSeceUsecase.fetchSearchServiceusecase(
         page: event.page,
         categoryName: event.categoryName,
@@ -95,17 +97,12 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
     result.fold((f) {
       emit(SearchServiceErrorState(error: f.toString()));
     }, (fetchServiceModel) {
+      print("bloc value" + fetchServiceModel.data!.length.toString());
       int totalRecords = fetchServiceModel.totalItems ?? 0;
-      List<SearchServiceItem> newData = fetchServiceModel.data ?? [];
-
-      if (event.page! > 1 && state is SearchServiceLoadedState) {
-        final currentState = state as SearchServiceLoadedState;
-        final existingData = currentState.items ?? [];
-        newData = [...existingData, ...newData];
-      }
+      final upadtedBookings = [...newData, ...fetchServiceModel.data!];
       emit(SearchServiceLoadedState(
           hasMoreRecords: false,
-          items: newData,
+          items: upadtedBookings,
           model: fetchServiceModel,
           totalRecords: totalRecords));
     });

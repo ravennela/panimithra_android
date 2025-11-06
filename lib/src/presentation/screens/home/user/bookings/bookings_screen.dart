@@ -6,6 +6,7 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
+import 'package:panimithra/src/presentation/widget/rating_dialog.dart';
 
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
@@ -134,19 +135,19 @@ class BookingScreenWidget extends State<BookingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  SizedBox(height: 16),
-                  Text(
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text(
                     'Error loading Site Manager',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     state.message,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {},
                     child: Text('Retry'),
@@ -173,6 +174,9 @@ class BookingScreenWidget extends State<BookingsScreen> {
                         provider: state.item[index].employeeName,
                         date: 'Oct 28, 2023 - 2:00 PM',
                         status: state.item[index].bookingStatus.toString(),
+                        bookingId: state.item[index].bookingId,
+                        employeeId: state.item[index].employeeId,
+                        serviceId: state.item[index].serviceId,
                       );
                     })
                 : Column(
@@ -195,14 +199,19 @@ class BookingCard extends StatelessWidget {
   final String provider;
   final String date;
   final String status;
+  final String serviceId;
+  final String bookingId;
+  final String employeeId;
 
-  const BookingCard({
-    super.key,
-    required this.title,
-    required this.provider,
-    required this.date,
-    required this.status,
-  });
+  const BookingCard(
+      {super.key,
+      required this.title,
+      required this.provider,
+      required this.date,
+      required this.status,
+      required this.bookingId,
+      required this.employeeId,
+      required this.serviceId});
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +246,7 @@ class BookingCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              _buildStatusBadge(),
+              Text(status)
             ],
           ),
           const SizedBox(height: 20),
@@ -278,7 +287,7 @@ class BookingCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.center,
             child: TextButton(
               onPressed: () {},
               style: TextButton.styleFrom(
@@ -286,66 +295,62 @@ class BookingCard extends StatelessWidget {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'View Details',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF2196F3),
+                  if (status == "COMPLETED")
+                    GestureDetector(
+                      onTap: () {
+                        showRatingDialog(context, provider, serviceId,
+                            employeeId, bookingId);
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        width: 140,
+                        height: 40,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.blueAccent,
+                            ),
+                            borderRadius: BorderRadius.circular(25)),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.star_outline_outlined,
+                              color: Colors.blueAccent,
+                            ),
+                            Text(
+                              "Rate & Review",
+                              style: TextStyle(color: Colors.blueAccent),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 20,
-                    color: Color(0xFF2196F3),
+                  const Row(
+                    children: [
+                      Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF2196F3),
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward,
+                        size: 20,
+                        color: Color(0xFF2196F3),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge() {
-    Color backgroundColor;
-    Color textColor;
-    String text;
-
-    switch (status) {
-      case "PENDING":
-        backgroundColor = const Color(0xFFE3F2FD);
-        textColor = const Color(0xFF2196F3);
-        text = 'In Progress';
-        break;
-      case "COMPLETED":
-        backgroundColor = const Color(0xFFE8F5E9);
-        textColor = const Color(0xFF4CAF50);
-        text = 'Completed';
-        break;
-      case "CANCELLED":
-        backgroundColor = const Color(0xFFFFEBEE);
-        textColor = const Color(0xFFF44336);
-        text = 'Cancelled';
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        "jhg",
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
       ),
     );
   }

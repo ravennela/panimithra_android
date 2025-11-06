@@ -6,6 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class BookingRemoteDatasource {
   Future<Map<String, dynamic>> createBooking(Map<String, dynamic> data);
   Future<Map<String, dynamic>> getBookings(int page);
+  Future<Map<String, dynamic>> updateBookingStatus({
+    required String bookingId,
+    required String bookingStatus,
+  });
 }
 
 class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
@@ -54,6 +58,31 @@ class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
       );
 
       print("GET BOOKINGS RESPONSE: ${response.data}");
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateBookingStatus({
+    required String bookingId,
+    required String bookingStatus,
+  }) async {
+    try {
+      String url =
+          "${ApiConstants.updateBookingStatus}?bookingId=$bookingId&status=$bookingStatus";
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      var headers = {"Authorization": "Bearer $token"};
+
+      final response = await dioClient.put(
+        url,
+        options: Options(headers: headers),
+      );
+
+      print("UPDATE BOOKING STATUS RESPONSE: ${response.data}");
       return response.data;
     } catch (e) {
       rethrow;

@@ -44,4 +44,21 @@ class BookingRepoImpl implements BookingRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, SuccessModel>> updateBookingStatusRepo({
+    required String bookingId,
+    required String bookingStatus,
+  }) async {
+    try {
+      final response = await remoteDatasource.updateBookingStatus(
+        bookingId: bookingId,
+        bookingStatus: bookingStatus,
+      );
+      final result = SuccessModel.fromJson(response);
+      return Right(result);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }
