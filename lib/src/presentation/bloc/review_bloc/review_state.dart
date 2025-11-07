@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
+import 'package:panimithra/src/data/models/top_five_rating_model.dart';
 
 abstract class ReviewState extends Equatable {
   const ReviewState();
@@ -28,4 +29,24 @@ class ReviewError extends ReviewState {
 
   @override
   List<Object?> get props => [message];
+}
+
+class TopFiveRatingsLoading extends ReviewState {}
+
+class TopFiveRatingsError extends ReviewState {
+  final String message;
+
+  const TopFiveRatingsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class TopFiveRatingsLoaded extends ReviewState {
+  final TopFiveRatingModel topFiveRatingModel;
+
+  const TopFiveRatingsLoaded(this.topFiveRatingModel);
+
+  @override
+  List<Object?> get props => [topFiveRatingModel];
 }

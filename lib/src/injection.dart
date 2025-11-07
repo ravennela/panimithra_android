@@ -2,7 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:panimithra/src/core/network/dio_client.dart';
 import 'package:panimithra/src/data/datasource/remote/booking_remote_datasource.dart';
 import 'package:panimithra/src/data/datasource/remote/category_remote_datasource.dart';
-import 'package:panimithra/src/data/datasource/remote/create_review_remote_datasource.dart';
+import 'package:panimithra/src/data/datasource/remote/review_remote_datasource.dart';
 import 'package:panimithra/src/data/datasource/remote/login_remote_datasource.dart';
 import 'package:panimithra/src/data/datasource/remote/payments_remote_datasource.dart';
 import 'package:panimithra/src/data/datasource/remote/plan_remote_datasource.dart';
@@ -31,6 +31,7 @@ import 'package:panimithra/src/domain/repositories/service_repository.dart';
 import 'package:panimithra/src/domain/repositories/subcategory_repository.dart';
 import 'package:panimithra/src/domain/repositories/users_repository.dart';
 import 'package:panimithra/src/domain/usecase/add_review_usecase.dart';
+import 'package:panimithra/src/domain/usecase/booking_byid_usecase.dart';
 import 'package:panimithra/src/domain/usecase/create_booking_usecase.dart';
 
 import 'package:panimithra/src/domain/usecase/create_category_usecase.dart';
@@ -49,6 +50,7 @@ import 'package:panimithra/src/domain/usecase/fetch_users_usecase.dart';
 import 'package:panimithra/src/domain/usecase/login/createlogin_login_usecase.dart';
 import 'package:panimithra/src/domain/usecase/provider_registration_usecase.dart';
 import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
+import 'package:panimithra/src/domain/usecase/top_five_review_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
@@ -99,8 +101,10 @@ Future<void> init() async {
   sl.registerFactory(() => BookingBloc(
       createBookingUsecase: sl(),
       getBookingsUseCase: sl(),
-      updateBookingStatusUsecase: sl()));
-  sl.registerFactory(() => ReviewBloc(addReviewUseCase: sl()));
+      updateBookingStatusUsecase: sl(),
+      getBookingDetailsUsecase: sl()));
+  sl.registerFactory(
+      () => ReviewBloc(addReviewUseCase: sl(), getTopFiveRatingsUseCase: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => CreateloginLogin(sl()));
@@ -134,6 +138,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetBookingsUseCase(repository: sl()));
   sl.registerLazySingleton(() => UpdateBookingStatusUsecase(repository: sl()));
   sl.registerLazySingleton(() => AddReviewUsecase(repository: sl()));
+  sl.registerLazySingleton(
+      () => GetTopFiveRatingsUseCase(reviewRepository: sl()));
+  sl.registerLazySingleton(() => GetBookingDetailsUsecase(repository: sl()));
 
   // Repository
   sl.registerLazySingleton<LoginRepository>(

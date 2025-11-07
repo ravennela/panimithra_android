@@ -15,9 +15,9 @@ import 'package:panimithra/src/presentation/screens/home/admin/settings/create_s
 import 'package:panimithra/src/presentation/screens/home/admin/settings/sub_category_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/subscription_plan_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/create_service.dart';
-import 'package:panimithra/src/presentation/screens/home/employee/my_services/my_services_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/payments/checkout_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/payments/plans_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/bookings/booking_details_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/pre_booking_screen.dart';
 import 'package:panimithra/src/presentation/screens/home_screen.dart';
 import 'package:panimithra/src/presentation/screens/splash/splash_screen.dart';
@@ -82,6 +82,17 @@ final router = GoRouter(
     GoRoute(
       path: AppRoutes.EMPLOYEE_PLANS_SCREEN_PATH,
       builder: (context, state) => const MyPlansScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.BookingDetailsScreen,
+      builder: (context, state) {
+        final bookingId = state.extra is Map
+            ? (state.extra as Map)['bookingId'] as String? ?? ''
+            : '';
+        return BookingDetailsScreen(
+          bookingId: bookingId,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.CHECKOUT_SCREEN_PATH,

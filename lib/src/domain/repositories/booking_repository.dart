@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:panimithra/src/data/models/booking_details_model.dart';
 import 'package:panimithra/src/data/models/fetch_bookins_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 
@@ -10,4 +11,6 @@ abstract class BookingRepository {
     required String bookingId,
     required String bookingStatus,
   });
+  Future<Either<String, BookingDetailsModel>> getBookingDetailsRepo(
+      String bookingId);
 }

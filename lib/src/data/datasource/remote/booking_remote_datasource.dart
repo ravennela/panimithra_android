@@ -10,6 +10,8 @@ abstract class BookingRemoteDatasource {
     required String bookingId,
     required String bookingStatus,
   });
+  // ✅ New method
+  Future<Map<String, dynamic>> getBookingDetails(String bookingId);
 }
 
 class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
@@ -83,6 +85,27 @@ class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
       );
 
       print("UPDATE BOOKING STATUS RESPONSE: ${response.data}");
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getBookingDetails(String bookingId) async {
+    try {
+      String url = "${ApiConstants.bookingsById}?bookingId=$bookingId";
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      var headers = {"Authorization": "Bearer $token"};
+
+      final response = await dioClient.get(
+        url,
+        options: Options(headers: headers),
+      );
+
+      print("GET BOOKING DETAILS RESPONSE: ${response.data}");
       return response.data;
     } catch (e) {
       rethrow;

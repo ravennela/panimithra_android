@@ -25,3 +25,10 @@ class UpdateBookingStatusEvent extends BookingEvent {
   });
   List<Object?> get props => [bookingId, bookingStatus];
 }
+
+class FetchBookingDetailsEvent extends BookingEvent {
+  final String bookingId;
+
+  FetchBookingDetailsEvent(this.bookingId);
+  List<Object?> get props => [bookingId];
+}

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
@@ -169,14 +171,22 @@ class BookingScreenWidget extends State<BookingsScreen> {
                             child: const Center(
                                 child: CircularProgressIndicator()));
                       }
-                      return BookingCard(
-                        title: state.item[index].name,
-                        provider: state.item[index].employeeName,
-                        date: 'Oct 28, 2023 - 2:00 PM',
-                        status: state.item[index].bookingStatus.toString(),
-                        bookingId: state.item[index].bookingId,
-                        employeeId: state.item[index].employeeId,
-                        serviceId: state.item[index].serviceId,
+                      return GestureDetector(
+                        onTap: () {
+                          print("Hi");
+                          context.push(AppRoutes.BookingDetailsScreen, extra: {
+                            "bookingId": state.item[index].bookingId
+                          });
+                        },
+                        child: BookingCard(
+                          title: state.item[index].name,
+                          provider: state.item[index].employeeName,
+                          date: 'Oct 28, 2023 - 2:00 PM',
+                          status: state.item[index].bookingStatus.toString(),
+                          bookingId: state.item[index].bookingId,
+                          employeeId: state.item[index].employeeId,
+                          serviceId: state.item[index].serviceId,
+                        ),
                       );
                     })
                 : Column(

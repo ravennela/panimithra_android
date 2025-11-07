@@ -5,6 +5,9 @@ import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
+import 'package:panimithra/src/presentation/bloc/review_bloc/review_bloc.dart';
+import 'package:panimithra/src/presentation/bloc/review_bloc/review_event.dart';
+import 'package:panimithra/src/presentation/bloc/review_bloc/review_state.dart';
 
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
@@ -28,6 +31,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
   void initState() {
     super.initState();
     context.read<ServiceBloc>().add(GetServiceByIdEvent(widget.serviceId));
+    context
+        .read<ReviewBloc>()
+        .add(FetchTopFiveRatingsEvent(serviceId: widget.serviceId));
   }
 
   @override
@@ -334,23 +340,57 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 12),
+                                    BlocConsumer<ReviewBloc, ReviewState>(
+                                        builder: (context, state) {
+                                          if (state is TopFiveRatingsLoading) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          }
+                                          if (state is TopFiveRatingsError) {
+                                            return Center(
+                                              child: Text(state.message),
+                                            );
+                                          }
+                                          if (state is TopFiveRatingsLoaded) {
+                                            final ratings = state
+                                                    .topFiveRatingModel
+                                                    .rating ??
+                                                [];
+
+                                            if (ratings.isEmpty) {
+                                              return const Center(
+                                                  child: Text(
+                                                      'No reviews available'));
+                                            }
+
+                                            return Column(
+                                              children: List.generate(
+                                                  ratings.length, (index) {
+                                                final item = ratings[index];
+                                                return Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
+                                                  child: _buildReviewCard(
+                                                    name: item.userName
+                                                        .toString(),
+                                                    rating:
+                                                        item.rating!.toInt(),
+                                                    review: item.comment ?? "",
+                                                  ),
+                                                );
+                                              }),
+                                            );
+                                          }
+
+                                          return Container();
+                                        },
+                                        listener: (context, state) {}),
 
                                     // Review 1
-                                    _buildReviewCard(
-                                      name: 'Jane S.',
-                                      rating: 5,
-                                      review:
-                                          'John was incredibly professional and fixed the leak in under an hour. Highly recommend this service!',
-                                    ),
-                                    const SizedBox(height: 12),
 
                                     // Review 2
-                                    _buildReviewCard(
-                                      name: 'Mark L.',
-                                      rating: 5,
-                                      review:
-                                          'On time, efficient, and very clean work. The price was fair and exactly as quoted. Will use again.',
-                                    ),
+
                                     const SizedBox(height: 100),
                                   ],
                                 ),

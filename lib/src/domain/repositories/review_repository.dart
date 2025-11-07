@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
+import 'package:panimithra/src/data/models/top_five_rating_model.dart';
 
 abstract class ReviewRepository {
   Future<Either<String, SuccessModel>> addReviewRepo(
@@ -8,4 +9,6 @@ abstract class ReviewRepository {
       required double rating,
       required String review,
       required String serviceId});
+  Future<Either<String, TopFiveRatingModel>> getTopFiveRatingsRepo(
+      {required String serviceId});
 }

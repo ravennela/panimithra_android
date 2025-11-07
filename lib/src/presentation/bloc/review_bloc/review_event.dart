@@ -24,3 +24,8 @@ class AddReviewEvent extends ReviewEvent {
   @override
   List<Object?> get props => [bookingId, employeeId, rating, review];
 }
+
+class FetchTopFiveRatingsEvent extends ReviewEvent {
+  final String serviceId;
+  const FetchTopFiveRatingsEvent({required this.serviceId});
+}

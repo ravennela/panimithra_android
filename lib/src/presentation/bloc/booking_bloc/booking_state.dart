@@ -1,3 +1,4 @@
+import 'package:panimithra/src/data/models/booking_details_model.dart';
 import 'package:panimithra/src/data/models/fetch_bookins_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 
@@ -46,5 +47,24 @@ class UpdateBookingStatusLoaded extends BookingState {
 class UpdateBookingStatusError extends BookingState {
   final String message;
   UpdateBookingStatusError(this.message);
+  List<Object?> get props => [message];
+}
+
+class BookingDetailsLoading extends BookingState {}
+
+// ✅ Loaded (success) state
+class BookingDetailsLoaded extends BookingState {
+  final BookingDetailsModel bookingDetails;
+
+  BookingDetailsLoaded(this.bookingDetails);
+  List<Object?> get props => [bookingDetails];
+}
+
+// ✅ Error state
+class BookingDetailsError extends BookingState {
+  final String message;
+
+  BookingDetailsError(this.message);
+
   List<Object?> get props => [message];
 }

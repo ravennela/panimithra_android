@@ -12,6 +12,7 @@ abstract class ReviewRemoteDatasource {
     required String serviceId,
     required String review,
   });
+  Future<Map<String, dynamic>> getTop5Reviews({required String serviceId});
 }
 
 /// Implementation class
@@ -55,6 +56,33 @@ class ReviewRemoteDatasourceImpl implements ReviewRemoteDatasource {
       );
 
       print("ADD REVIEW RESPONSE: ${response.data}");
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTop5Reviews(
+      {required String serviceId}) async {
+    try {
+      // API endpoint
+      String url = "${ApiConstants.topFiveRatings}?serviceId=$serviceId";
+
+      // Retrieve saved token from SharedPreferences
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      // Authorization header
+      var headers = {"Authorization": "Bearer $token"};
+
+      // Make GET request
+      final response = await dioClient.get(
+        url,
+        options: Options(headers: headers),
+      );
+
+      print("TOP 5 REVIEWS RESPONSE: ${response.data}");
       return response.data;
     } catch (e) {
       rethrow;

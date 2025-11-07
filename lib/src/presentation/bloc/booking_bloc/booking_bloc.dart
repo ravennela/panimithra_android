@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:panimithra/src/data/models/fetch_bookins_model.dart';
+import 'package:panimithra/src/domain/usecase/booking_byid_usecase.dart';
 import 'package:panimithra/src/domain/usecase/create_booking_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_booking_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
@@ -12,14 +13,17 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final CreateBookingUsecase createBookingUsecase;
   final GetBookingsUseCase getBookingsUseCase;
   final UpdateBookingStatusUsecase updateBookingStatusUsecase;
+  final GetBookingDetailsUsecase getBookingDetailsUsecase;
   BookingBloc(
       {required this.createBookingUsecase,
       required this.getBookingsUseCase,
-      required this.updateBookingStatusUsecase})
+      required this.updateBookingStatusUsecase,
+      required this.getBookingDetailsUsecase})
       : super(BookingInitalState()) {
     on<CreateBookingEvent>(_createBookingHandler);
     on<FetchBookingsEvent>(_onFetchBookings);
     on<UpdateBookingStatusEvent>(_onUpdateBookingStatus);
+    on<FetchBookingDetailsEvent>(_onFetchBookingDetails);
   }
 
   FutureOr<void> _createBookingHandler(
@@ -69,6 +73,20 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     result.fold(
       (failure) => emit(UpdateBookingStatusError(failure)),
       (success) => emit(UpdateBookingStatusLoaded(success)),
+    );
+  }
+
+  Future<void> _onFetchBookingDetails(
+    FetchBookingDetailsEvent event,
+    Emitter<BookingState> emit,
+  ) async {
+    emit(BookingDetailsLoading());
+
+    final result = await getBookingDetailsUsecase(event.bookingId);
+
+    result.fold(
+      (error) => emit(BookingDetailsError(error)),
+      (data) => emit(BookingDetailsLoaded(data)),
     );
   }
 }
