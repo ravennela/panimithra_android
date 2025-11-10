@@ -23,3 +23,28 @@ class GetUsersEvent extends FetchUsersEvent {
   @override
   List<Object?> get props => [page, status, name, role];
 }
+
+class GetUserProfileEvent extends FetchUsersEvent {
+  final String userId;
+
+  const GetUserProfileEvent({required this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}
+
+class GetAdminDashboardEvent extends FetchUsersEvent {
+  const GetAdminDashboardEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class GetEmployeeDashboardEvent extends FetchUsersEvent {
+  final String userId;
+
+  const GetEmployeeDashboardEvent({required this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}

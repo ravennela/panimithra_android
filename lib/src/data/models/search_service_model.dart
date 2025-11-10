@@ -57,6 +57,8 @@ class SearchServiceItem {
   double? longitude;
   int? duration;
   String? serviceId;
+  String? startTime;
+  String? endTime;
   List<dynamic>? bookings;
   String? categoryName;
   String? categoryDescription;
@@ -66,6 +68,7 @@ class SearchServiceItem {
   double? price;
   String? employeeName;
   String? employeeId;
+  DateTime? createdAt;
 
   SearchServiceItem(
       {this.serviceName,
@@ -73,10 +76,13 @@ class SearchServiceItem {
       this.status,
       this.address,
       this.latitude,
+      this.createdAt,
       this.longitude,
       this.duration,
       this.serviceId,
       this.bookings,
+      this.startTime,
+      this.endTime,
       this.categoryName,
       this.categoryDescription,
       this.subCategoryName,
@@ -91,6 +97,11 @@ class SearchServiceItem {
           serviceName: json["serviceName"],
           description: json["description"],
           status: json["status"],
+          createdAt: json["createdAt"] != null
+              ? DateTime.tryParse(json["createdAt"])
+              : null,
+          startTime: json["availableStartTime"] ?? "",
+          endTime: json["availableEndTime"] ?? "",
           address: json["address"],
           latitude: json["latitude"]?.toDouble(),
           longitude: json["longitude"]?.toDouble(),

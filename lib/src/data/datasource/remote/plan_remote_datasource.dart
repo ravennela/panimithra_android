@@ -9,7 +9,10 @@ abstract class CreatePlanRemoteDataSource {
     required String description,
     required double price,
     required int duration,
+    required double originalPrice,
+    required String discount,
   });
+  Future<Map<String, dynamic>> deletePlan(String planId);
   Future<Map<String, dynamic>> fetchPlans();
 }
 
@@ -20,12 +23,13 @@ class CreatePlanRemoteDataSourceImpl implements CreatePlanRemoteDataSource {
   CreatePlanRemoteDataSourceImpl({required this.dioClient});
 
   @override
-  Future<Map<String, dynamic>> createPlan({
-    required String planName,
-    required String description,
-    required double price,
-    required int duration,
-  }) async {
+  Future<Map<String, dynamic>> createPlan(
+      {required String planName,
+      required String description,
+      required double price,
+      required int duration,
+      required String discount,
+      required double originalPrice}) async {
     try {
       // Get token from SharedPreferences
 
@@ -34,7 +38,9 @@ class CreatePlanRemoteDataSourceImpl implements CreatePlanRemoteDataSource {
         "planName": planName,
         "description": description,
         "price": price,
-        "duration": duration,
+        "durationInDays": duration,
+        "discount": discount,
+        "originalPrice": originalPrice
       };
 
       // Send POST request
@@ -70,6 +76,22 @@ class CreatePlanRemoteDataSourceImpl implements CreatePlanRemoteDataSource {
       } else {
         throw Exception("Unexpected response format");
       }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> deletePlan(String planId) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      var headers = {"Authorization": "Bearer $token"};
+      final response = await dioClient.delete(
+          "${ApiConstants.deletePlanApi}?planId=$planId",
+          options: Options(headers: headers));
+      return response.data;
     } catch (e) {
       rethrow;
     }

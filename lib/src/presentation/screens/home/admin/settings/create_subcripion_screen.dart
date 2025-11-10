@@ -19,6 +19,8 @@ class _CreateSubscriptionPlanScreenState
   final TextEditingController _planNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController originalPriceController = TextEditingController();
+  final TextEditingController discountController = TextEditingController();
   String _selectedDuration = '1 Month';
   int selectedDuration = 30;
 
@@ -195,6 +197,106 @@ class _CreateSubscriptionPlanScreenState
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Original Price (INR)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF666666),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    child: TextField(
+                      controller: originalPriceController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: 'e.g., 999',
+                        hintStyle: const TextStyle(
+                          color: Color(0xFFBDBDBD),
+                          fontSize: 16,
+                        ),
+                        prefixIcon: const Padding(
+                          padding: EdgeInsets.only(left: 16, right: 8),
+                          child: Icon(
+                            Icons.currency_rupee,
+                            color: Color(0xFF666666),
+                            size: 20,
+                          ),
+                        ),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 0,
+                        ),
+                        suffixIcon: const Icon(
+                          Icons.account_balance_wallet_outlined,
+                          color: Color(0xFF666666),
+                          size: 20,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Disccount (in % )',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF666666),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    child: TextField(
+                      controller: discountController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: 'e.g., 50 %',
+                        hintStyle: const TextStyle(
+                          color: Color(0xFFBDBDBD),
+                          fontSize: 16,
+                        ),
+                        prefixIcon: const Padding(
+                          padding: EdgeInsets.only(left: 16, right: 8),
+                          child: Icon(
+                            Icons.currency_rupee,
+                            color: Color(0xFF666666),
+                            size: 20,
+                          ),
+                        ),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 0,
+                        ),
+                        suffixIcon: const Icon(
+                          Icons.account_balance_wallet_outlined,
+                          color: Color(0xFF666666),
+                          size: 20,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 24),
                   // Duration
                   const Text(
@@ -245,150 +347,7 @@ class _CreateSubscriptionPlanScreenState
             ),
             const SizedBox(height: 32),
             // Live Preview
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Live Preview',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Preview Card
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE0E0E0)),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE0E0E0)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'Premium\nQuarterly',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              height: 1.2,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFE9D6),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text(
-                            'POPULAR',
-                            style: TextStyle(
-                              color: Color(0xFFFF7A00),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Access to all premium features, priority support, and exclusive content updates.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF999999),
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '₹',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              '999',
-                              style: TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                height: 1,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Text(
-                                '/ 3\nmonths',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF999999),
-                                  height: 1.2,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF7A00),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Text(
-                            'Choose\nPlan',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              height: 1.2,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+
             const SizedBox(height: 32),
             // Create Plan Button
             Padding(
@@ -402,6 +361,7 @@ class _CreateSubscriptionPlanScreenState
                           context: context,
                           type: 'success',
                           title: "Plan Created Successfully");
+                      context.read<PlanBloc>().add(const FetchPlansEvent());
                       context.pop();
                     }
                     if (state is CreatePlanError) {
@@ -413,6 +373,7 @@ class _CreateSubscriptionPlanScreenState
                   },
                   child: ElevatedButton(
                     onPressed: () {
+                      print(_selectedDuration);
                       if (_planNameController.text.isEmpty) {
                         ToastHelper.showToast(
                             context: context,
@@ -425,6 +386,13 @@ class _CreateSubscriptionPlanScreenState
                             context: context,
                             type: 'error',
                             title: "Please Enter Plan Description");
+                        return;
+                      }
+                      if (originalPriceController.text.isEmpty) {
+                        ToastHelper.showToast(
+                            context: context,
+                            type: 'error',
+                            title: "Please Enter Original Price");
                         return;
                       }
                       if (_priceController.text.isEmpty) {
@@ -443,11 +411,16 @@ class _CreateSubscriptionPlanScreenState
                       } else if (_selectedDuration == "1 Year") {
                         selectedDuration = 365;
                       }
+                      print("selected value" + selectedDuration.toString());
 
                       context.read<PlanBloc>().add(CreatePlanEvent(
                           planName: _planNameController.text,
                           description: _descriptionController.text,
                           price: double.parse(_priceController.text),
+                          discount: discountController.text,
+                          originalPrice: originalPriceController.text.isNotEmpty
+                              ? double.parse(originalPriceController.text)
+                              : 0.0,
                           duration: selectedDuration));
                     },
                     style: ElevatedButton.styleFrom(

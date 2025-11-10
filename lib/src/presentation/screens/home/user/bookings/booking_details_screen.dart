@@ -23,43 +23,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     context.read<BookingBloc>().add(FetchBookingDetailsEvent(widget.bookingId));
   }
 
-  void _handleCancelBooking() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Cancel Booking'),
-          content: const Text('Are you sure you want to cancel this booking?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  isLoading = true;
-                });
-                // Simulate API call
-                Future.delayed(const Duration(seconds: 2), () {
-                  setState(() {
-                    isLoading = false;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Booking cancelled successfully')),
-                  );
-                });
-              },
-              child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _handleContactProvider() {
     showModalBottomSheet(
       context: context,
@@ -194,7 +157,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         const SizedBox(height: 24),
 
                         // Action Buttons
-                        _buildActionButtons(),
+                        _buildActionButtons(state.bookingDetails.bookingStatus),
                         const SizedBox(height: 16),
                       ],
                     );
@@ -242,7 +205,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           const SizedBox(height: 20),
           _buildInfoRow('Booking ID', bookingId, isId: true),
           const SizedBox(height: 16),
-          _buildInfoRow('Status', bbokingStatus, isPending: true),
+          _buildInfoRow('Status', bbokingStatus),
           const SizedBox(height: 16),
           _buildInfoRow('Service', serviceaName),
           const SizedBox(height: 16),
@@ -649,31 +612,37 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(String bookingStatus) {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            onPressed: _handleCancelBooking,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFEBEE),
-              foregroundColor: const Color(0xFFD32F2F),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Cancel Booking',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
+        bookingStatus != "CANCELLED"
+            ? SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                        bookingId: widget.bookingId,
+                        bookingStatus: "CANCELLED"));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFEBEE),
+                    foregroundColor: const Color(0xFFD32F2F),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancel Booking',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              )
+            : SizedBox.shrink(),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,

@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/presentation/screens/custom_navbar.dart';
-import 'package:panimithra/src/presentation/screens/home/admin/employee_tab/employee_list_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/bookings/admin_booking_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/dashboard/admin_dashboard_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/employees/employee_list_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/profile_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/users/users_list_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/bookings/my_booking_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/employee/home/employee_dashboard_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/my_services_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/payments/payments_screen.dart';
+
 import 'package:panimithra/src/presentation/screens/home/employee/profile/profile_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/bookings/bookings_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/home_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/profile/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,26 +31,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // For Director (5 screens)
   final List<Widget> _adminScreens = [
-    const Center(
-      child: Text("Dashboard"),
-    ), // Index 0
-    const Center(
-      child: Text("Users"),
-    ), // Index 1
+    AdminDashboardScreen(), // Index 0
+    const CustomerScreen(), // Index 1
     const EmployeesScreen(),
-    const Center(
-      child: Text("Bookings"),
-    ), // Index 3 - was ChangePasswordScreen
+    const AdminBookingsScreen(), // Index 3 - was ChangePasswordScreen
     const ProfileSettingsScreen() // Index 4
   ];
 
   // For Site Manager (3 screens)
   final List<Widget> employeeScreens = [
-    const FindServicesScreen(), // Index 0
+    const EmployeeDashboard(), // Index 0
     const MyBookingsScreen(), // Index 1
     const SubscriptionScreen(),
     const MyServicesScreen(),
-    const ProfileScreen()
+    const UserProfileScreen()
 
 // Index 2
   ];
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(
       child: Text("Payments"),
     ),
-    ProfileScreen()
+    const UserProfileScreen()
 // Index 2
   ];
 

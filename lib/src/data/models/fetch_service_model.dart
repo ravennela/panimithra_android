@@ -55,10 +55,14 @@ class ServiceItem {
   String? status;
   String? categoryId;
   String? subCategoryId;
+  String? startTime;
+  String? endTime;
 
   ServiceItem({
     this.id,
     this.serviceName,
+    this.startTime,
+    this.endTime,
     this.categoryName,
     this.description,
     this.price,
@@ -71,6 +75,8 @@ class ServiceItem {
         id: json["id"],
         serviceName: json["serviceName"],
         categoryName: json["categoryName"],
+        startTime: json["startTime"] ?? "",
+        endTime: json["endTime"] ?? "",
         description: json["description"],
         price: json["price"] ?? 0.0,
         status: json["status"],

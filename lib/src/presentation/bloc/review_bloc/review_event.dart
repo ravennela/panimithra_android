@@ -29,3 +29,16 @@ class FetchTopFiveRatingsEvent extends ReviewEvent {
   final String serviceId;
   const FetchTopFiveRatingsEvent({required this.serviceId});
 }
+
+class FetchAllReviewsEvent extends ReviewEvent {
+  final String serviceId;
+  final int pageNo;
+
+  const FetchAllReviewsEvent({
+    required this.serviceId,
+    required this.pageNo,
+  });
+
+  @override
+  List<Object?> get props => [serviceId, pageNo];
+}

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
@@ -273,6 +274,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
 
   Widget _buildServiceList() {
     return BlocConsumer<ServiceBloc, ServiceState>(
+      buildWhen: (previous, current) => ((current is SearchServiceLoadedState ||
+              current is SearchServiceErrorState) ||
+          (current is SearchServiceLoadingState && page == 0)),
       listener: (context, state) {
         if (state is SearchServiceLoadedState) {
           isLoading = false;
@@ -328,7 +332,6 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                   controller: _scrollController,
                   itemCount: state.items.length + 1,
                   itemBuilder: (context, index) {
-                    print("total items" + state.items.length.toString());
                     if (index >= state.items.length) {
                       return Visibility(
                           visible: state.totalRecords <= state.items.length
@@ -337,16 +340,26 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                           child:
                               const Center(child: CircularProgressIndicator()));
                     }
-                    return _buildServiceCard(
-                        imageUrl:
-                            "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop",
-                        category: state.items[index].categoryName.toString(),
-                        title: state.items[index].serviceName.toString(),
-                        provider: state.items[index].employeeName ?? "",
-                        rating: state.items[index].avgrating ?? 0.0,
-                        price: state.items[index].price.toString(),
-                        distance: "25 miles",
-                        id: state.items[index].serviceId.toString());
+                    return ServiceCard(
+                      imageUrl:
+                          'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600',
+                      title: state.items[index].serviceName.toString(),
+                      subtitle: 'Eco',
+                      serviceId: state.items[index].serviceId.toString(),
+                      category:
+                          '${state.items[index].categoryName.toString()} ',
+                      rating: state.items[index].avgrating ?? 0.0,
+                      reviewCount: 5,
+                      joinedDate: DateFormat("MMM dd yyyy").format(
+                          state.items[index].createdAt ?? DateTime(000)),
+                      location: state.items[index].address ?? "",
+                      workingDays: '',
+                      workingHours:
+                          '${state.items[index].startTime}- ${state.items[index].endTime}',
+                      price: state.items[index].price!.toInt() ?? 0,
+                      priceUnit: 'Day',
+                      onBookingPressed: () {},
+                    );
                   })
               : Column(
                   children: [
@@ -360,35 +373,6 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
         return Container();
       },
     );
-    // return ListView(
-    //   padding: const EdgeInsets.all(16),
-    //   children: [
-
-    //     _buildServiceCard(
-    //       imageUrl:
-    //           'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop',
-    //       category: 'Plumbing',
-    //       title: 'Leaky Faucet Repair',
-    //       provider: "John's Plumbing",
-    //       rating: 4.9,
-    //       price: '\$75/hr',
-    //       distance: '21 mi away',
-    //     ),
-    //     const SizedBox(height: 16),
-    //     _buildServiceCard(
-    //       imageUrl:
-    //           'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=400&h=300&fit=crop',
-    //       category: 'Electrical',
-    //       title: 'Ceiling Fan Installation',
-    //       provider: 'Sparky Electric',
-    //       rating: 4.8,
-    //       price: '\$120 fixed',
-    //       distance: '5.3 mi away',
-    //     ),
-    //     const SizedBox(height: 16),
-    //     _buildNoServicesFound(),
-    //   ],
-    // );
   }
 
   Widget _buildServiceCard({
@@ -917,6 +901,366 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class ServiceCard extends StatefulWidget {
+  final String imageUrl;
+  final String title;
+  final String subtitle;
+  final String serviceId;
+  final String category;
+  final double rating;
+  final int reviewCount;
+  final String joinedDate;
+  final String location;
+  final String workingDays;
+  final String workingHours;
+  final int price;
+  final String priceUnit;
+  final VoidCallback onBookingPressed;
+
+  const ServiceCard({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    required this.serviceId,
+    required this.subtitle,
+    required this.category,
+    required this.rating,
+    required this.reviewCount,
+    required this.joinedDate,
+    required this.location,
+    required this.workingDays,
+    required this.workingHours,
+    required this.price,
+    required this.priceUnit,
+    required this.onBookingPressed,
+  }) : super(key: key);
+
+  @override
+  State<ServiceCard> createState() => _ServiceCardState();
+}
+
+class _ServiceCardState extends State<ServiceCard> {
+  bool isHovered = false;
+  bool isBookmarked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isHovered = true),
+        onExit: (_) => setState(() => isHovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isHovered ? 0.12 : 0.06),
+                blurRadius: isHovered ? 24 : 16,
+                offset: Offset(0, isHovered ? 8 : 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Image Section
+              _buildImageSection(),
+
+              // Content Section
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 5),
+                    _buildInfoRow(
+                      Icons.calendar_today_outlined,
+                      'Joined ${widget.joinedDate}',
+                    ),
+                    _buildInfoRow(
+                      Icons.location_on_outlined,
+                      widget.location,
+                    ),
+                    _buildInfoRow(
+                      Icons.access_time,
+                      '${widget.workingDays}  ${widget.workingHours}',
+                    ),
+                    const SizedBox(height: 5),
+                    _buildPriceAndButton(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageSection() {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          child: Container(
+            width: double.infinity,
+            height: 180,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.grey.shade300,
+                  Colors.grey.shade200,
+                ],
+              ),
+            ),
+            child: Image.network(
+              widget.imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey.shade300,
+                  child: const Icon(
+                    Icons.image_outlined,
+                    size: 60,
+                    color: Colors.grey,
+                  ),
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                    strokeWidth: 3,
+                    color: Colors.orange,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+
+        // Bookmark Icon
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1F2937),
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      '(${widget.subtitle})',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                widget.category,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade500,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+
+        // Rating Badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Colors.orange.shade100,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.star,
+                color: Colors.orange,
+                size: 18,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                '${widget.rating}/${widget.reviewCount}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.orange,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade800,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceAndButton() {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Start from',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${widget.price}',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1F2937),
+                      height: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      '\$/${widget.priceUnit}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // Booking Button
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () {
+              context.push(AppRoutes.PREBOOKING_SCREEN_PATH,
+                  extra: {"serviceId": widget.serviceId});
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+              shadowColor: Colors.orange.withOpacity(0.4),
+            ),
+            child: const Text(
+              'View Details',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

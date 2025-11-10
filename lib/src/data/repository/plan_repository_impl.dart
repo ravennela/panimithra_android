@@ -13,19 +13,21 @@ class PlanRepositoryImpl implements PlanRepository {
   PlanRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<String, SuccessModel>> createPlan({
-    required String planName,
-    required String description,
-    required double price,
-    required int duration,
-  }) async {
+  Future<Either<String, SuccessModel>> createPlan(
+      {required String planName,
+      required String description,
+      required double price,
+      required int duration,
+      required String discount,
+      required double originalPrice}) async {
     try {
       final raw = await remoteDataSource.createPlan(
-        planName: planName,
-        description: description,
-        price: price,
-        duration: duration,
-      );
+          planName: planName,
+          description: description,
+          price: price,
+          duration: duration,
+          discount: discount,
+          originalPrice: originalPrice);
 
       final model = SuccessModel.fromJson(raw);
       return Right(model);
@@ -64,5 +66,24 @@ class PlanRepositoryImpl implements PlanRepository {
     }
   }
 
-  
+  @override
+  Future<Either<String, SuccessModel>> deletePlan(String planId) async {
+    try {
+      final raw = await remoteDataSource.deletePlan(planId);
+
+      final model = SuccessModel.fromJson(raw);
+      return Right(model);
+    } on SocketException {
+      return const Left("No Internet Connection");
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['error']?.toString() ??
+            "Error occurred while deleting the plan. Please try again.",
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

@@ -173,7 +173,6 @@ class BookingScreenWidget extends State<BookingsScreen> {
                       }
                       return GestureDetector(
                         onTap: () {
-                          print("Hi");
                           context.push(AppRoutes.BookingDetailsScreen, extra: {
                             "bookingId": state.item[index].bookingId
                           });

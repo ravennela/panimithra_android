@@ -97,3 +97,18 @@ String planHelper(int duration) {
   }
   return plan;
 }
+
+int calculatePercentage(double value, double total) {
+  if (total == 0) return 0; // avoid divide-by-zero
+  return ((value / total) * 100).round();
+}
+
+double differeceCalculator(int current, int prev) {
+  int value = current - prev;
+  double outPut = value.toDouble();
+  return outPut;
+}
+
+int calculateDaysBetween(DateTime startDate, DateTime endDate) {
+  return endDate.difference(startDate).inDays;
+}

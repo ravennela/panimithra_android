@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:panimithra/src/data/models/fetch_reviews_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 import 'package:panimithra/src/data/models/top_five_rating_model.dart';
 
@@ -49,4 +50,27 @@ class TopFiveRatingsLoaded extends ReviewState {
 
   @override
   List<Object?> get props => [topFiveRatingModel];
+}
+
+class FetchAllReviewsLoading extends ReviewState {}
+
+class FetchAllReviewsLoaded extends ReviewState {
+  final FetchReviewsModel fetchReviewsModel;
+  final int totalRecords;
+  final List<ReviewsItem> items;
+  const FetchAllReviewsLoaded(
+      {required this.fetchReviewsModel,
+      required this.items,
+      required this.totalRecords});
+  @override
+  List<Object?> get props => [fetchReviewsModel];
+}
+
+class FetchAllReviewsError extends ReviewState {
+  final String message;
+
+  const FetchAllReviewsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

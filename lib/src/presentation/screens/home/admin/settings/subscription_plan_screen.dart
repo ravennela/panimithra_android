@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/routes.dart';
+import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_event.dart';
 import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_state.dart';
@@ -63,6 +64,10 @@ class PlanWidget extends State<SubscriptionPlansScreen> {
         ],
       ),
       body: BlocConsumer<PlanBloc, PlanState>(
+        buildWhen: (previous, current) =>
+            current is FetchPlansLoaded ||
+            current is FetchPlansError ||
+            current is FetchPlansLoading,
         listener: (context, state) {},
         builder: (context, state) {
           if (state is FetchPlansError) {
@@ -96,13 +101,14 @@ class PlanWidget extends State<SubscriptionPlansScreen> {
             );
           }
           if (state is FetchPlansLoading) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
           if (state is FetchPlansLoaded) {
             return ListView.builder(
               itemCount: state.fetchPlanModel.data.length,
               itemBuilder: (context, index) {
                 return SubscriptionCard(
+                  planId: state.fetchPlanModel.data[index].planId,
                   title: state.fetchPlanModel.data[index].planName,
                   price: state.fetchPlanModel.data[index].price.toString(),
                   period: planHelper(state.fetchPlanModel.data[index].duration),
@@ -130,6 +136,7 @@ class SubscriptionCard extends StatelessWidget {
   final String period;
   final String description;
   final bool isActive;
+  final String planId;
 
   const SubscriptionCard({
     Key? key,
@@ -138,6 +145,7 @@ class SubscriptionCard extends StatelessWidget {
     required this.period,
     required this.description,
     required this.isActive,
+    required this.planId,
   }) : super(key: key);
 
   @override
@@ -244,15 +252,30 @@ class SubscriptionCard extends StatelessWidget {
                 constraints: const BoxConstraints(),
               ),
               const SizedBox(width: 20),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.delete_outline,
-                  color: Color(0xFFFF5252),
-                  size: 20,
+              BlocListener<PlanBloc, PlanState>(
+                listener: (context, state) {
+                  if (state is DeletePlanError) {
+                    ToastHelper.showToast(
+                        context: context, type: "error", title: state.message);
+                  }
+                  if (state is DeletePlanLoaded) {
+                    context.read<PlanBloc>().add(const FetchPlansEvent());
+                  }
+                },
+                child: IconButton(
+                  onPressed: () {
+                    context
+                        .read<PlanBloc>()
+                        .add(DeletePlanEvent(planId: planId));
+                  },
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: Color(0xFFFF5252),
+                    size: 20,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
             ],
           ),

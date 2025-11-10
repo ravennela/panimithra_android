@@ -83,7 +83,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             color: Color(0xFF6B7280),
             size: 20,
           ),
-          onPressed: () {},
+          onPressed: () {
+            context.pop();
+          },
         ),
         title: const Text(
           'Checkout',

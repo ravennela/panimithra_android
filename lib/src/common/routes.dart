@@ -42,4 +42,5 @@ class AppRoutes {
   static const String EMPLOYEE_PLANS_SCREEN_PATH = "/employee_plan_screen";
   static const String PREBOOKING_SCREEN_PATH = '/prebooking_screen';
   static const String BookingDetailsScreen = "/booking_details_screen";
+  static const String USER_REVIEW_SCREEN = '/user_review_screen';
 }

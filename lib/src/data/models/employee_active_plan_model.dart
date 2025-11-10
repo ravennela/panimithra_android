@@ -31,6 +31,7 @@ class Plan {
   String planname;
   double price;
   String id;
+  String employeeId;
   String status;
   DateTime startDate;
   DateTime enDate;
@@ -40,6 +41,7 @@ class Plan {
     required this.price,
     required this.id,
     required this.status,
+    required this.employeeId,
     required this.startDate,
     required this.enDate,
   });
@@ -48,6 +50,7 @@ class Plan {
         planname: json["planname"],
         price: json["price"],
         id: json["id"],
+        employeeId: json["employeeId"] ?? "",
         status: json["status"],
         startDate: DateTime.parse(json["startDate"]),
         enDate: DateTime.parse(json["enDate"]),

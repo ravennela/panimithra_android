@@ -29,7 +29,7 @@ class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
         data: data,
         options: Options(headers: headers),
       );
-      print(response.toString());
+
       return response.data;
     } catch (e) {
       rethrow;
@@ -58,8 +58,6 @@ class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
         },
         options: Options(headers: headers),
       );
-
-      print("GET BOOKINGS RESPONSE: ${response.data}");
       return response.data;
     } catch (e) {
       rethrow;
@@ -83,8 +81,6 @@ class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
         url,
         options: Options(headers: headers),
       );
-
-      print("UPDATE BOOKING STATUS RESPONSE: ${response.data}");
       return response.data;
     } catch (e) {
       rethrow;
@@ -104,8 +100,6 @@ class BookingRemoteDatasourceImpl implements BookingRemoteDatasource {
         url,
         options: Options(headers: headers),
       );
-
-      print("GET BOOKING DETAILS RESPONSE: ${response.data}");
       return response.data;
     } catch (e) {
       rethrow;

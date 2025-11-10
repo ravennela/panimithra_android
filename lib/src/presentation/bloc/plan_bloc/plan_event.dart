@@ -14,16 +14,21 @@ class CreatePlanEvent extends PlanEvent {
   final String description;
   final double price;
   final int duration;
+  final double originalPrice;
+  final String discount;
 
   const CreatePlanEvent({
     required this.planName,
     required this.description,
     required this.price,
+    required this.discount,
+    required this.originalPrice,
     required this.duration,
   });
 
   @override
-  List<Object?> get props => [planName, description, price, duration];
+  List<Object?> get props =>
+      [planName, description, price, duration, discount, originalPrice];
 }
 
 /// 🔹 Event to fetch paginated plans
@@ -32,4 +37,13 @@ class FetchPlansEvent extends PlanEvent {
 
   @override
   List<Object?> get props => [];
+}
+
+class DeletePlanEvent extends PlanEvent {
+  final String planId;
+
+  const DeletePlanEvent({required this.planId});
+
+  @override
+  List<Object?> get props => [planId];
 }

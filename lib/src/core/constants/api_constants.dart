@@ -27,7 +27,13 @@ class ApiConstants {
   static const String addReviewApi = "$baseUrl/review/create-review";
   static const String topFiveRatings = "$baseUrl/review/top-ratings";
   static const String bookingsById = "$baseUrl/bookings/booking-byid";
-
+  static const String fetchAllReviews = "$baseUrl/review/fetch-all-reviews";
+  static const String fetchUserProfile = "$baseUrl/auth/user-profile";
+  static const String fetchAdminDashboardApi =
+      "$baseUrl/dashboard/admin-dashboard";
+  static const String deletePlanApi = "$baseUrl/auth/delete-plan";
+  static const String fetchEmployeeDashboardApi =
+      "$baseUrl/dashboard/employee-dashboard";
   static const String apiKey = 'YOUR_API_KEY_HERE';
   static const String token = "token";
   static const String userId = "userId";

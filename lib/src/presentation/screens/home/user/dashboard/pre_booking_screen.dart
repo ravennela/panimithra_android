@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
@@ -26,6 +28,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
   String name = "";
   String employeeId = "";
   String description = "";
+  double totalAmount = 0.0;
 
   @override
   void initState() {
@@ -52,6 +55,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                 employeeId = state.service.employeeId.toString();
                 name = state.service.serviceName;
                 description = state.service.description;
+                totalAmount = state.service.price;
               }
             },
             builder: (context, state) {
@@ -129,7 +133,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                       child: IconButton(
                                         icon: const Icon(Icons.arrow_back,
                                             color: Colors.black),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          context.pop();
+                                        },
                                       ),
                                     ),
                                     CircleAvatar(
@@ -159,8 +165,8 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // Breadcrumb
-                                    const Text(
-                                      'Home Services > Plumbing',
+                                    Text(
+                                      '${state.service.categoryName} > ${state.service.subCategoryName}',
                                       style: TextStyle(
                                         color: Colors.blue,
                                         fontSize: 14,
@@ -196,7 +202,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          '(210 Reviews)',
+                                          ' (${state.service.totalReviewCount})',
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey[600],
@@ -311,13 +317,13 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                     const SizedBox(height: 16),
 
                                     _buildIncludedItem(
-                                      'Thorough inspection and initial diagnosis of the leak.',
+                                      '${state.service.addInfoOne}',
                                     ),
                                     _buildIncludedItem(
-                                      'Professional sealing or replacement of faulty parts.',
+                                      '${state.service.addInfoTwo}',
                                     ),
                                     _buildIncludedItem(
-                                      'Post-fix pressure check to ensure the issue is resolved.',
+                                      '${state.service.addInfoThree}',
                                     ),
                                     const SizedBox(height: 24),
 
@@ -334,7 +340,13 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                           ),
                                         ),
                                         TextButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            context.push(
+                                                AppRoutes.USER_REVIEW_SCREEN,
+                                                extra: {
+                                                  "serviceId": widget.serviceId
+                                                });
+                                          },
                                           child: const Text('See all'),
                                         ),
                                       ],
@@ -451,11 +463,12 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
 
                       Map<String, dynamic> data = {
                         "name": name,
-                        "bookingDate": DateTime.now(),
+                        "bookingDate": DateTime.now().toIso8601String(),
                         "paymentStatus": "PENDING",
                         "description": description,
                         "serviceId": widget.serviceId,
                         "userId": userId,
+                        "totalAmount": totalAmount,
                         "employeeId": employeeId,
                         "bookingStatus": "PENDING"
                       };

@@ -1,23 +1,23 @@
-// To parse this JSON data, do
-//
-//     final fetchPlanModel = fetchPlanModelFromJson(jsonString);
-
 import 'dart:convert';
 
+// To parse this JSON data
 FetchPlanModel fetchPlanModelFromJson(String str) =>
     FetchPlanModel.fromJson(json.decode(str));
 
 String fetchPlanModelToJson(FetchPlanModel data) => json.encode(data.toJson());
 
 class FetchPlanModel {
-  List<Datum> data;
+  final List<PlanItem> data;
 
   FetchPlanModel({
     required this.data,
   });
 
   factory FetchPlanModel.fromJson(Map<String, dynamic> json) => FetchPlanModel(
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+        data: (json["data"] == null)
+            ? []
+            : List<PlanItem>.from(
+                (json["data"] as List).map((x) => PlanItem.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -25,30 +25,36 @@ class FetchPlanModel {
       };
 }
 
-class Datum {
-  String planId;
-  String planName;
-  String planDescription;
-  double price;
-  int duration;
-  String? status;
+class PlanItem {
+  final String planId;
+  final String planName;
+  final String planDescription;
+  final double price;
+  final int duration;
+  final String status;
+  final String discount;
+  final double originalPrice;
 
-  Datum({
+  PlanItem({
     required this.planId,
     required this.planName,
     required this.planDescription,
     required this.price,
     required this.duration,
     required this.status,
+    required this.discount,
+    required this.originalPrice,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        planId: json["planId"],
-        planName: json["planName"],
-        planDescription: json["planDescription"],
-        price: json["price"],
-        duration: json["duration"],
-        status: json["status"],
+  factory PlanItem.fromJson(Map<String, dynamic> json) => PlanItem(
+        planId: json["planId"] ?? "",
+        planName: json["planName"] ?? "",
+        planDescription: json["planDescription"] ?? "",
+        price: json["price"] ?? 0.0,
+        duration: (json["duration"] ?? 0).toInt(),
+        status: json["status"] ?? "",
+        discount: json["discount"] ?? "",
+        originalPrice: json["originalPrice"] ?? 0.0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -58,5 +64,17 @@ class Datum {
         "price": price,
         "duration": duration,
         "status": status,
+        "discount": discount,
+        "originalPrice": originalPrice,
       };
+
+  static double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
+  }
 }

@@ -12,12 +12,15 @@ class CreatePlanUseCase {
     required String description,
     required double price,
     required int duration,
+    required String discount,
+    required double originalPrice,
   }) {
     return repository.createPlan(
-      planName: planName,
-      description: description,
-      price: price,
-      duration: duration,
-    );
+        planName: planName,
+        description: description,
+        price: price,
+        duration: duration,
+        discount: discount,
+        originalPrice: originalPrice);
   }
 }

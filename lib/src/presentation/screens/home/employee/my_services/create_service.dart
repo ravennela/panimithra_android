@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:panimithra/src/common/colors.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
@@ -50,11 +51,42 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   TextEditingController subCategoryController = TextEditingController();
   final ScrollController subScrollController = ScrollController();
   TextEditingController addressController = TextEditingController();
+  TextEditingController addInfoLine1Controller = TextEditingController();
+  TextEditingController addInfoLine2Controller = TextEditingController();
+  TextEditingController addInfoLine3Controller = TextEditingController();
   Timer? _subDebounce;
   int subTotalRecords = 0;
   int subTotalLength = 0;
   int subPage = 1;
   bool subHasMoreRecords = true;
+  TimeOfDay? startTime;
+  TimeOfDay? endTime;
+
+  Future<void> _selectTime(BuildContext context, bool isStart) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: isStart
+          ? (startTime ?? TimeOfDay.now())
+          : (endTime ?? TimeOfDay.now()),
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          startTime = picked;
+        } else {
+          endTime = picked;
+        }
+      });
+    }
+  }
+
+  String formatTime(TimeOfDay? time) {
+    if (time == null) return "--:--";
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return DateFormat('hh:mm a').format(dt);
+  }
 
   @override
   void dispose() {
@@ -321,6 +353,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                               }
                               if (state is SubcategoryLoaded) {
                                 return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     TextFormField(
                                       readOnly: true,
@@ -440,6 +473,96 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                               label: 'Address',
                               hint: 'Address',
                               maxLines: 4,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildTextField(
+                              controller: addInfoLine1Controller,
+                              label: 'Additinal Info 1',
+                              hint: 'About Your Items Inlided In Service',
+                              maxLines: 2,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildTextField(
+                              controller: addInfoLine2Controller,
+                              label: 'Additinal Info 2',
+                              hint: 'About Your Items Inlided In Service',
+                              maxLines: 2,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildTextField(
+                              controller: addInfoLine3Controller,
+                              label: 'Additinal Info 3',
+                              hint: 'About Your Items Inlided In Service',
+                              maxLines: 2,
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              margin: EdgeInsets.only(right: size.width * 0.45),
+                              child: const Text("Select Available Timings",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15)),
+                            ),
+                            const SizedBox(height: 8),
+
+                            Row(
+                              children: [
+                                // Start Time Field
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => _selectTime(context, true),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14, horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF9FAFB),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "Start: ${formatTime(startTime)}",
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                          const Icon(Icons.access_time,
+                                              size: 20, color: Colors.grey),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                // End Time Field
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => _selectTime(context, false),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14, horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFF9FAFB),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "End: ${formatTime(endTime)}",
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                          const Icon(Icons.access_time,
+                                              size: 20, color: Colors.grey),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 16),
                             Row(
@@ -603,10 +726,31 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   title: 'Please Select Sub Category');
                               return;
                             }
+                            if (_priceController.text.isEmpty) {
+                              ToastHelper.showToast(
+                                  context: context,
+                                  type: 'error',
+                                  title: 'Please Select Price');
+                              return;
+                            }
                             for (int i = 0; i < selectedDays.length; i++) {
                               availableDatesList.add({
                                 "availableDate": selectedDays[i].toString(),
                               });
+                            }
+                            if (startTime == null) {
+                              ToastHelper.showToast(
+                                  context: context,
+                                  type: 'error',
+                                  title: 'Please Select Satrt Time');
+                              return;
+                            }
+                            if (endTime == null) {
+                              ToastHelper.showToast(
+                                  context: context,
+                                  type: 'error',
+                                  title: 'Please Select Satrt Time');
+                              return;
                             }
                             //sprint("available dates" + availableDate.toString());
                             double latitude = 0.0;
@@ -626,6 +770,11 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                 preferences.getString(ApiConstants.userId) ??
                                     '';
 
+                            String availableStartTime =
+                                "${startTime!.hour}:${startTime!.minute} ${startTime!.period.name}";
+                            String availableEndDates =
+                                "${endTime!.hour}:${endTime!.minute}${endTime!.period.name}";
+
                             Map<String, dynamic> data = {
                               "employeeId": employeeId,
                               "name": _serviceNameController.text,
@@ -635,6 +784,11 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   : 0.0,
                               "duration": 1,
                               "status": "ACTIVE",
+                              "addInfoOne": addInfoLine1Controller.text,
+                              "addInfoTwo": addInfoLine2Controller.text,
+                              "addInfoThree": addInfoLine3Controller.text,
+                              "availableStartTime": availableStartTime,
+                              "availableEndTime": availableEndDates,
                               "latitude": latitude,
                               "longitude": longitude,
                               "availableDates": availableDatesList,

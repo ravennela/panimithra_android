@@ -16,8 +16,14 @@ class ServiceByIdModel {
   String description;
   double avaragerating;
   double price;
+  String? categoryName;
+  String? subCategoryName;
   String employeeName;
   int employeeExperiance;
+  String? addInfoOne;
+  String? addInfoTwo;
+  String? addInfoThree;
+  int? totalReviewCount;
   String? employeeId;
   dynamic imageUrl;
   List<dynamic> reviews;
@@ -28,6 +34,12 @@ class ServiceByIdModel {
     required this.description,
     required this.avaragerating,
     required this.price,
+    this.addInfoOne,
+    this.addInfoTwo,
+    this.addInfoThree,
+    this.categoryName,
+    this.subCategoryName,
+    this.totalReviewCount,
     required this.employeeId,
     required this.employeeName,
     required this.employeeExperiance,
@@ -41,6 +53,12 @@ class ServiceByIdModel {
         employeeId: json["employeeId"] ?? "",
         serviceName: json["serviceName"] ?? "",
         description: json["description"] ?? "",
+        categoryName: json["categoryName"] ?? "",
+        subCategoryName: json["subCategoryName"] ?? "",
+        totalReviewCount: json["totalReviewCount"] ?? 0,
+        addInfoOne: json["addInfoOne"] ?? "",
+        addInfoTwo: json["addInfoTwo"] ?? "",
+        addInfoThree: json["addInfoThree"] ?? "",
         avaragerating: json["avaragerating"] ?? 0.0,
         price: json["price"] ?? 0.0,
         employeeName: json["employeeName"],

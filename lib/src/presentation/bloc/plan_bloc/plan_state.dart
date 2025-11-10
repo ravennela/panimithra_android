@@ -56,3 +56,25 @@ class FetchPlansError extends PlanState {
   @override
   List<Object?> get props => [message];
 }
+
+class DeletePlanLoading extends PlanState {}
+
+/// 🔹 Delete plan success
+class DeletePlanLoaded extends PlanState {
+  final SuccessModel success;
+
+  const DeletePlanLoaded(this.success);
+
+  @override
+  List<Object?> get props => [success];
+}
+
+/// 🔹 Delete plan error
+class DeletePlanError extends PlanState {
+  final String message;
+
+  const DeletePlanError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

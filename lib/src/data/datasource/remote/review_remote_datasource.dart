@@ -12,6 +12,10 @@ abstract class ReviewRemoteDatasource {
     required String serviceId,
     required String review,
   });
+  Future<Map<String, dynamic>> fetchAllReviews({
+    required String serviceId,
+    required int pageNo,
+  });
   Future<Map<String, dynamic>> getTop5Reviews({required String serviceId});
 }
 
@@ -83,6 +87,37 @@ class ReviewRemoteDatasourceImpl implements ReviewRemoteDatasource {
       );
 
       print("TOP 5 REVIEWS RESPONSE: ${response.data}");
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> fetchAllReviews({
+    required String serviceId,
+    required int pageNo,
+  }) async {
+    try {
+      // API endpoint
+      final String url =
+          "${ApiConstants.fetchAllReviews}?serviceId=$serviceId&page=$pageNo";
+
+      // Retrieve token from SharedPreferences
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
+      final String token = preferences.getString(ApiConstants.token) ?? "";
+
+      // Authorization header
+      final headers = {"Authorization": "Bearer $token"};
+
+      // Make GET request
+      final response = await dioClient.get(
+        url,
+        options: Options(headers: headers),
+      );
+
+      print("FETCH ALL REVIEWS RESPONSE: ${response.data}");
       return response.data;
     } catch (e) {
       rethrow;

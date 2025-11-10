@@ -19,6 +19,7 @@ import 'package:panimithra/src/presentation/screens/home/employee/payments/check
 import 'package:panimithra/src/presentation/screens/home/employee/payments/plans_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/bookings/booking_details_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/pre_booking_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/dashboard/reviews_screen.dart';
 import 'package:panimithra/src/presentation/screens/home_screen.dart';
 import 'package:panimithra/src/presentation/screens/splash/splash_screen.dart';
 
@@ -82,6 +83,17 @@ final router = GoRouter(
     GoRoute(
       path: AppRoutes.EMPLOYEE_PLANS_SCREEN_PATH,
       builder: (context, state) => const MyPlansScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.USER_REVIEW_SCREEN,
+      builder: (context, state) {
+        final serviceId = state.extra is Map
+            ? (state.extra as Map)['serviceId'] as String? ?? ''
+            : '';
+        return ReviewsScreen(
+          serviceId: serviceId,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.BookingDetailsScreen,

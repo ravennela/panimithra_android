@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/data/models/fetch_bookins_model.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
@@ -155,20 +156,21 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline, size: 48, color: Colors.red),
-                      SizedBox(height: 16),
-                      Text(
+                      const Icon(Icons.error_outline,
+                          size: 48, color: Colors.red),
+                      const SizedBox(height: 16),
+                      const Text(
                         'Error loading Site Manager',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         state.message,
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey[600]),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {},
                         child: Text('Retry'),
@@ -271,7 +273,7 @@ class BookingCard extends StatelessWidget {
           // Customer Info Row
           Row(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 24,
                 backgroundImage:
                     NetworkImage("https://i.pravatar.cc/150?img=1"),
@@ -326,7 +328,8 @@ class BookingCard extends StatelessWidget {
               Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
               const SizedBox(width: 8),
               Text(
-                "",
+                DateFormat('dd/MMM/yyyy')
+                    .format(booking.bookingDate ?? DateTime(0, 0, 0, 0)),
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade700,
@@ -344,7 +347,7 @@ class BookingCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "",
+                  booking.city,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade700,
