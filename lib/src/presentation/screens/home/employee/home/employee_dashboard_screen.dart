@@ -162,7 +162,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                           crossAxisCount: 2,
                           mainAxisSpacing: 16,
                           crossAxisSpacing: 16,
-                          childAspectRatio: 1.3,
+                          childAspectRatio: 1,
                           children: [
                             _buildStatCard(
                               state.employeeDashboardModel.totalBookings

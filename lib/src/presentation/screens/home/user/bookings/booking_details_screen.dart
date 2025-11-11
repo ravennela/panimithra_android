@@ -228,9 +228,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 15,
-            color: Colors.grey[600],
-          ),
+              fontSize: 15,
+              color: Colors.grey[600],
+              overflow: TextOverflow.ellipsis),
         ),
         if (isPending)
           Container(
@@ -249,12 +249,18 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             ),
           )
         else
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: isPrice ? const Color(0xFF2196F3) : Colors.black,
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.only(left: 18),
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isPrice ? const Color(0xFF2196F3) : Colors.black,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
       ],
@@ -615,7 +621,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   Widget _buildActionButtons(String bookingStatus) {
     return Column(
       children: [
-        bookingStatus != "CANCELLED"
+        bookingStatus != "CANCELLED" && bookingStatus != "COMPLETED"
             ? SizedBox(
                 width: double.infinity,
                 height: 52,

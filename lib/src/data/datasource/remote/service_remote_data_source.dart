@@ -107,7 +107,7 @@ class ServiceDataSourceImpl implements ServiceDataSource {
         'Content-Type': 'application/json'
       };
       String url = ApiConstants.searchService;
-
+      print("sort value" + priceSort.toString());
       final response = await dioClient.get(
           queryParameters: {
             'page': page ?? 0,
@@ -118,7 +118,9 @@ class ServiceDataSourceImpl implements ServiceDataSource {
               'categoryName': categoryName,
             if (subCategoryName != null && subCategoryName!.isNotEmpty)
               'subCategoryName': subCategoryName,
-            if (priceSort != null) 'sort': "price,${priceSort.toLowerCase()}",
+            if (priceSort?.toLowerCase() == 'asc' ||
+                priceSort?.toLowerCase() == 'desc')
+              'sort': 'price,${priceSort!.toLowerCase()}',
             if (minPrice != null) 'minPrice': minPrice,
             if (maxPrice != null) 'maxPrice': maxPrice
           },

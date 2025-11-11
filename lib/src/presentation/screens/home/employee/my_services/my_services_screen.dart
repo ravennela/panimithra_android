@@ -69,105 +69,66 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
 
   Future<void> _onRefresh() async {
     setState(() {
-      _currentPage = 1;
+      _currentPage = 0;
       _isLoadingMore = false;
     });
-    context.read<ServiceBloc>().add(FetchServicesEvent(page: 1));
-  }
-
-  IconData _getIconFromString(String? iconName) {
-    switch (iconName?.toLowerCase()) {
-      case 'cleaning_services':
-      case 'cleaning':
-        return Icons.cleaning_services;
-      case 'grass':
-      case 'lawn':
-        return Icons.grass;
-      case 'menu_book':
-      case 'book':
-      case 'tutoring':
-        return Icons.menu_book;
-      case 'plumbing':
-        return Icons.plumbing;
-      case 'electrical':
-        return Icons.electrical_services;
-      case 'painting':
-        return Icons.format_paint;
-      case 'carpenter':
-        return Icons.carpenter;
-      default:
-        return Icons.miscellaneous_services;
-    }
-  }
-
-  Color _getColorFromHex(String? hexColor) {
-    if (hexColor == null || hexColor.isEmpty) {
-      return const Color(0xFF2563EB);
-    }
-    try {
-      final hex = hexColor.replaceAll('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (e) {
-      return const Color(0xFF2563EB);
-    }
+    context.read<ServiceBloc>().add(FetchServicesEvent(page: 0));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.push(AppRoutes.CREATE_SERVICE_PATH);
+        },
+        child: const Icon(Icons.add),
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'My Services',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              'Performance Overview',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.grey[300],
+              child: const Icon(Icons.person, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'My Services',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      context.push(AppRoutes.CREATE_SERVICE_PATH);
-                    },
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF2563EB),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
             // Services List
             Expanded(
               child: BlocConsumer<ServiceBloc, ServiceState>(
                 listener: (context, state) {
                   if (state is ServiceLoaded) {
-                    setState(() {
-                      _isLoadingMore = false;
-                    });
                   } else if (state is ServiceError) {
-                    setState(() {
-                      _isLoadingMore = false;
-                    });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(state.message),
@@ -186,7 +147,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                     );
                   }
 
-                  if (state is ServiceError && _currentPage == 1) {
+                  if (state is ServiceError && _currentPage == 0) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -293,13 +254,100 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
 
                           final service = services[index];
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: ServiceCard(
-                              service: service,
-                              icon: _getIconFromString(""),
-                              color: _getColorFromHex(""),
-                            ),
-                          );
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Product Image
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(28),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: Image.network(
+                                          "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/a2a45875170291.5c45acd8af715.jpg",
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+
+                                    // Product Info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            state.data![index].serviceName ??
+                                                "",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            state.data![index].description ??
+                                                "",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Amount and Status
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          state.data![index].price.toString(),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade100,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            state.data![index].status ?? "",
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ));
                         },
                       ),
                     );
@@ -311,127 +359,6 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class ServiceCard extends StatelessWidget {
-  final ServiceItem service;
-  final IconData icon;
-  final Color color;
-
-  const ServiceCard({
-    super.key,
-    required this.service,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Service Icon
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              icon,
-              size: 50,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          // Service Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        service.serviceName ?? 'Untitled Service',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          height: 1.2,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Row(
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: service.status == "ACTIVE"
-                                ? const Color(0xFF22C55E)
-                                : Colors.grey,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          service.status.toString(),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: service.status == "ACTIVE"
-                                ? Colors.black87
-                                : Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  service.description ?? '',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[600],
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  service.price.toString(),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

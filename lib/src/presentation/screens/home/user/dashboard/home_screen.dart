@@ -9,6 +9,7 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
+import 'package:panimithra/src/presentation/widget/helper.dart';
 
 class FindServicesScreen extends StatefulWidget {
   const FindServicesScreen({super.key});
@@ -23,7 +24,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   TextEditingController searchController = TextEditingController();
   RangeValues priceRange = const RangeValues(0, 500);
   String selectedDistance = '50';
-  String sortBy = 'asec';
+  String sortBy = 'Low to High';
   double minRating = 0;
   double minPrice = 0.0;
   double maxPrice = 0.0;
@@ -36,7 +37,6 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   Timer? _searchDebounce;
   bool isLoading = false;
   final List<String> categories = [
-    'All',
     'Plumber',
     'Electrical',
     'Cleaning',
@@ -96,9 +96,10 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     if (query.isEmpty) {
       page = 0;
     }
-    context
-        .read<ServiceBloc>()
-        .add(SearchServiceEvent(page: 0, serviceName: searchController.text));
+    context.read<ServiceBloc>().add(SearchServiceEvent(
+          page: 0,
+          serviceName: searchController.text,
+        ));
   }
 
   @override
@@ -143,9 +144,8 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {},
+                  SizedBox(
+                    width: 20,
                   ),
                   const Expanded(
                     child: Text(
@@ -343,7 +343,8 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                     return ServiceCard(
                       imageUrl:
                           'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600',
-                      title: state.items[index].serviceName.toString(),
+                      title:
+                          capitalize(state.items[index].serviceName.toString()),
                       subtitle: 'Eco',
                       serviceId: state.items[index].serviceId.toString(),
                       category:
@@ -372,159 +373,6 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
         }
         return Container();
       },
-    );
-  }
-
-  Widget _buildServiceCard({
-    required String imageUrl,
-    required String category,
-    required String title,
-    required String provider,
-    required double rating,
-    required String price,
-    required String distance,
-    required String id,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              imageUrl,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 200,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image, size: 50, color: Colors.grey),
-                );
-              },
-            ),
-          ),
-
-          // Details
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      category,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 13,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 18),
-                        const SizedBox(width: 4),
-                        Text(
-                          rating.toString(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'by $provider',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      price,
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.location_on,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text(
-                          distance,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      print(id);
-                      context.push(AppRoutes.PREBOOKING_SCREEN_PATH,
-                          extra: {"serviceId": id});
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'View Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -839,9 +687,19 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                       ? const Icon(Icons.check, color: Colors.blue)
                       : null,
                   onTap: () {
-                    setState(() {
-                      sortBy = option;
-                    });
+                    print("selected" + option.toLowerCase());
+                    sortBy = option;
+                    setState(() {});
+                    context.read<ServiceBloc>().add(SearchServiceEvent(
+                          page: 0,
+                          priceSort: option
+                                  .toString()
+                                  .toLowerCase()
+                                  .trim()
+                                  .contains("low to high")
+                              ? "asc"
+                              : "desc",
+                        ));
                     Navigator.pop(context);
                   },
                 );

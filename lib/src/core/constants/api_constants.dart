@@ -1,5 +1,6 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:8080';
+  //static const String baseUrl = 'http://localhost:8080';
+  static const String baseUrl = 'http://192.168.1.120:8080';
   //static const String baseUrl = "https://panimithra.onrender.com";
   static const String login = '$baseUrl/auth/login';
   static const String registration = "/auth/create-user";

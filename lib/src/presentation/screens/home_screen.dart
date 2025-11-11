@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // For Director (5 screens)
   final List<Widget> _adminScreens = [
-    AdminDashboardScreen(), // Index 0
+    const AdminDashboardScreen(), // Index 0
     const CustomerScreen(), // Index 1
     const EmployeesScreen(),
     const AdminBookingsScreen(), // Index 3 - was ChangePasswordScreen

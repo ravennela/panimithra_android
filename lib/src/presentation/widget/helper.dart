@@ -112,3 +112,6 @@ double differeceCalculator(int current, int prev) {
 int calculateDaysBetween(DateTime startDate, DateTime endDate) {
   return endDate.difference(startDate).inDays;
 }
+
+String capitalize(String s) =>
+    s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1).toLowerCase()}' : s;
