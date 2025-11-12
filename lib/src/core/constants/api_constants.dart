@@ -1,6 +1,6 @@
 class ApiConstants {
-  //static const String baseUrl = 'http://localhost:8080';
-  static const String baseUrl = 'http://192.168.1.120:8080';
+  static const String baseUrl = 'http://localhost:8080';
+  //static const String baseUrl = 'http://192.168.1.120:8080';
   //static const String baseUrl = "https://panimithra.onrender.com";
   static const String login = '$baseUrl/auth/login';
   static const String registration = "/auth/create-user";
@@ -42,4 +42,11 @@ class ApiConstants {
   static const String emailId = "email_id";
   static const String role = "huvg";
   static const Duration timeout = Duration(seconds: 30);
+
+  static const presetName = "my_unsigned_preset";
+  static const cloudName = "dwtslw4zt";
+  static const clientSecret = "hVf6qLazJ1SuAmVfKoQ3IbUESGI";
+
+  static const folderName = "my_photos";
+  static const String claudinaryBaseUrl = "https://api.cloudinary.com/v1_1";
 }

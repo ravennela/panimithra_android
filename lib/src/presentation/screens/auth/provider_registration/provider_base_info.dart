@@ -252,6 +252,13 @@ class _ProviderRegistrationScreenState
                         );
                         return;
                       }
+                      if (selectedDate == null) {
+                        ToastHelper.showToast(
+                          context: context,
+                          type: 'error',
+                          title: "Please Select Date of Birth",
+                        );
+                      }
                       context.read<ProviderRegistrationCubit>().addBaseInfo(
                             _fullNameController.text,
                             _emailController.text,

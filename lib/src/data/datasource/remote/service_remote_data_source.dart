@@ -1,9 +1,11 @@
 // Abstract Data Source
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/core/network/dio_client.dart';
+import 'package:panimithra/src/data/datasource/remote/upload_file_remote_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ServiceDataSource {
@@ -63,6 +65,15 @@ class ServiceDataSourceImpl implements ServiceDataSource {
     required String categoryId,
     required String subCategoryId,
   }) async {
+    File? photo;
+    String? photoUrl = "";
+    if (serviceData['iconUrl'] != null) {
+      photo = serviceData["iconUrl"];
+    }
+    if (photo != null) {
+      photoUrl =
+          await UploadFileRemoteDatasource(client: Dio()).uploadPhoto(photo);
+    }
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";

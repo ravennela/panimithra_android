@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:panimithra/src/common/colors.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
+import 'package:panimithra/src/data/datasource/remote/upload_file_remote_datasource.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_event.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_state.dart';
@@ -44,6 +47,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   int totalLength = 0;
   int page = 1;
   int x = 0;
+  File? _selectedFile;
   bool hasMoreRecords = true;
   Map<String, dynamic> availableDate = {};
   List<Map<String, dynamic>> availableDatesList = [];
@@ -602,45 +606,70 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                       const SizedBox(height: 24),
 
                       // ---------- Service Images ----------
-                      _sectionCard(
-                        title: 'Service Images',
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Add up to 5 images',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: List.generate(5, (index) {
-                                return Container(
-                                  width: (size.width - 64) / 4,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                      style: index == 0
-                                          ? BorderStyle.solid
-                                          : BorderStyle.none,
+                      if (_selectedFile == null)
+                        _sectionCard(
+                          title: 'Service Images',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Add up to 5 images',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: List.generate(1, (index) {
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      _pickAndUpload();
+                                    },
+                                    child: Container(
+                                      width: (size.width - 64) / 4,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.grey.shade300,
+                                          style: index == 0
+                                              ? BorderStyle.solid
+                                              : BorderStyle.none,
+                                        ),
+                                        color: index == 0
+                                            ? Colors.transparent
+                                            : Colors.grey.shade200,
+                                      ),
+                                      child: index == 0
+                                          ? const Icon(
+                                              Icons.add_photo_alternate,
+                                              color: Color(0xFF2563EB))
+                                          : null,
                                     ),
-                                    color: index == 0
-                                        ? Colors.transparent
-                                        : Colors.grey.shade200,
-                                  ),
-                                  child: index == 0
-                                      ? const Icon(Icons.add_photo_alternate,
-                                          color: Color(0xFF2563EB))
-                                      : null,
-                                );
-                              }),
-                            ),
-                          ],
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      if (_selectedFile != null)
+                        GestureDetector(
+                          onTap: () {
+                            _pickAndUpload();
+                          },
+                          child: Container(
+                            width: size.width * 0.2,
+                            height: 80,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.file(
+                                  File(_selectedFile!.path),
+                                  fit: BoxFit.cover,
+                                )),
+                          ),
+                        ),
 
                       const SizedBox(height: 24),
 
@@ -784,6 +813,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   : 0.0,
                               "duration": 1,
                               "status": "ACTIVE",
+                              "iconUrl": _selectedFile,
                               "addInfoOne": addInfoLine1Controller.text,
                               "addInfoTwo": addInfoLine2Controller.text,
                               "addInfoThree": addInfoLine3Controller.text,
@@ -831,6 +861,23 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickAndUpload() async {
+    final picked = await UploadFileRemoteDatasource(client: Dio())
+        .pickImage(); // pick from gallery
+    if (picked == null) return;
+
+    setState(() {
+      _selectedFile = picked;
+    });
+
+    // try {
+    //   final url = await UploadFileRemoteDatasource(client: Dio())
+    //       .uploadPhoto(_selectedFile!);
+    // } catch (e) {
+    //   debugPrint("❌ Upload failed: $e");
+    // }
   }
 
   Widget _sectionCard({required String title, required Widget child}) {

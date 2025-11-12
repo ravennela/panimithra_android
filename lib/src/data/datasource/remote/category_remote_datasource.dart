@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/core/network/dio_client.dart';
+import 'package:panimithra/src/data/datasource/remote/upload_file_remote_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class FetchCategoryRemoteDataSource {
@@ -32,6 +35,15 @@ class FetchCategoryRemoteDataSourceImpl
   @override
   Future<Map<String, dynamic>> createCategory(Map<String, dynamic> data) async {
     try {
+      File? photo;
+      String? photoUrl = "";
+      if (data['profilepic'] != null) {
+        photo = data["profilepic"];
+      }
+      if (photo != null) {
+        photoUrl =
+            await UploadFileRemoteDatasource(client: Dio()).uploadPhoto(photo);
+      }
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";
       var headers = {"Authorization": "Bearer $token"};
