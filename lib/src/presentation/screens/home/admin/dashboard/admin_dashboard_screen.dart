@@ -192,7 +192,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                           crossAxisCount: 2,
                           mainAxisSpacing: 16,
                           crossAxisSpacing: 16,
-                          childAspectRatio: 1.5,
+                          childAspectRatio: 1.2,
                           children: [
                             _buildStatCard(
                               'New Users',

@@ -22,7 +22,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     Emitter<CategoriesState> emit,
   ) async {
     // Show loading only for first page
-    if (event.page == 1) {
+    if (event.page == 0) {
       emit(const CategoriesLoading());
     }
 
@@ -36,7 +36,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
         List<CategoryItem> newData = fetchCategoryModel.data ?? [];
 
         // Handle pagination: append data if not first page
-        if (event.page > 1 && state is CategoriesLoaded) {
+        if (event.page > 0 && state is CategoriesLoaded) {
           final currentState = state as CategoriesLoaded;
           final existingData = currentState.data ?? [];
           newData = [...existingData, ...newData];

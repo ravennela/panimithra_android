@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:panimithra/src/common/colors.dart';
 import 'package:panimithra/src/common/toast.dart';
@@ -15,6 +16,7 @@ import 'package:panimithra/src/presentation/bloc/category_bloc/category_event.da
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_state.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
+import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_event.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_state.dart';
@@ -203,12 +205,6 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                     type: 'error',
                                     title: state.message);
                               }
-                              if (state is CategoriesLoaded) {
-                                ToastHelper.showToast(
-                                    context: context,
-                                    type: 'success',
-                                    title: "Category Fetched successfully");
-                              }
                             }, builder: (context, state) {
                               if (state is CategoriesLoading ||
                                   state is CategoriesInitial) {
@@ -284,8 +280,10 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                                                   CircularProgressIndicator()));
                                                     }
                                                     return ListTile(
-                                                      title: Text(
-                                                          "${state.data![index].categoryName.toString()}"),
+                                                      title: Text(state
+                                                          .data![index]
+                                                          .categoryName
+                                                          .toString()),
                                                       onTap: () {
                                                         subCategoryController
                                                             .clear();
@@ -339,12 +337,6 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                     context: context,
                                     type: 'error',
                                     title: state.message);
-                              }
-                              if (state is SubcategoryLoaded) {
-                                ToastHelper.showToast(
-                                    context: context,
-                                    type: 'success',
-                                    title: "Category Fetched successfully");
                               }
                             }, builder: (context, state) {
                               if (state is SubcategoryLoading ||
@@ -423,8 +415,10 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                                                   CircularProgressIndicator()));
                                                     }
                                                     return ListTile(
-                                                      title: Text(
-                                                          "${state.data![index].categoryName.toString()}"),
+                                                      title: Text(state
+                                                          .data![index]
+                                                          .categoryName
+                                                          .toString()),
                                                       onTap: () {
                                                         subCategoryController
                                                                 .text =
@@ -461,12 +455,15 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             const SizedBox(height: 24),
                             _buildTextField(
                               controller: _serviceNameController,
+                              maxLines: 1,
                               label: 'Service Name',
+                              maxLenghth: 15,
                               hint: 'e.g., Leaky Faucet Repair',
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _descriptionController,
+                              maxLenghth: 30,
                               label: 'Service Description',
                               hint: 'Describe the service you offer...',
                               maxLines: 4,
@@ -475,6 +472,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addressController,
                               label: 'Address',
+                              maxLenghth: 40,
                               hint: 'Address',
                               maxLines: 4,
                             ),
@@ -482,6 +480,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addInfoLine1Controller,
                               label: 'Additinal Info 1',
+                              maxLenghth: 40,
                               hint: 'About Your Items Inlided In Service',
                               maxLines: 2,
                             ),
@@ -489,6 +488,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addInfoLine2Controller,
                               label: 'Additinal Info 2',
+                              maxLenghth: 40,
                               hint: 'About Your Items Inlided In Service',
                               maxLines: 2,
                             ),
@@ -496,6 +496,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addInfoLine3Controller,
                               label: 'Additinal Info 3',
+                              maxLenghth: 40,
                               hint: 'About Your Items Inlided In Service',
                               maxLines: 2,
                             ),
@@ -527,7 +528,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "Start: ${formatTime(startTime)}",
+                                            formatTime(startTime),
                                             style:
                                                 const TextStyle(fontSize: 16),
                                           ),
@@ -555,7 +556,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "End: ${formatTime(endTime)}",
+                                            formatTime(endTime),
                                             style:
                                                 const TextStyle(fontSize: 16),
                                           ),
@@ -726,122 +727,179 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                       const SizedBox(height: 24),
 
                       // ---------- Submit Button ----------
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          onPressed: () async {
-                            if (!_formKey.currentState!.validate()) {
-                              return;
-                            }
-                            if (_selectedCategory == null) {
-                              ToastHelper.showToast(
-                                  context: context,
-                                  type: 'error',
-                                  title: 'Please Select Category');
-                              return;
-                            }
-                            if (_selectedSubcategory == null) {
-                              ToastHelper.showToast(
-                                  context: context,
-                                  type: 'error',
-                                  title: 'Please Select Sub Category');
-                              return;
-                            }
-                            if (_priceController.text.isEmpty) {
-                              ToastHelper.showToast(
-                                  context: context,
-                                  type: 'error',
-                                  title: 'Please Select Price');
-                              return;
-                            }
-                            for (int i = 0; i < selectedDays.length; i++) {
-                              availableDatesList.add({
-                                "availableDate": selectedDays[i].toString(),
-                              });
-                            }
-                            if (startTime == null) {
-                              ToastHelper.showToast(
-                                  context: context,
-                                  type: 'error',
-                                  title: 'Please Select Satrt Time');
-                              return;
-                            }
-                            if (endTime == null) {
-                              ToastHelper.showToast(
-                                  context: context,
-                                  type: 'error',
-                                  title: 'Please Select Satrt Time');
-                              return;
-                            }
-                            //sprint("available dates" + availableDate.toString());
-                            double latitude = 0.0;
-                            double longitude = 0.0;
-                            try {
-                              Map<String, double>? location =
-                                  await getCurrentLocation();
-                              latitude = location!['lat']!;
-                              longitude = location['lng']!;
-                            } catch (e) {
-                              print(e.toString());
-                            }
-                            SharedPreferences preferences =
-                                await SharedPreferences.getInstance();
+                      BlocConsumer<ServiceBloc, ServiceState>(
+                        listener: (context, state) {
+                          if (state is CreateServiceError) {
+                            ToastHelper.showToast(
+                                context: context,
+                                type: 'error',
+                                title: state.message);
+                          }
+                          if (state is CreateServiceSuccess) {
+                            ToastHelper.showToast(
+                                context: context,
+                                type: 'success',
+                                title: "Service Created Successfully");
+                            context.pop();
+                          }
+                        },
+                        builder: (context, state) {
+                          return SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2563EB),
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () async {
+                                print("form valid");
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                if (_selectedCategory == null) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title: 'Please Select Category');
+                                  return;
+                                }
+                                if (_selectedSubcategory == null) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title: 'Please Select Sub Category');
+                                  return;
+                                }
+                                if (_serviceNameController.text.isEmpty) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title: 'Please Select Service Name');
+                                  return;
+                                }
+                                if (_serviceNameController.text.isEmpty) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title:
+                                          'Please Select Service Description');
+                                  return;
+                                }
+                                if (_priceController.text.isEmpty) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title: 'Please Select Price');
+                                  return;
+                                }
+                                for (int i = 0; i < selectedDays.length; i++) {
+                                  availableDatesList.add({
+                                    "availableDate": selectedDays[i].toString(),
+                                  });
+                                }
+                                if (startTime == null) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title: 'Please Select Satrt Time');
+                                  return;
+                                }
+                                if (endTime == null) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title: 'Please Select Satrt Time');
+                                  return;
+                                }
+                                if (addressController.text.isEmpty) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title: 'Please Select Address');
+                                  return;
+                                }
+                                if (startTime!.isAfter(endTime!)) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: 'error',
+                                      title:
+                                          'Please Select Satrt Time Before End Time');
+                                  return;
+                                }
 
-                            String employeeId =
-                                preferences.getString(ApiConstants.userId) ??
+                                //sprint("available dates" + availableDate.toString());
+                                double latitude = 0.0;
+                                double longitude = 0.0;
+                                try {
+                                  Map<String, double>? location =
+                                      await getCurrentLocation();
+                                  latitude = location!['lat']!;
+                                  longitude = location['lng']!;
+                                } catch (e) {
+                                  print(e.toString());
+                                }
+                                SharedPreferences preferences =
+                                    await SharedPreferences.getInstance();
+
+                                String employeeId = preferences
+                                        .getString(ApiConstants.userId) ??
                                     '';
 
-                            String availableStartTime =
-                                "${startTime!.hour}:${startTime!.minute} ${startTime!.period.name}";
-                            String availableEndDates =
-                                "${endTime!.hour}:${endTime!.minute}${endTime!.period.name}";
+                                String availableStartTime =
+                                    "${startTime!.hour}:${startTime!.minute} ${startTime!.period.name.toUpperCase()}";
+                                String availableEndDates =
+                                    "${endTime!.hour}:${endTime!.minute} ${endTime!.period.name.toUpperCase()}";
+                                print("api call");
+                                Map<String, dynamic> data = {
+                                  "employeeId": employeeId,
+                                  "name": _serviceNameController.text,
+                                  "description": _descriptionController.text,
+                                  "price": _priceController.text.isNotEmpty
+                                      ? double.parse(_priceController.text)
+                                      : 0.0,
+                                  "duration": 1,
+                                  "status": "ACTIVE",
+                                  "iconUrl": _selectedFile,
+                                  "addInfoOne": addInfoLine1Controller.text,
+                                  "addInfoTwo": addInfoLine2Controller.text,
+                                  "addInfoThree": addInfoLine3Controller.text,
+                                  "availableStartTime": availableStartTime,
+                                  "availableEndTime": availableEndDates,
+                                  "latitude": latitude,
+                                  "longitude": longitude,
+                                  "availableDates": availableDatesList,
+                                  "images": [
+                                    {"imageUrls": "hg"}
+                                  ],
+                                  "address": addressController.text
+                                };
+                                print("api call");
 
-                            Map<String, dynamic> data = {
-                              "employeeId": employeeId,
-                              "name": _serviceNameController.text,
-                              "description": _descriptionController.text,
-                              "price": _priceController.text.isNotEmpty
-                                  ? double.parse(_priceController.text)
-                                  : 0.0,
-                              "duration": 1,
-                              "status": "ACTIVE",
-                              "iconUrl": _selectedFile,
-                              "addInfoOne": addInfoLine1Controller.text,
-                              "addInfoTwo": addInfoLine2Controller.text,
-                              "addInfoThree": addInfoLine3Controller.text,
-                              "availableStartTime": availableStartTime,
-                              "availableEndTime": availableEndDates,
-                              "latitude": latitude,
-                              "longitude": longitude,
-                              "availableDates": availableDatesList,
-                              "images": [
-                                {"imageUrls": "hg"}
-                              ],
-                              "address": addressController.text
-                            };
-
-                            context.read<ServiceBloc>().add(CreateServiceEvent(
-                                serviceData: data,
-                                categoryId: _selectedCategory.toString(),
-                                subCategoryId:
-                                    _selectedSubcategory.toString()));
-                          },
-                          child: const Text(
-                            'Submit for Approval',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                                context.read<ServiceBloc>().add(
+                                    CreateServiceEvent(
+                                        serviceData: data,
+                                        categoryId:
+                                            _selectedCategory.toString(),
+                                        subCategoryId:
+                                            _selectedSubcategory.toString()));
+                              },
+                              child: Text(
+                                state is CreateServiceLoading
+                                    ? 'Create Servicing ....'
+                                    : "Creating Service",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       const Center(
@@ -871,13 +929,6 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
     setState(() {
       _selectedFile = picked;
     });
-
-    // try {
-    //   final url = await UploadFileRemoteDatasource(client: Dio())
-    //       .uploadPhoto(_selectedFile!);
-    // } catch (e) {
-    //   debugPrint("❌ Upload failed: $e");
-    // }
   }
 
   Widget _sectionCard({required String title, required Widget child}) {
@@ -945,6 +996,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
     required String label,
     required String hint,
     int maxLines = 1,
+    int? maxLenghth,
     Widget? prefix,
     TextInputType? keyboardType,
   }) {
@@ -958,8 +1010,10 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          maxLength: maxLenghth ?? 10,
           decoration: InputDecoration(
             hintText: hint,
+            counterText: '',
             prefixIcon: prefix != null
                 ? Padding(
                     padding: const EdgeInsets.only(left: 8, right: 4),
@@ -969,7 +1023,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
             prefixIconConstraints:
                 const BoxConstraints(minWidth: 0, minHeight: 0),
             filled: true,
-            fillColor: const Color(0xFFF9FAFB),
+            fillColor: const Color.fromARGB(255, 237, 241, 245),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(

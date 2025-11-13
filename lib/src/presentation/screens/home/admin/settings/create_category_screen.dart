@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart' show Dio;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/toast.dart';
+import 'package:panimithra/src/data/datasource/remote/upload_file_remote_datasource.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_event.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_state.dart';
@@ -23,6 +27,7 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
     'ACTIVE',
     'INACTIVE',
   ];
+  File? _selectedFile;
 
   @override
   void dispose() {
@@ -34,6 +39,7 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -221,42 +227,50 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              TextField(
-                controller: _iconUrlController,
-                decoration: InputDecoration(
-                  hintText: 'e.g., https://.../icon.png',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 16,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: Color(0xFF2196F3), width: 2),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+              if (_selectedFile == null)
+                GestureDetector(
+                  onTap: () async {
+                    _pickAndUpload();
+                  },
+                  child: Container(
+                    width: (size.width - 64) / 4,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: Colors.grey.shade300,
+                          style: BorderStyle.solid),
+                      color: Colors.grey.shade200,
+                    ),
+                    child: const Icon(Icons.add_photo_alternate,
+                        color: Color(0xFF2563EB)),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
 
+              if (_selectedFile != null)
+                GestureDetector(
+                  onTap: () {
+                    _pickAndUpload();
+                  },
+                  child: Container(
+                    width: size.width * 0.2,
+                    height: 80,
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.file(
+                          File(_selectedFile!.path),
+                          fit: BoxFit.cover,
+                        )),
+                  ),
+                ),
+              const SizedBox(height: 40),
               // Create Category Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: BlocListener<CategoriesBloc, CategoriesState>(
+                child: BlocConsumer<CategoriesBloc, CategoriesState>(
                   listener: (context, state) {
                     if (state is CreateCategoryError) {
                       ToastHelper.showToast(
@@ -272,42 +286,46 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
                       context.pop();
                     }
                   },
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_categoryNameController.text.isEmpty) {
-                        ToastHelper.showToast(
-                            context: context,
-                            type: 'error',
-                            title: "Please Enter Category Name");
-                        return;
-                      }
-                      Map<String, dynamic> data = {
-                        "categoryName": _categoryNameController.text,
-                        "description": _descriptionController.text,
-                        "iconUrl": _iconUrlController.text,
-                        "status": _selectedStatus
-                      };
-                      context
-                          .read<CategoriesBloc>()
-                          .add(CreateCategoryEvent(data: data));
-                      // Handle create category
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2196F3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  builder: (context, state) {
+                    return ElevatedButton(
+                      onPressed: () {
+                        if (_categoryNameController.text.isEmpty) {
+                          ToastHelper.showToast(
+                              context: context,
+                              type: 'error',
+                              title: "Please Enter Category Name");
+                          return;
+                        }
+                        Map<String, dynamic> data = {
+                          "categoryName": _categoryNameController.text,
+                          "description": _descriptionController.text,
+                          "iconUrl": _selectedFile,
+                          "status": _selectedStatus
+                        };
+                        context
+                            .read<CategoriesBloc>()
+                            .add(CreateCategoryEvent(data: data));
+                        // Handle create category
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2196F3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Create Category',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                      child: Text(
+                        state is CreateCategoryLoading
+                            ? 'Creating ....'
+                            : "Create Category",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 16),
@@ -339,5 +357,15 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickAndUpload() async {
+    final picked = await UploadFileRemoteDatasource(client: Dio())
+        .pickImage(); // pick from gallery
+    if (picked == null) return;
+
+    setState(() {
+      _selectedFile = picked;
+    });
   }
 }

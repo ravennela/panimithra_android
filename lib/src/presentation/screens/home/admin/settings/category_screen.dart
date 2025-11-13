@@ -33,6 +33,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
       final state = context.read<CategoriesBloc>().state;
+
       if (state is CategoriesLoaded) {
         final hasMore = (state.data?.length ?? 0) < state.totalRecords;
         if (hasMore) {
@@ -76,6 +77,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         ],
       ),
       body: BlocBuilder<CategoriesBloc, CategoriesState>(
+        buildWhen: (previous, current) =>
+            ((current is CategoriesError || current is CategoriesLoaded) ||
+                (current is CategoriesLoading && currentPage == 0)),
         builder: (context, state) {
           if (state is CategoriesLoading) {
             return const Center(
@@ -211,11 +215,22 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     color: getBackgroundColor(category.categoryName ?? ''),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    getIconData(category.categoryName ?? ''),
-                    color: getIconColor(category.categoryName ?? ''),
-                    size: 28,
-                  ),
+                  child: category.iconUrl != null
+                      ? Image.network(
+                          category.iconUrl.toString(),
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              getIconData(category.categoryName ?? ''),
+                              color: getIconColor(category.categoryName ?? ''),
+                              size: 28,
+                            );
+                          },
+                        )
+                      : Icon(
+                          getIconData(category.categoryName ?? ''),
+                          color: getIconColor(category.categoryName ?? ''),
+                          size: 28,
+                        ),
                 ),
                 const SizedBox(width: 16),
                 // Title and Subcategories

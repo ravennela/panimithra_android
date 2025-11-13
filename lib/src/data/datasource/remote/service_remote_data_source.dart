@@ -45,9 +45,10 @@ class ServiceDataSourceImpl implements ServiceDataSource {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";
+      String employeeId = preferences.getString(ApiConstants.userId) ?? "";
       var headers = {"Authorization": "Bearer $token"};
       final response = await dioClient.get(
-        ApiConstants.fetchService,
+        "${ApiConstants.fetchService}?employeeId=$employeeId",
         queryParameters: {
           'page': page,
         },
@@ -74,6 +75,7 @@ class ServiceDataSourceImpl implements ServiceDataSource {
       photoUrl =
           await UploadFileRemoteDatasource(client: Dio()).uploadPhoto(photo);
     }
+    serviceData['iconUrl'] = photoUrl ?? '';
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";

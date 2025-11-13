@@ -57,6 +57,7 @@ class ServiceItem {
   String? subCategoryId;
   String? startTime;
   String? endTime;
+  String? iconUrl;
 
   ServiceItem({
     this.id,
@@ -66,6 +67,7 @@ class ServiceItem {
     this.categoryName,
     this.description,
     this.price,
+    this.iconUrl,
     this.status,
     this.categoryId,
     this.subCategoryId,
@@ -80,6 +82,7 @@ class ServiceItem {
         description: json["description"],
         price: json["price"] ?? 0.0,
         status: json["status"],
+        iconUrl: json["iconUrl"],
         categoryId: json["categoryId"],
         subCategoryId: json["subCategoryId"],
       );

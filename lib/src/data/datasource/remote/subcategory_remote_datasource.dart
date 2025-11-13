@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/core/network/dio_client.dart';
+import 'package:panimithra/src/data/datasource/remote/upload_file_remote_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class SubcategoryRemoteDataSource {
@@ -45,6 +48,16 @@ class SubcategoryRemoteDataSourceImpl implements SubcategoryRemoteDataSource {
   Future<Map<String, dynamic>> createSubCategory(
       {required String categoryId, required Map<String, dynamic> data}) async {
     try {
+      File? photo;
+      String? photoUrl = "";
+      if (data['iconUrl'] != null) {
+        photo = data["iconUrl"];
+      }
+      if (photo != null) {
+        photoUrl =
+            await UploadFileRemoteDatasource(client: Dio()).uploadPhoto(photo);
+      }
+      data['iconUrl'] = photoUrl ?? '';
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";
       var headers = {"Authorization": "Bearer $token"};

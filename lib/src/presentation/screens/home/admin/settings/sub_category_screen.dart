@@ -6,6 +6,7 @@ import 'package:panimithra/src/data/models/sub_category_model.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_event.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_state.dart';
+import 'package:panimithra/src/presentation/widget/helper.dart';
 
 class SubcategoriesScreen extends StatefulWidget {
   final String categoryName;
@@ -23,6 +24,7 @@ class SubcategoriesScreen extends StatefulWidget {
 
 class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   final ScrollController _scrollController = ScrollController();
+  int currentPage = 0;
 
   @override
   void initState() {
@@ -49,7 +51,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
           context.read<SubcategoryBloc>().add(
                 FetchSubcategoriesEvent(
                   categoryId: widget.categoryId,
-                  page: state.page + 1,
+                  page: currentPage + 1,
                 ),
               );
         }
@@ -107,6 +109,9 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         ],
       ),
       body: BlocBuilder<SubcategoryBloc, SubcategoryState>(
+        buildWhen: (previous, current) =>
+            ((current is SubcategoryLoaded || current is SubcategoryError) ||
+                (current is SubcategoryLoading && currentPage == 0)),
         builder: (context, state) {
           if (state is SubcategoryLoading) {
             return const Center(
@@ -239,34 +244,61 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
             child: Row(
               children: [
                 // Icon Container
+                // Container(
+                //   width: 52,
+                //   height: 52,
+                //   decoration: BoxDecoration(
+                //     gradient: LinearGradient(
+                //       begin: Alignment.topLeft,
+                //       end: Alignment.bottomRight,
+                //       colors: [
+                //         _getColor(subcategory.categoryName ?? '')
+                //             .withOpacity(0.8),
+                //         _getColor(subcategory.categoryName ?? ''),
+                //       ],
+                //     ),
+                //     borderRadius: BorderRadius.circular(12),
+                //     boxShadow: [
+                //       BoxShadow(
+                //         color: _getColor(subcategory.categoryName ?? '')
+                //             .withOpacity(0.3),
+                //         blurRadius: 8,
+                //         offset: const Offset(0, 4),
+                //       ),
+                //     ],
+                //   ),
+                //   child: Icon(
+                //     _getIcon(subcategory.categoryName ?? ''),
+                //     color: Colors.white,
+                //     size: 26,
+                //   ),
+                // ),
+
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        _getColor(subcategory.categoryName ?? '')
-                            .withOpacity(0.8),
-                        _getColor(subcategory.categoryName ?? ''),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _getColor(subcategory.categoryName ?? '')
-                            .withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: getBackgroundColor(subcategory.categoryName ?? ''),
+                    shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    _getIcon(subcategory.categoryName ?? ''),
-                    color: Colors.white,
-                    size: 26,
-                  ),
+                  child: subcategory.iconUrl != null
+                      ? Image.network(
+                          subcategory.iconUrl ?? ''.toString(),
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              getIconData(subcategory.categoryName ?? '' ?? ''),
+                              color: getIconColor(
+                                  subcategory.categoryName ?? '' ?? ''),
+                              size: 28,
+                            );
+                          },
+                        )
+                      : Icon(
+                          getIconData(subcategory.categoryName ?? '' ?? ''),
+                          color: getIconColor(
+                              subcategory.categoryName ?? '' ?? ''),
+                          size: 28,
+                        ),
                 ),
                 const SizedBox(width: 16),
 

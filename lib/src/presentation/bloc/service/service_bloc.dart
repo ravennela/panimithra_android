@@ -33,7 +33,7 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
     Emitter<ServiceState> emit,
   ) async {
     // Show loading only for first page
-    if (event.page == 1) {
+    if (event.page == 0) {
       emit(const ServiceLoading());
     }
 
@@ -46,7 +46,7 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
       (fetchServiceModel) {
         List<ServiceItem> newData = fetchServiceModel.data ?? [];
         // Handle pagination: append data if not first page
-        if (event.page > 1 && state is ServiceLoaded) {
+        if (event.page > 0 && state is ServiceLoaded) {
           final currentState = state as ServiceLoaded;
           final existingData = currentState.data ?? [];
           newData = [...existingData, ...newData];

@@ -37,13 +37,15 @@ class FetchCategoryRemoteDataSourceImpl
     try {
       File? photo;
       String? photoUrl = "";
-      if (data['profilepic'] != null) {
-        photo = data["profilepic"];
+      if (data['iconUrl'] != null) {
+        photo = data["iconUrl"];
       }
       if (photo != null) {
         photoUrl =
             await UploadFileRemoteDatasource(client: Dio()).uploadPhoto(photo);
       }
+      data['iconUrl'] = photoUrl ?? '';
+
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";
       var headers = {"Authorization": "Bearer $token"};

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,53 +20,45 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
   bool _isLoadingMore = false;
-
+  int totalRecords = 0;
+  int totalLength = 0;
+  Timer? _debounce;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
-    // Fetch initial data
     context.read<ServiceBloc>().add(FetchServicesEvent(page: _currentPage));
-
-    // Add scroll listener for pagination
-    _scrollController.addListener(_onScroll);
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _debounce?.cancel();
+    _scrollController.removeListener(_scrollListener);
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_isAtBottom && !_isLoadingMore) {
-      _loadMoreData();
+  void _scrollListener() {
+    if (isLoading) {
+      return;
     }
-  }
-
-  bool get _isAtBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll * 0.9); // Trigger at 90% scroll
-  }
-
-  void _loadMoreData() {
-    final state = context.read<ServiceBloc>().state;
-
-    if (state is ServiceLoaded) {
-      final totalRecords = state.totalRecords;
-      final currentDataLength = state.data?.length ?? 0;
-
-      // Check if there's more data to load
-      if (currentDataLength < totalRecords) {
-        setState(() {
-          _isLoadingMore = true;
-          _currentPage++;
-        });
-
-        context.read<ServiceBloc>().add(FetchServicesEvent(page: _currentPage));
+    if (!mounted) return;
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100) {
+        if (totalLength >= totalRecords) {
+          return;
+        }
+        if (totalLength <= totalRecords) {
+          _currentPage += 1;
+          context
+              .read<ServiceBloc>()
+              .add(FetchServicesEvent(page: _currentPage));
+        }
       }
-    }
+    });
   }
 
   Future<void> _onRefresh() async {
@@ -72,7 +66,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
       _currentPage = 0;
       _isLoadingMore = false;
     });
-    context.read<ServiceBloc>().add(FetchServicesEvent(page: 0));
+    context.read<ServiceBloc>().add(const FetchServicesEvent(page: 0));
   }
 
   @override
@@ -126,9 +120,16 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
             // Services List
             Expanded(
               child: BlocConsumer<ServiceBloc, ServiceState>(
+                buildWhen: (previous, current) =>
+                    ((current is ServiceLoaded || current is ServiceError) ||
+                        (current is ServiceLoading && _currentPage == 0)),
                 listener: (context, state) {
                   if (state is ServiceLoaded) {
+                    totalRecords = state.totalRecords;
+                    totalLength = state.data?.length ?? 0;
+                    isLoading = false;
                   } else if (state is ServiceError) {
+                    isLoading = false;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(state.message),
@@ -136,6 +137,9 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
+                  }
+                  if (state is ServiceLoading) {
+                    isLoading = true;
                   }
                 },
                 builder: (context, state) {
@@ -275,8 +279,15 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(14),
                                         child: Image.network(
-                                          "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/a2a45875170291.5c45acd8af715.jpg",
+                                          state.data![index].iconUrl != null
+                                              ? state.data![index].iconUrl
+                                                  .toString()
+                                              : "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/a2a45875170291.5c45acd8af715.jpg",
                                           fit: BoxFit.fill,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container();
+                                          },
                                         ),
                                       ),
                                     ),
