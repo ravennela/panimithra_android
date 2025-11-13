@@ -344,6 +344,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                 return const Center(
                                     child: CircularProgressIndicator());
                               }
+                         
                               if (state is CategoriesError) {
                                 return const SizedBox.shrink();
                               }
