@@ -7,23 +7,26 @@ import 'package:panimithra/src/domain/usecase/create_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_service_by_id_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
+import 'package:panimithra/src/domain/usecase/update_service_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 
 class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
   final FetchServicesUseCase fetchServicesUseCase;
   final CreateServiceUseCase createServiceUseCase;
+  final UpdateServiceUseCase updateServiceUseCase;
   final SearchServiSeceUsecase searchServiSeceUsecase;
   final FetchServiceByIdUseCase fetchServiceByIdUseCase;
-
   ServiceBloc({
     required this.fetchServicesUseCase,
     required this.createServiceUseCase,
+    required this.updateServiceUseCase,
     required this.searchServiSeceUsecase,
     required this.fetchServiceByIdUseCase,
   }) : super(const ServiceInitial()) {
     on<FetchServicesEvent>(_onFetchServices);
     on<CreateServiceEvent>(_onCreateServiceUsecase);
+    on<UpdateServiceEvent>(_onUpdateServiceUsecase);
     on<SearchServiceEvent>(_onSearchserviceEvent);
     on<GetServiceByIdEvent>(_onGetServiceByEvent);
   }
@@ -78,6 +81,23 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
     );
   }
 
+  FutureOr<void> _onUpdateServiceUsecase(
+      UpdateServiceEvent event, Emitter<ServiceState> emit) async {
+    emit(UpdateServiceLoading());
+
+    final result = await updateServiceUseCase(
+      serviceId: event.serviceId,
+      serviceData: event.serviceData,
+      categoryId: event.categoryId,
+      subCategoryId: event.subCategoryId,
+    );
+
+    result.fold(
+      (error) => emit(UpdateServiceError(error)),
+      (data) => emit(UpdateServiceSuccess(data)),
+    );
+  }
+
   FutureOr<void> _onSearchserviceEvent(
       SearchServiceEvent event, Emitter<ServiceState> emit) async {
     List<SearchServiceItem> newData = [];
@@ -86,25 +106,27 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
     }
     emit(SearchServiceLoadingState());
     final result = await searchServiSeceUsecase.fetchSearchServiceusecase(
-        page: event.page,
-        categoryName: event.categoryName,
-        maxPrice: event.maxPrice,
-        minPrice: event.minPrice,
-        price: event.price,
-        priceSort: event.priceSort,
-        serviceName: event.serviceName,
-        subCategoryName: event.subCategoryName);
+      page: event.page,
+      categoryName: event.categoryName,
+      maxPrice: event.maxPrice,
+      minPrice: event.minPrice,
+      price: event.price,
+      priceSort: event.priceSort,
+      serviceName: event.serviceName,
+      subCategoryName: event.subCategoryName,
+    );
+
     result.fold((f) {
       emit(SearchServiceErrorState(error: f.toString()));
     }, (fetchServiceModel) {
-      print("bloc value" + fetchServiceModel.data!.length.toString());
       int totalRecords = fetchServiceModel.totalItems ?? 0;
-      final upadtedBookings = [...newData, ...fetchServiceModel.data!];
+      final updatedList = [...newData, ...fetchServiceModel.data!];
       emit(SearchServiceLoadedState(
-          hasMoreRecords: false,
-          items: upadtedBookings,
-          model: fetchServiceModel,
-          totalRecords: totalRecords));
+        hasMoreRecords: false,
+        items: updatedList,
+        model: fetchServiceModel,
+        totalRecords: totalRecords,
+      ));
     });
   }
 

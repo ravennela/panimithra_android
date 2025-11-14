@@ -17,6 +17,12 @@ abstract class ServiceDataSource {
     required String categoryId,
     required String subCategoryId,
   });
+  Future<Map<String, dynamic>> updateService({
+    required String serviceId,
+    required Map<String, dynamic> serviceData,
+    required String categoryId,
+    required String subCategoryId,
+  });
 
   Future<Map<String, dynamic>> searchService({
     int? page,
@@ -54,6 +60,52 @@ class ServiceDataSourceImpl implements ServiceDataSource {
         },
         options: Options(headers: headers),
       );
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateService({
+    required String serviceId,
+    required Map<String, dynamic> serviceData,
+    required String categoryId,
+    required String subCategoryId,
+  }) async {
+    File? photo;
+    String? photoUrl = "";
+
+    if (serviceData['iconUrl'] != null) {
+      photo = serviceData["iconUrl"];
+    }
+
+    if (photo != null) {
+      photoUrl =
+          await UploadFileRemoteDatasource(client: Dio()).uploadPhoto(photo);
+      serviceData['iconUrl'] = photoUrl ?? '';
+    }
+
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+      String userid = preferences.getString(ApiConstants.userId) ?? "";
+
+      var headers = {
+        "Authorization": "Bearer $token",
+        'Content-Type': 'application/json'
+      };
+
+      final response = await dioClient.put(
+        "${ApiConstants.updateServiceApi}?serviceId=$serviceId",
+        data: jsonEncode(serviceData),
+        options: Options(headers: headers),
+        queryParameters: {
+          "categoryId": categoryId,
+          "subCategoryId": subCategoryId,
+        },
+      );
+
       return response.data;
     } catch (e) {
       rethrow;

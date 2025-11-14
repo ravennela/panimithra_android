@@ -60,3 +60,21 @@ class GetServiceByIdEvent extends ServiceEvent {
   @override
   List<Object?> get props => [serviceId];
 }
+
+class UpdateServiceEvent extends ServiceEvent {
+  final String serviceId;
+  final Map<String, dynamic> serviceData;
+  final String categoryId;
+  final String subCategoryId;
+
+  const UpdateServiceEvent({
+    required this.serviceId,
+    required this.serviceData,
+    required this.categoryId,
+    required this.subCategoryId,
+  });
+
+  @override
+  List<Object?> get props =>
+      [serviceId, serviceData, categoryId, subCategoryId];
+}

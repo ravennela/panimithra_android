@@ -22,5 +22,13 @@ abstract class ServiceRepository {
       double? price,
       String? priceSort});
 
-  Future<Either<String, ServiceByIdModel>> fetchServiceById({required String serviceId});
+  Future<Either<String, ServiceByIdModel>> fetchServiceById(
+      {required String serviceId});
+
+  Future<Either<String, SuccessModel>> updateService({
+    required String serviceId,
+    required Map<String, dynamic> serviceData,
+    required String categoryId,
+    required String subCategoryId,
+  });
 }

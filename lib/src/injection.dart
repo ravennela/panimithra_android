@@ -56,6 +56,7 @@ import 'package:panimithra/src/domain/usecase/provider_registration_usecase.dart
 import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/top_five_review_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
+import 'package:panimithra/src/domain/usecase/update_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
@@ -88,7 +89,8 @@ Future<void> init() async {
       fetchServicesUseCase: sl(),
       createServiceUseCase: sl(),
       searchServiSeceUsecase: sl(),
-      fetchServiceByIdUseCase: sl()));
+      fetchServiceByIdUseCase: sl(),
+      updateServiceUseCase: sl()));
   sl.registerFactory(
     () => ProviderRegistrationBloc(providerRegistrationUseCase: sl()),
   );
@@ -160,6 +162,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
       () => FetchEmployeeDashboardUseCase(repository: sl()));
   sl.registerLazySingleton(() => DeletePlanUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateServiceUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<LoginRepository>(

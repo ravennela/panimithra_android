@@ -63,6 +63,8 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   Timer? _subDebounce;
   int subTotalRecords = 0;
   int subTotalLength = 0;
+  String? selectedCategoryId;
+  String? selectedSubCategoryId;
   int subPage = 1;
   bool subHasMoreRecords = true;
   TimeOfDay? startTime;
@@ -344,7 +346,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                 return const Center(
                                     child: CircularProgressIndicator());
                               }
-                         
+
                               if (state is CategoriesError) {
                                 return const SizedBox.shrink();
                               }
@@ -851,11 +853,11 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                         .getString(ApiConstants.userId) ??
                                     '';
 
-                                String availableStartTime =
-                                    "${startTime!.hour}:${startTime!.minute} ${startTime!.period.name.toUpperCase()}";
-                                String availableEndDates =
-                                    "${endTime!.hour}:${endTime!.minute} ${endTime!.period.name.toUpperCase()}";
-                                print("api call");
+                                final availableEndDates =
+                                    '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}'; // "09:45"
+                                final availableStartTime =
+                                    '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}'; // "09:45"
+
                                 Map<String, dynamic> data = {
                                   "employeeId": employeeId,
                                   "name": _serviceNameController.text,
@@ -866,6 +868,8 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   "duration": 1,
                                   "status": "ACTIVE",
                                   "iconUrl": _selectedFile,
+                                  "timeIn": availableStartTime,
+                                  "timeOut": availableEndDates,
                                   "addInfoOne": addInfoLine1Controller.text,
                                   "addInfoTwo": addInfoLine2Controller.text,
                                   "addInfoThree": addInfoLine3Controller.text,
@@ -891,8 +895,8 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                               },
                               child: Text(
                                 state is CreateServiceLoading
-                                    ? 'Create Servicing ....'
-                                    : "Creating Service",
+                                    ? 'Creating Service ....'
+                                    : "Create Service",
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,

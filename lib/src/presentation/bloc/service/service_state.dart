@@ -120,3 +120,23 @@ class ServiceByIdError extends ServiceState {
   @override
   List<Object?> get props => [message];
 }
+
+class UpdateServiceLoading extends ServiceState {}
+
+class UpdateServiceSuccess extends ServiceState {
+  final SuccessModel model;
+
+  const UpdateServiceSuccess(this.model);
+
+  @override
+  List<Object?> get props => [model];
+}
+
+class UpdateServiceError extends ServiceState {
+  final String message;
+
+  const UpdateServiceError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

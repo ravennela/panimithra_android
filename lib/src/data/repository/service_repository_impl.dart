@@ -66,6 +66,33 @@ class ServiceRepositoryImpl implements ServiceRepository {
   }
 
   @override
+  Future<Either<String, SuccessModel>> updateService({
+    required String serviceId,
+    required Map<String, dynamic> serviceData,
+    required String categoryId,
+    required String subCategoryId,
+  }) async {
+    try {
+      final response = await serviceDataSource.updateService(
+        serviceId: serviceId,
+        serviceData: serviceData,
+        categoryId: categoryId,
+        subCategoryId: subCategoryId,
+      );
+      final result = SuccessModel.fromJson(response);
+      return Right(result);
+    } on SocketException {
+      return const Left("No Internet connection. Please check your network.");
+    } on DioException catch (e) {
+      return Left(e.response?.data["message"] ?? "Failed to update service.");
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } catch (e) {
+      return Left("Unexpected error: ${e.toString()}");
+    }
+  }
+
+  @override
   Future<Either<String, FetchSearchServiceModel>> fetchSearchService(
       {int? page,
       String? serviceName,
