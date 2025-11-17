@@ -56,6 +56,7 @@ import 'package:panimithra/src/domain/usecase/provider_registration_usecase.dart
 import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/top_five_review_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
+import 'package:panimithra/src/domain/usecase/update_payment_status_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
@@ -114,6 +115,7 @@ Future<void> init() async {
   sl.registerFactory(() => BookingBloc(
       createBookingUsecase: sl(),
       getBookingsUseCase: sl(),
+      updatePaymentStatusUseCase: sl(),
       updateBookingStatusUsecase: sl(),
       getBookingDetailsUsecase: sl()));
   sl.registerFactory(() => ReviewBloc(
@@ -163,6 +165,7 @@ Future<void> init() async {
       () => FetchEmployeeDashboardUseCase(repository: sl()));
   sl.registerLazySingleton(() => DeletePlanUseCase(sl()));
   sl.registerLazySingleton(() => UpdateServiceUseCase(sl()));
+  sl.registerLazySingleton(() => UpdatePaymentStatusUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<LoginRepository>(

@@ -92,4 +92,29 @@ class BookingRepoImpl implements BookingRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, SuccessModel>> updatePaymentStatusRepo({
+    required String bookingId,
+  }) async {
+    try {
+      final response = await remoteDatasource.updatePaymentStatus(
+        bookingId: bookingId,
+      );
+
+      final result = SuccessModel.fromJson(response);
+      return Right(result);
+    } on SocketException {
+      return const Left("No Internet Connection");
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['error']?.toString() ??
+            "Error occurred. Please try again",
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

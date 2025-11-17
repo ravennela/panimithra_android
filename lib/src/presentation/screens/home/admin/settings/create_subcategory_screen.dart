@@ -288,8 +288,14 @@ class _CreateCategoryScreenState extends State<CreateSubCategoryScreen> {
                           context: context,
                           type: 'success',
                           title: "Created Subcategory Successfully");
+                      context.read<SubcategoryBloc>().add(
+                            FetchSubcategoriesEvent(
+                              categoryId: widget.categoryId,
+                              page: 0,
+                            ),
+                          );
+                      context.pop();
                     }
-                    context.pop();
                   },
                   builder: (context, state) {
                     return ElevatedButton(

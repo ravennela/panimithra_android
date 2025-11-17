@@ -283,6 +283,9 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
                           context: context,
                           type: 'success',
                           title: "Category Created Successfully");
+                      context
+                          .read<CategoriesBloc>()
+                          .add(FetchCategoriesEvent(page: 0));
                       context.pop();
                     }
                   },

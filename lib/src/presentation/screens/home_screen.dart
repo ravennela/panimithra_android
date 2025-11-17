@@ -11,8 +11,10 @@ import 'package:panimithra/src/presentation/screens/home/employee/home/employee_
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/my_services_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/payments/payments_screen.dart';
 
-import 'package:panimithra/src/presentation/screens/home/employee/profile/profile_screen.dart';
-import 'package:panimithra/src/presentation/screens/home/user/bookings/bookings_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/test_screen.dart'
+    hide BookingCard;
+import 'package:panimithra/src/presentation/screens/home/user/bookings/bookings_screen.dart'
+    hide BookingCard;
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/home_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/profile/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const EmployeeDashboard(), // Index 0
     const MyBookingsScreen(), // Index 1
     const SubscriptionScreen(),
+
     const MyServicesScreen(),
     const UserProfileScreen()
 
@@ -52,10 +55,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> userScreens = [
     const FindServicesScreen(), // Index 0
     const BookingsScreen(), // Index 1
-    const Center(
-      child: Text("Payments"),
-    ),
-    const UserProfileScreen()
+
+    const UserProfileScreen(),
+    Center(
+      child: Text("Test"),
+    )
 // Index 2
   ];
 

@@ -20,43 +20,65 @@ class BookingDetailsModel {
   final String employeeContact;
   final String serviceDescription;
   final String paymentStatus;
+  final String customerName;
+  final String customerContactNumber;
+  final String customerAddress;
+  final String customerEmail;
+  final String addInfoOne;
+  final String addInfoTwo;
+  final String addInfoThree;
+  final String iconUrl;
 
-  BookingDetailsModel({
-    required this.bookingId,
-    required this.serviceId,
-    required this.customerId,
-    required this.employeeId,
-    required this.bookingStatus,
-    required this.serviceName,
-    required this.providerName,
-    required this.bookDate,
-    required this.price,
-    required this.category,
-    required this.employeeContact,
-    required this.serviceDescription,
-    required this.paymentStatus,
-  });
+  BookingDetailsModel(
+      {required this.bookingId,
+      required this.serviceId,
+      required this.customerId,
+      required this.employeeId,
+      required this.customerEmail,
+      required this.bookingStatus,
+      required this.serviceName,
+      required this.providerName,
+      required this.bookDate,
+      required this.customerAddress,
+      required this.price,
+      required this.customerContactNumber,
+      required this.category,
+      required this.customerName,
+      required this.employeeContact,
+      required this.serviceDescription,
+      required this.paymentStatus,
+      required this.addInfoOne,
+      required this.addInfoTwo,
+      required this.addInfoThree,
+      required this.iconUrl});
 
   factory BookingDetailsModel.fromJson(Map<String, dynamic> json) {
     return BookingDetailsModel(
-      bookingId: json["bookingId"] ?? "",
-      serviceId: json["serviceId"] ?? "",
-      customerId: json["customerId"] ?? "",
-      employeeId: json["employeeId"] ?? "",
-      bookingStatus: json["bookingStatus"] ?? "",
-      serviceName: json["serviceName"] ?? "",
-      providerName: json["providerName"] ?? "",
-      bookDate: json["bookDate"] != null
-          ? DateTime.tryParse(json["bookDate"].toString())
-          : DateTime(0, 0, 0, 0),
-      price: (json["price"] is int)
-          ? (json["price"] as int).toDouble()
-          : (json["price"] ?? 0).toDouble(),
-      category: json["category"] ?? "",
-      employeeContact: json["employeeContact"] ?? "",
-      serviceDescription: json["serviceDescription"] ?? "",
-      paymentStatus: json["paymentStatus"] ?? "",
-    );
+        bookingId: json["bookingId"] ?? "",
+        serviceId: json["serviceId"] ?? "",
+        customerId: json["customerId"] ?? "",
+        employeeId: json["employeeId"] ?? "",
+        bookingStatus: json["bookingStatus"] ?? "",
+        serviceName: json["serviceName"] ?? "",
+        providerName: json["providerName"] ?? "",
+        customerName: json["customerName"] ?? "",
+        customerEmail: json["customerEmail"] ?? "",
+        addInfoOne: json["addInfoOne"] ?? "",
+        addInfoTwo: json["addInfoTwo"] ?? "",
+        addInfoThree: json["addInfoThree"] ?? "",
+        customerContactNumber: json["customerContactNumber"] ?? "",
+        customerAddress: json["customerLocation"] ?? "",
+        bookDate: json["bookDate"] != null
+            ? DateTime.tryParse(json["bookDate"].toString())
+            : DateTime(0, 0, 0, 0),
+        price: (json["price"] is int)
+            ? (json["price"] as int).toDouble()
+            : (json["price"] ?? 0).toDouble(),
+        category: json["category"] ?? "",
+        employeeContact: json["employeeContact"] ?? "",
+        serviceDescription: json["serviceDescription"] ?? "",
+        paymentStatus: json["paymentStatus"] ?? "",
+        iconUrl: json["iconUrl"] ?? "");
   }
 
   Map<String, dynamic> toJson() => {

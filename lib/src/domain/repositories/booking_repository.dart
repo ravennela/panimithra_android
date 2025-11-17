@@ -13,4 +13,8 @@ abstract class BookingRepository {
   });
   Future<Either<String, BookingDetailsModel>> getBookingDetailsRepo(
       String bookingId);
+
+  Future<Either<String, SuccessModel>> updatePaymentStatusRepo({
+    required String bookingId,
+  });
 }

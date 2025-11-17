@@ -53,6 +53,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   void initState() {
     super.initState();
     context.read<ServiceBloc>().add(const SearchServiceEvent(page: 0));
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -68,8 +69,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     if (isLoading) {
       return;
     }
+    print("is Loading" + isLoading.toString());
     if (!mounted) return;
     if (_debounce?.isActive ?? false) _debounce?.cancel();
+    print("total records" + totalRecords.toString());
+    print("total fetched" + totalLength.toString());
     _debounce = Timer(const Duration(milliseconds: 300), () {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 100) {
@@ -77,7 +81,6 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
           return;
         }
         if (totalLength <= totalRecords) {
-          x = 2;
           page += 1;
           context.read<ServiceBloc>().add(SearchServiceEvent(page: page));
         }
@@ -341,8 +344,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                               const Center(child: CircularProgressIndicator()));
                     }
                     return ServiceCard(
-                      imageUrl:
-                          'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600',
+                      imageUrl: state.items[index].iconUrl != null
+                          ? state.items[index].iconUrl.toString()
+                          : 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600',
                       title:
                           capitalize(state.items[index].serviceName.toString()),
                       subtitle: 'Eco',

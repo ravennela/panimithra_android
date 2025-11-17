@@ -460,13 +460,13 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                               controller: _serviceNameController,
                               maxLines: 1,
                               label: 'Service Name',
-                              maxLenghth: 15,
+                              maxLenghth: 100,
                               hint: 'e.g., Leaky Faucet Repair',
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _descriptionController,
-                              maxLenghth: 30,
+                              maxLenghth: 100,
                               label: 'Service Description',
                               hint: 'Describe the service you offer...',
                               maxLines: 4,
@@ -475,7 +475,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addressController,
                               label: 'Address',
-                              maxLenghth: 40,
+                              maxLenghth: 100,
                               hint: 'Address',
                               maxLines: 4,
                             ),
@@ -483,7 +483,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addInfoLine1Controller,
                               label: 'Additinal Info 1',
-                              maxLenghth: 40,
+                              maxLenghth: 100,
                               hint: 'About Your Items Inlided In Service',
                               maxLines: 2,
                             ),
@@ -491,7 +491,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addInfoLine2Controller,
                               label: 'Additinal Info 2',
-                              maxLenghth: 40,
+                              maxLenghth: 100,
                               hint: 'About Your Items Inlided In Service',
                               maxLines: 2,
                             ),
@@ -499,7 +499,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: addInfoLine3Controller,
                               label: 'Additinal Info 3',
-                              maxLenghth: 40,
+                              maxLenghth: 100,
                               hint: 'About Your Items Inlided In Service',
                               maxLines: 2,
                             ),
@@ -883,7 +883,6 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   ],
                                   "address": addressController.text
                                 };
-                                print("api call");
 
                                 context.read<ServiceBloc>().add(
                                     CreateServiceEvent(

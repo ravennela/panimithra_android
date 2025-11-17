@@ -66,6 +66,7 @@ class SearchServiceItem {
   String? subCategoroyDescription;
   double? avgrating;
   double? price;
+  String? iconUrl;
   String? employeeName;
   String? employeeId;
   DateTime? createdAt;
@@ -80,6 +81,7 @@ class SearchServiceItem {
       this.longitude,
       this.duration,
       this.serviceId,
+      this.iconUrl,
       this.bookings,
       this.startTime,
       this.endTime,
@@ -97,6 +99,7 @@ class SearchServiceItem {
           serviceName: json["serviceName"],
           description: json["description"],
           status: json["status"],
+          iconUrl: json["iconUrl"],
           createdAt: json["createdAt"] != null
               ? DateTime.tryParse(json["createdAt"])
               : null,

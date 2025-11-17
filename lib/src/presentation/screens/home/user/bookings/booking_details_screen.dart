@@ -121,10 +121,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 },
                 builder: (context, state) {
                   if (state is BookingErrorState) {
-                    return Text("Retry");
+                    return const Text("Retry");
                   }
                   if (state is BookingDetailsLoading) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
                   if (state is BookingDetailsLoaded) {
                     return Column(
@@ -148,7 +148,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
                         // Service Details Card
                         _buildServiceDetails(
-                            state.bookingDetails.serviceDescription),
+                            state.bookingDetails.serviceDescription,
+                            state.bookingDetails.addInfoOne,
+                            state.bookingDetails.addInfoTwo,
+                            state.bookingDetails.addInfoThree,
+                            state.bookingDetails.iconUrl),
                         const SizedBox(height: 16),
 
                         // Payment Details Card
@@ -301,15 +305,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   children: [
                     Text(
                       providerName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       categoryName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Colors.grey,
                       ),
@@ -365,9 +369,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     );
   }
 
-  Widget _buildServiceDetails(
-    String serviceDescription,
-  ) {
+  Widget _buildServiceDetails(String serviceDescription, String addInfoOne,
+      String addInfoTwo, String addInfoThree, String iconUrl) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -393,9 +396,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildServiceItem('Deep cleaning for 2-bedroom apartment'),
-          _buildServiceItem('Kitchen appliances cleaning (Oven, Fridge)'),
-          _buildServiceItem('Window cleaning (interior)'),
+          if (addInfoOne.isNotEmpty) _buildServiceItem(addInfoOne),
+          if (addInfoTwo.isNotEmpty) _buildServiceItem(addInfoTwo),
+          if (addInfoThree.isNotEmpty) _buildServiceItem(addInfoThree),
           const SizedBox(height: 20),
           const Text(
             'Description',
@@ -424,58 +427,23 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Opening image 1...')),
-                    );
-                  },
-                  child: ClipRRect(
+              GestureDetector(
+                onTap: () {
+                  print(iconUrl);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Opening image 1...')),
+                  );
+                },
+                child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
-                      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400',
+                      iconUrl == ""
+                          ? 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400'
+                          : iconUrl,
                       height: 100,
+                      width: 120,
                       fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Opening image 2...')),
-                    );
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Opening image 3...')),
-                    );
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?w=400',
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+                    )),
               ),
             ],
           ),

@@ -1,7 +1,7 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:8080';
+  //static const String baseUrl = 'http://localhost:8080';
   //static const String baseUrl = 'http://192.168.22.38:8080';
-  //static const String baseUrl = "https://panimithra.onrender.com";
+  static const String baseUrl = "https://panimithra.onrender.com";
   static const String login = '$baseUrl/auth/login';
   static const String registration = "/auth/create-user";
   static const String fetchCategoryApi = "$baseUrl/categories/fetch-category";
@@ -37,6 +37,8 @@ class ApiConstants {
       "$baseUrl/dashboard/employee-dashboard";
 
   static const String updateServiceApi = "$baseUrl/service/update-service";
+  static const String updatePaymentStatusApi =
+      "$baseUrl/bookings/update-payment-status";
   static const String apiKey = 'YOUR_API_KEY_HERE';
   static const String token = "token";
   static const String userId = "userId";

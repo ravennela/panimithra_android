@@ -106,19 +106,14 @@ class CustomBottomNavBar extends StatelessWidget {
           index: 1,
         ),
         _buildNavItem(
-          icon: Icons.insert_chart_outlined,
-          label: 'Reports',
+          icon: Icons.text_snippet,
+          label: 'Test',
           index: 2,
         ),
         _buildNavItem(
-          icon: Icons.local_shipping_outlined,
-          label: 'Inventory',
+          icon: Icons.person,
+          label: 'Profile',
           index: 3,
-        ),
-        _buildNavItem(
-          icon: Icons.apps_outlined,
-          label: 'More',
-          index: 4,
         ),
       ];
     } else {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'package:panimithra/src/common/images.dart';
 import 'package:panimithra/src/common/routes.dart';
@@ -32,268 +31,182 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-                // Icon
-                Icon(
-                  Icons.handyman_rounded,
-                  size: 64,
-                  color: const Color(0xFF0D6EFD),
-                ),
+                const SizedBox(height: 60),
 
-                const SizedBox(height: 20),
-
-                // Title
-                Text(
-                  "Login",
-                  style: GoogleFonts.inter(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Username
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Username",
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _usernameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter usename';
-                    }
-                  },
-                  decoration: InputDecoration(
-                    hintText: "Enter your username",
-                    hintStyle: GoogleFonts.inter(
-                      color: Colors.grey.shade600,
-                      fontSize: 15,
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF3F4F6),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                      horizontal: 16,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Password
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Password",
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter password';
-                    }
-                  },
-                  decoration: InputDecoration(
-                    hintText: "Enter your password",
-                    hintStyle: GoogleFonts.inter(
-                      color: Colors.grey.shade600,
-                      fontSize: 15,
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF3F4F6),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                      horizontal: 16,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () {
-                      // TODO: Forgot Password Action
-                    },
-                    child: Text(
-                      "Forgot Password?",
-                      style: GoogleFonts.inter(
-                        color: const Color(0xFF0D6EFD),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 28),
-
-                // Login Button
-                SizedBox(
-                  width: double.infinity,
-                  child: BlocListener<LoginBloc, LoginState>(
-                    listener: (context, state) {
-                      if (state is LoginSuccess) {
-                        ToastHelper.showToast(
-                            context: context,
-                            type: 'success',
-                            title: "Login Successful");
-                        context.go(AppRoutes.HOME_SCREEN_PATH);
-                      }
-                      if (state is LoginError) {
-                        ToastHelper.showToast(
-                            context: context,
-                            type: 'error',
-                            title: state.message);
-                      }
-                    },
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (!formKey.currentState!.validate()) {
-                          return;
-                        }
-                        Map<String, dynamic> data = {
-                          "username": _usernameController.text,
-                          "password": _passwordController.text
-                        };
-                        context
-                            .read<LoginBloc>()
-                            .add(CreateloginLoginEvent(data));
-                        // TODO: Login Logic
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D6EFD),
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        "Login",
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Divider
-                Row(
+                // Logo + Title
+                Column(
                   children: [
-                    Expanded(child: Divider(color: Colors.grey.shade400)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        "OR",
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 12,
+                            offset: Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.handyman_rounded,
+                        size: 48,
+                        color: Color(0xFF0D6EFD),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Welcome Back 👋",
+                      style: GoogleFonts.inter(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "Login to continue",
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+
+                // Card container
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 24,
+                        offset: Offset(0, 12),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Username
+                      Text(
+                        "Username",
                         style: GoogleFonts.inter(
-                          color: Colors.grey.shade600,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                    Expanded(child: Divider(color: Colors.grey.shade400)),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                      const SizedBox(height: 8),
+                      _buildInputField(
+                        controller: _usernameController,
+                        hint: "Enter your username",
+                      ),
 
-                // Google Button
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Image.asset(
-                      IconsData.GOOGLE_ICON,
-                      width: 22,
-                      height: 22,
-                    ),
-                    label: Text(
-                      "Continue with Google",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                      const SizedBox(height: 20),
+
+                      // Password
+                      Text(
+                        "Password",
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 8),
+                      _buildInputField(
+                        controller: _passwordController,
+                        hint: "Enter your password",
+                        obscure: true,
                       ),
-                      side: BorderSide(color: Colors.grey.shade300),
-                    ),
+
+                      const SizedBox(height: 12),
+
+                      // Forgot password
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "Forgot Password?",
+                          style: GoogleFonts.inter(
+                            color: Color(0xFF0D6EFD),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // Login Button
+                      BlocListener<LoginBloc, LoginState>(
+                        listener: (context, state) {
+                          if (state is LoginSuccess) {
+                            ToastHelper.showToast(
+                              context: context,
+                              type: 'success',
+                              title: "Login Successful",
+                            );
+                            context.go(AppRoutes.HOME_SCREEN_PATH);
+                          } else if (state is LoginError) {
+                            ToastHelper.showToast(
+                              context: context,
+                              type: 'error',
+                              title: state.message,
+                            );
+                          }
+                        },
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (!formKey.currentState!.validate()) return;
+                              context.read<LoginBloc>().add(
+                                    CreateloginLoginEvent({
+                                      "username": _usernameController.text,
+                                      "password": _passwordController.text
+                                    }),
+                                  );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: const Color(0xFF0D6EFD),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              elevation: 3,
+                            ),
+                            child: Text(
+                              "Login",
+                              style: GoogleFonts.inter(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
 
-                // Apple Button
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Image.asset(
-                      IconsData.APPLE_ICON,
-                      width: 22,
-                      height: 22,
-                    ),
-                    label: Text(
-                      "Continue with Apple",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: BorderSide(color: Colors.grey.shade300),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
 
-                // Sign Up
+                // Register
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -301,28 +214,57 @@ class _LoginScreenState extends State<LoginScreen> {
                       "Don't have an account? ",
                       style: GoogleFonts.inter(
                         fontSize: 15,
-                        color: Colors.grey.shade600,
+                        color: Colors.black54,
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        // TODO: Navigate to Sign Up
-                        context.push(AppRoutes.WELCOME_ROUTE_PATH);
-                      },
+                      onTap: () => context.push(AppRoutes.WELCOME_ROUTE_PATH),
                       child: Text(
                         "Sign Up",
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF0D6EFD),
+                          color: Color(0xFF0D6EFD),
                         ),
                       ),
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 28),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hint,
+    bool obscure = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      validator: (value) =>
+          value == null || value.isEmpty ? "This field cannot be empty" : null,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: const Color(0xFFF6F7F9),
+        hintStyle: GoogleFonts.inter(
+          color: Colors.grey.shade500,
+          fontSize: 15,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
         ),
       ),
     );

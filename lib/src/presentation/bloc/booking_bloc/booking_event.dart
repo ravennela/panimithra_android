@@ -32,3 +32,11 @@ class FetchBookingDetailsEvent extends BookingEvent {
   FetchBookingDetailsEvent(this.bookingId);
   List<Object?> get props => [bookingId];
 }
+
+class UpdatePaymentStatusEvent extends BookingEvent {
+  final String bookingId;
+
+  UpdatePaymentStatusEvent({required this.bookingId});
+
+  List<Object?> get props => [bookingId];
+}

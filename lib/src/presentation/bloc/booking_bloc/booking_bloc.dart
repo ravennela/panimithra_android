@@ -6,6 +6,7 @@ import 'package:panimithra/src/domain/usecase/booking_byid_usecase.dart';
 import 'package:panimithra/src/domain/usecase/create_booking_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_booking_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
+import 'package:panimithra/src/domain/usecase/update_payment_status_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
 
@@ -14,16 +15,19 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final GetBookingsUseCase getBookingsUseCase;
   final UpdateBookingStatusUsecase updateBookingStatusUsecase;
   final GetBookingDetailsUsecase getBookingDetailsUsecase;
+  final UpdatePaymentStatusUseCase updatePaymentStatusUseCase;
   BookingBloc(
       {required this.createBookingUsecase,
       required this.getBookingsUseCase,
       required this.updateBookingStatusUsecase,
+      required this.updatePaymentStatusUseCase,
       required this.getBookingDetailsUsecase})
       : super(BookingInitalState()) {
     on<CreateBookingEvent>(_createBookingHandler);
     on<FetchBookingsEvent>(_onFetchBookings);
     on<UpdateBookingStatusEvent>(_onUpdateBookingStatus);
     on<FetchBookingDetailsEvent>(_onFetchBookingDetails);
+    on<UpdatePaymentStatusEvent>(_onUpdatePaymentStatus);
   }
 
   FutureOr<void> _createBookingHandler(
@@ -87,6 +91,18 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     result.fold(
       (error) => emit(BookingDetailsError(error)),
       (data) => emit(BookingDetailsLoaded(data)),
+    );
+  }
+
+  FutureOr<void> _onUpdatePaymentStatus(
+      UpdatePaymentStatusEvent event, Emitter<BookingState> emit) async {
+    emit(UpdatePaymentStatusLoading());
+
+    final result = await updatePaymentStatusUseCase(event.bookingId);
+
+    result.fold(
+      (failure) => emit(UpdatePaymentStatusError(failure)),
+      (success) => emit(UpdatePaymentStatusLoaded(success)),
     );
   }
 }

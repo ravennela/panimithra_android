@@ -41,6 +41,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: Column(
         children: [
@@ -51,7 +52,6 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                     context: context, type: 'error', title: state.message);
               }
               if (state is ServiceByIdLoaded) {
-                print("Loaded state" + state.service.employeeId.toString());
                 employeeId = state.service.employeeId.toString();
                 name = state.service.serviceName;
                 description = state.service.description;
@@ -60,8 +60,18 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
             },
             builder: (context, state) {
               if (state is ServiceByIdLoading) {
-                return Center(
-                  child: CircularProgressIndicator(),
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: size.height * 0.3,
+                    ),
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    SizedBox(
+                      height: size.height * 0.4,
+                    ),
+                  ],
                 );
               }
               if (state is ServiceByIdError) {
@@ -107,7 +117,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                         Stack(
                           children: [
                             Image.network(
-                              'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800',
+                              state.service.imageUrl != null
+                                  ? state.service.imageUrl.toString()
+                                  : 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800',
                               width: double.infinity,
                               height: 250,
                               fit: BoxFit.cover,
@@ -167,7 +179,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                     // Breadcrumb
                                     Text(
                                       '${state.service.categoryName} > ${state.service.subCategoryName}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -211,7 +223,6 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 12),
-
                                     Row(
                                       children: [
                                         Icon(
@@ -316,15 +327,21 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                     ),
                                     const SizedBox(height: 16),
 
-                                    _buildIncludedItem(
-                                      '${state.service.addInfoOne}',
-                                    ),
-                                    _buildIncludedItem(
-                                      '${state.service.addInfoTwo}',
-                                    ),
-                                    _buildIncludedItem(
-                                      '${state.service.addInfoThree}',
-                                    ),
+                                    if (state.service.addInfoOne != null &&
+                                        state.service.addInfoOne!.isNotEmpty)
+                                      _buildIncludedItem(
+                                        '${state.service.addInfoOne}',
+                                      ),
+                                    if (state.service.addInfoTwo != null &&
+                                        state.service.addInfoTwo!.isNotEmpty)
+                                      _buildIncludedItem(
+                                        '${state.service.addInfoTwo}',
+                                      ),
+                                    if (state.service.addInfoThree != null &&
+                                        state.service.addInfoThree!.isNotEmpty)
+                                      _buildIncludedItem(
+                                        '${state.service.addInfoThree}',
+                                      ),
                                     const SizedBox(height: 24),
 
                                     // Reviews Section
@@ -457,7 +474,6 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                       String userId =
                           preferences.getString(ApiConstants.userId) ?? "";
                       if (employeeId == "") {
-                        print("inside data");
                         return;
                       }
 
@@ -472,8 +488,6 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                         "employeeId": employeeId,
                         "bookingStatus": "PENDING"
                       };
-
-                      print(data);
 
                       context
                           .read<BookingBloc>()

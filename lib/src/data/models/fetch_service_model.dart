@@ -58,34 +58,43 @@ class ServiceItem {
   String? startTime;
   String? endTime;
   String? iconUrl;
+  String? subcategoryName;
+  int? duration;
+  DateTime? createdAt;
 
-  ServiceItem({
-    this.id,
-    this.serviceName,
-    this.startTime,
-    this.endTime,
-    this.categoryName,
-    this.description,
-    this.price,
-    this.iconUrl,
-    this.status,
-    this.categoryId,
-    this.subCategoryId,
-  });
+  ServiceItem(
+      {this.id,
+      this.serviceName,
+      this.startTime,
+      this.endTime,
+      this.categoryName,
+      this.description,
+      this.price,
+      this.iconUrl,
+      this.createdAt,
+      this.status,
+      this.categoryId,
+      this.subCategoryId,
+      this.duration,
+      this.subcategoryName});
 
   factory ServiceItem.fromJson(Map<String, dynamic> json) => ServiceItem(
-        id: json["id"],
-        serviceName: json["serviceName"],
-        categoryName: json["categoryName"],
-        startTime: json["startTime"] ?? "",
-        endTime: json["endTime"] ?? "",
-        description: json["description"],
-        price: json["price"] ?? 0.0,
-        status: json["status"],
-        iconUrl: json["iconUrl"],
-        categoryId: json["categoryId"],
-        subCategoryId: json["subCategoryId"],
-      );
+      id: json["id"],
+      serviceName: json["serviceName"],
+      categoryName: json["categoryName"],
+      startTime: json["startTime"] ?? "",
+      endTime: json["endTime"] ?? "",
+      description: json["description"],
+      price: json["price"] ?? 0.0,
+      status: json["status"],
+      iconUrl: json["iconUrl"],
+      categoryId: json["categoryId"],
+      createdAt: json["createdAt"] != null
+          ? DateTime.tryParse(json["createdAt"])
+          : null,
+      subCategoryId: json["subCategoryId"],
+      subcategoryName: json["subCategoryName"] ?? "",
+      duration: json["duration"] ?? 0);
 
   Map<String, dynamic> toJson() => {
         "id": id,

@@ -1,177 +1,232 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:panimithra/src/common/routes.dart';
+import 'package:intl/intl.dart';
 
-class TopSellingProductsList extends StatefulWidget {
-  const TopSellingProductsList({super.key});
+class BookingDetailsScreenTest extends StatelessWidget {
+  final String serviceName;
+  final String description;
+  final String bookingId;
+  final DateTime bookingDate;
+  final String bookingStatus;
+  final double totalAmount;
+  final String paymentStatus;
+  final String employeeId;
 
-  @override
-  State<TopSellingProductsList> createState() => _TopSellingProductsListState();
-}
+  const BookingDetailsScreenTest({
+    super.key,
+    required this.serviceName,
+    required this.description,
+    required this.bookingId,
+    required this.bookingDate,
+    required this.bookingStatus,
+    required this.totalAmount,
+    required this.paymentStatus,
+    required this.employeeId,
+  });
 
-class _TopSellingProductsListState extends State<TopSellingProductsList> {
-  final List<Map<String, dynamic>> products = [
-    {
-      'name': 'Nike',
-      'subtitle': 'Air Jordan 1 Zoom Comfort 2',
-      'amount': '\$680.50',
-      'status': 'In Stock',
-      'image':
-          'https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/a2a45875170291.5c45acd8af715.jpg',
-    },
-    {
-      'name': 'Zara',
-      'subtitle': 'Geometric Print Shirt',
-      'amount': '\$845.75',
-      'status': 'In Stock',
-      'image': 'https://via.placeholder.com/60',
-    },
-    {
-      'name': 'Nike',
-      'subtitle': 'Nike SB Blazer Court Mid',
-      'amount': '\$930.00',
-      'status': 'In Stock',
-      'image': 'https://via.placeholder.com/60',
-    },
-  ];
+  Color getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case "COMPLETED":
+        return Colors.green;
+      case "REJECTED":
+        return Colors.red;
+      case "PENDING":
+      default:
+        return Colors.orange;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push(AppRoutes.CREATE_SERVICE_PATH);
-        },
-        child: Icon(Icons.add),
-      ),
+      backgroundColor: const Color(0xffF6F6F6),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        title: const Text("Booking Details",
+            style: TextStyle(fontWeight: FontWeight.w600)),
+        centerTitle: true,
         elevation: 0,
-        title: const Column(
+        backgroundColor: Colors.white,
+      ),
+      bottomNavigationBar: paymentStatus.toUpperCase() == "PAID"
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    offset: Offset(0, -2),
+                    blurRadius: 5,
+                    color: Color(0x11000000),
+                  )
+                ],
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: Call your API or navigate
+                    print("Mark Payment as Paid clicked");
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Mark Payment as Paid",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : null,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'My Services',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+            // STATUS CARD
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    offset: const Offset(0, 2),
+                    blurRadius: 6,
+                    color: Colors.black.withOpacity(0.06),
+                  )
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle,
+                      color: getStatusColor(bookingStatus), size: 26),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Booking ${bookingStatus.toLowerCase()}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: getStatusColor(bookingStatus),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        "Your booking is processed successfully",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      )
+                    ],
+                  ),
+                ],
               ),
             ),
-            Text(
-              'Performance Overview',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
+
+            const SizedBox(height: 16),
+
+            // BOOKING DETAILS CARD
+            _buildCard(
+              title: "Booking Details",
+              child: Column(
+                children: [
+                  _tile(
+                      "Service", serviceName + "jhbgfcvbnm,fcvgbnmkcfvgbhnmk"),
+                  _tile("Description", description),
+                  _tile("Booking ID", bookingId),
+                  _tile(
+                    "Booking Date",
+                    DateFormat('dd MMM yyyy').format(bookingDate),
+                  ),
+
+                  /// **Fixed Time Slot (you can change later)**
+                  _tile("Time Slot", "07:45 AM – 09:45 PM"),
+
+                  _tile("Assigned Employee", employeeId),
+                ],
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // PAYMENT SUMMARY CARD
+            _buildCard(
+              title: "Payment Summary",
+              child: Column(
+                children: [
+                  _tile("Total Amount", "₹ $totalAmount"),
+                  _tile("Payment Status", paymentStatus),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey[300],
-              child: const Icon(Icons.person, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _tile(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+              width: 130,
+              child: Text(label,
+                  style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500))),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
         ],
       ),
-      body: ListView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return Container(
-            padding: EdgeInsets.all(12),
-            margin: EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                // Product Image
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Image.network(
-                      product['image'],
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12),
+    );
+  }
 
-                // Product Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        product['name'],
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        product['subtitle'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Amount and Status
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      product['amount'],
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        product['status'],
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
+  Widget _buildCard({required String title, required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0, 2),
+            blurRadius: 6,
+            color: Colors.black.withOpacity(0.06),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 12),
+          child,
+        ],
       ),
     );
   }

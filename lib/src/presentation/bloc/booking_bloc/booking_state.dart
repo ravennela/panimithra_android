@@ -68,3 +68,19 @@ class BookingDetailsError extends BookingState {
 
   List<Object?> get props => [message];
 }
+
+class UpdatePaymentStatusLoading extends BookingState {}
+
+class UpdatePaymentStatusLoaded extends BookingState {
+  final SuccessModel success;
+  UpdatePaymentStatusLoaded(this.success);
+
+  List<Object?> get props => [success];
+}
+
+class UpdatePaymentStatusError extends BookingState {
+  final String message;
+  UpdatePaymentStatusError(this.message);
+
+  List<Object?> get props => [message];
+}
