@@ -33,6 +33,8 @@ abstract class ServiceDataSource {
     double? maxPrice,
     double? price,
     String? priceSort,
+    double? maxRating,
+    double? minRating,
   });
 
   Future<Map<String, dynamic>> fetchServiceById(String serviceId);
@@ -155,15 +157,18 @@ class ServiceDataSourceImpl implements ServiceDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> searchService(
-      {int? page,
-      String? serviceName,
-      String? categoryName,
-      String? subCategoryName,
-      double? minPrice,
-      double? maxPrice,
-      double? price,
-      String? priceSort}) async {
+  Future<Map<String, dynamic>> searchService({
+    int? page,
+    String? serviceName,
+    String? categoryName,
+    String? subCategoryName,
+    double? minPrice,
+    double? maxPrice,
+    double? price,
+    String? priceSort,
+    double? maxRating,
+    double? minRating,
+  }) async {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";
@@ -171,15 +176,20 @@ class ServiceDataSourceImpl implements ServiceDataSource {
         "Authorization": "Bearer $token",
         'Content-Type': 'application/json'
       };
+      print("min" + minRating.toString());
+      print("max" + maxRating.toString());
       String url = ApiConstants.searchService;
-      print("sort value" + priceSort.toString());
+      double latitude = preferences.getDouble(ApiConstants.latitude) ?? 0.0;
+      double longitude = preferences.getDouble(ApiConstants.longitude) ?? 0.0;
       final response = await dioClient.get(
           queryParameters: {
             'page': page ?? 0,
             'size': 10,
             if (serviceName != null && serviceName!.isNotEmpty)
               'serviceName': serviceName,
-            if (categoryName != null && categoryName!.isNotEmpty)
+            if (categoryName != null &&
+                categoryName!.isNotEmpty &&
+                categoryName != "all")
               'categoryName': categoryName,
             if (subCategoryName != null && subCategoryName!.isNotEmpty)
               'subCategoryName': subCategoryName,
@@ -187,12 +197,15 @@ class ServiceDataSourceImpl implements ServiceDataSource {
                 priceSort?.toLowerCase() == 'desc')
               'sort': 'price,${priceSort!.toLowerCase()}',
             if (minPrice != null) 'minPrice': minPrice,
-            if (maxPrice != null) 'maxPrice': maxPrice
+            if (maxPrice != null) 'maxPrice': maxPrice,
+            if (latitude != 0.0) 'latitude': latitude,
+            if (longitude != 0.0) 'longitude': longitude,
+            if (minRating != 0.0 && minRating != null) 'minRating': minRating
           },
           url, // Make sure you define this endpoint in ApiConstants
           options: Options(headers: headers));
       final Map<String, dynamic> jsonResponse = response.data;
-      print(jsonResponse["totalItems"]);
+
       final List<dynamic> services = jsonResponse['data'];
       print(services.length);
 

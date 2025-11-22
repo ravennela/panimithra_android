@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:panimithra/src/data/models/admin_dashboard_model.dart';
 import 'package:panimithra/src/data/models/employee_dashboard_model.dart';
 import 'package:panimithra/src/data/models/fetch_users_model.dart';
+import 'package:panimithra/src/data/models/success_model.dart';
 import 'package:panimithra/src/data/models/user_profile_model.dart';
 
 abstract class UserRepository {
@@ -18,4 +19,14 @@ abstract class UserRepository {
 
   Future<Either<String, EmployeeDashboardModel>> fetchEmployeeDashboard(
       {required String userId});
+
+  Future<Either<String, SuccessModel>> registerFcmToken({
+    required String deviceToken,
+  });
+
+  Future<Either<String, SuccessModel>> changeUserStatus({
+    required String userId,
+    required String status,
+  });
+  
 }

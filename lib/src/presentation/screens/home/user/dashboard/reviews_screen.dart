@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/toast.dart' show ToastHelper;
 import 'package:panimithra/src/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/review_bloc/review_event.dart';
@@ -113,7 +114,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              context.pop();
+            },
           ),
           title: const Text(
             'All Reviews',

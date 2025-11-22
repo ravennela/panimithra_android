@@ -3,8 +3,10 @@ import 'package:panimithra/src/data/models/employee_dashboard_model.dart';
 import 'package:panimithra/src/data/models/fetch_users_model.dart';
 import 'package:panimithra/src/data/models/user_profile_model.dart';
 import 'package:panimithra/src/data/models/admin_dashboard_model.dart';
+import 'package:panimithra/src/domain/usecase/change_user_status_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_employee_dashboard_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_users_usecase.dart';
+import 'package:panimithra/src/domain/usecase/register_fcm_usecase.dart';
 import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
 import 'package:panimithra/src/domain/usecase/admin_dashboard_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
@@ -15,16 +17,23 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
   final GetUserProfileUsecase getUserProfileUsecase;
   final FetchAdminDashboardUseCase getAdminDashboardUsecase;
   final FetchEmployeeDashboardUseCase getEmployeeDashboardUsecase;
+  final RegisterFcmTokenUseCase registerFcmTokenUseCase;
+  final ChangeUserStatusUseCase changeUserStatusUseCase;
+
   FetchUsersBloc({
     required this.fetchUsersUseCase,
     required this.getUserProfileUsecase,
     required this.getAdminDashboardUsecase,
     required this.getEmployeeDashboardUsecase,
+    required this.registerFcmTokenUseCase,
+    required this.changeUserStatusUseCase,
   }) : super(FetchUsersInitial()) {
     on<GetUsersEvent>(_onFetchUsers);
     on<GetUserProfileEvent>(_onGetUserProfile);
     on<GetAdminDashboardEvent>(_onGetAdminDashboard);
     on<GetEmployeeDashboardEvent>(_onGetEmployeeDashboard);
+    on<RegisterFcmTokenEvent>(_onRegisterFcmToken);
+    on<ChangeUserStatusEvent>(_onChangeUserStatus);
   }
 
   /// 🧩 Fetch all users
@@ -108,6 +117,42 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
       (failure) => emit(EmployeeDashboardError(failure.toString())),
       (EmployeeDashboardModel dashboardData) {
         emit(EmployeeDashboardLoaded(employeeDashboardModel: dashboardData));
+      },
+    );
+  }
+
+  Future<void> _onRegisterFcmToken(
+    RegisterFcmTokenEvent event,
+    Emitter<FetchUsersState> emit,
+  ) async {
+    emit(RegisterFcmTokenLoading());
+    final result = await registerFcmTokenUseCase.call(
+      deviceToken: event.deviceToken,
+    );
+
+    result.fold(
+      (failure) => emit(RegisterFcmTokenError(failure.toString())),
+      (success) {
+        emit(RegisterFcmTokenSuccess(message: success.message.toString()));
+      },
+    );
+  }
+
+  Future<void> _onChangeUserStatus(
+    ChangeUserStatusEvent event,
+    Emitter<FetchUsersState> emit,
+  ) async {
+    emit(ChangeUserStatusLoading());
+
+    final result = await changeUserStatusUseCase.call(
+      userId: event.userId,
+      status: event.status,
+    );
+
+    result.fold(
+      (failure) => emit(ChangeUserStatusError(failure.toString())),
+      (success) {
+        emit(ChangeUserStatusSuccess(message: success.message.toString()));
       },
     );
   }

@@ -3,7 +3,7 @@
 import 'flavor_config.dart';
 
 class API {
-  static const BASE_URL = 'http://192.168.22.38:8080';
+  static const BASE_URL = 'http://192.168.1.120:8080';
   //static String BASE_URL = FlavourConfig.instance.baseUrl;
 
   // Authentication

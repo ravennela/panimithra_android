@@ -47,7 +47,9 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            context.pop();
+          },
         ),
         title: const Text(
           'Create Category',

@@ -66,12 +66,12 @@ class CategoryItem {
   });
 
   factory CategoryItem.fromJson(Map<String, dynamic> json) => CategoryItem(
-        categoryId: json["categoryId"],
-        categoryName: json["categoryName"],
-        description: json["description"],
-        status: json["status"],
-        iconUrl: json["iconUrl"],
-        subCategoriesCount: json["subCategoriesCount"],
+        categoryId: json["categoryId"] ?? "",
+        categoryName: json["categoryName"] ?? "",
+        description: json["description"] ?? "",
+        status: json["status"] ?? "",
+        iconUrl: json["iconUrl"] ?? "",
+        subCategoriesCount: json["subCategoriesCount"] ?? "",
       );
 
   Map<String, dynamic> toJson() => {

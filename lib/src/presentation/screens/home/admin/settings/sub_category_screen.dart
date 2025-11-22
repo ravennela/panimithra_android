@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/routes.dart';
+import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/data/models/sub_category_model.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_event.dart';
@@ -109,13 +110,15 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         ],
       ),
       body: BlocBuilder<SubcategoryBloc, SubcategoryState>(
-        buildWhen: (previous, current) =>
-            ((current is SubcategoryLoaded || current is SubcategoryError) ||
-                (current is SubcategoryLoading && currentPage == 0)),
+        buildWhen: (previous, current) => ((current is SubcategoryLoaded ||
+                current is SubcategoryError ||
+                current is DeleteSubcategoryLoaded) ||
+            (current is SubcategoryLoading && currentPage == 0)),
         builder: (context, state) {
           if (state is SubcategoryLoading) {
             return const Center(
               child: CircularProgressIndicator(),
+              
             );
           }
 
@@ -345,6 +348,12 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                             color: const Color(0xFF2196F3),
                             onTap: () {
                               // Edit action
+                              context.push(
+                                  AppRoutes.EDIT_SUBCATEGORY_SCREEN_PATH,
+                                  extra: {
+                                    "categoryId": subcategory.categoryId,
+                                    "subCategoryId": subcategory.categoryId
+                                  });
                             },
                           ),
                           const SizedBox(width: 12),
@@ -352,9 +361,11 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                             icon: Icons.delete_outline,
                             label: 'Delete',
                             color: const Color(0xFFEF5350),
-                            onTap: () {
+                            onTap: () async {
                               _showDeleteDialog(
-                                  context, subcategory.categoryName ?? '');
+                                  context,
+                                  subcategory.categoryName ?? '',
+                                  subcategory.categoryId.toString());
                             },
                           ),
                           const Spacer(),
@@ -455,7 +466,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, String subcategoryName) {
+  _showDeleteDialog(BuildContext context, String subcategoryName,
+      String subCategoryId) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -486,21 +498,44 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                 ),
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                // Delete action
-                Navigator.pop(context);
+            BlocListener<SubcategoryBloc, SubcategoryState>(
+              listener: (context, state) {
+                if (state is DeleteSubcategoryError) {
+                  ToastHelper.showToast(
+                      context: context, type: "error", title: state.message);
+                }
+                if (state is DeleteSubcategoryLoaded) {
+                  ToastHelper.showToast(
+                      context: context,
+                      type: "success",
+                      title: "SubCategory Deleted Successfully");
+                  context.read<SubcategoryBloc>().add(
+                        FetchSubcategoriesEvent(
+                          categoryId: widget.categoryId,
+                          page: 0,
+                        ),
+                      );
+                  context.pop();
+                }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF5350),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Delete action
+                  context.read<SubcategoryBloc>().add(
+                      DeleteSubcategoryEvent(subcategoryId: subCategoryId));
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF5350),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Delete',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

@@ -232,7 +232,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Starts from \$${state.service.price.toString()}',
+                                          'Starts from \₹${state.service.price.toString()}',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
@@ -370,6 +370,12 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                     ),
                                     const SizedBox(height: 12),
                                     BlocConsumer<ReviewBloc, ReviewState>(
+                                        buildWhen: (previous, current) =>
+                                            (current is TopFiveRatingsError ||
+                                                current
+                                                    is TopFiveRatingsLoaded ||
+                                                current
+                                                    is TopFiveRatingsLoaded),
                                         builder: (context, state) {
                                           if (state is TopFiveRatingsLoading) {
                                             return const Center(
@@ -459,6 +465,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                           context: context,
                           type: 'success',
                           title: "Booking Created Successfully");
+                      context.pop();
                     }
                     if (state is CreateBookingErrorState) {
                       ToastHelper.showToast(

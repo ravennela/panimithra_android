@@ -6,6 +6,7 @@ import 'package:panimithra/src/data/datasource/remote/users_remote_datasource.da
 import 'package:panimithra/src/data/models/admin_dashboard_model.dart';
 import 'package:panimithra/src/data/models/employee_dashboard_model.dart';
 import 'package:panimithra/src/data/models/fetch_users_model.dart';
+import 'package:panimithra/src/data/models/success_model.dart';
 import 'package:panimithra/src/data/models/user_profile_model.dart';
 import 'package:panimithra/src/domain/repositories/users_repository.dart';
 
@@ -105,6 +106,54 @@ class UserRepositoryImpl implements UserRepository {
         e.response?.data['error']?.toString() ??
             "Error occurred while fetching employee dashboard. Please try again.",
       );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, SuccessModel>> registerFcmToken({
+    required String deviceToken,
+  }) async {
+    try {
+      final raw = await remoteDataSource.registerFcmToken(
+        deviceToken: deviceToken,
+      );
+
+      final model = SuccessModel.fromJson(raw);
+      return Right(model);
+    } on SocketException {
+      return const Left("No Internet Connection");
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['error']?.toString() ??
+            "Failed to register FCM token. Please try again.",
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, SuccessModel>> changeUserStatus({
+    required String userId,
+    required String status,
+  }) async {
+    try {
+      final response = await remoteDataSource.changeUserStatus(
+        userId: userId,
+        status: status,
+      );
+
+      return Right(SuccessModel.fromJson(response));
+    } on SocketException {
+      return const Left("No Internet connection. Please try again.");
+    } on ServerException catch (e) {
+      return Left(e.message ?? "Something went wrong on the server.");
+    } on DioException catch (e) {
+      return Left(e.message ?? "Request failed. Please try again.");
     } catch (e) {
       return Left(e.toString());
     }

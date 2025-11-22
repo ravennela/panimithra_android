@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:panimithra/src/common/exception.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/core/network/dio_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,16 +36,14 @@ class ReviewRemoteDatasourceImpl implements ReviewRemoteDatasource {
     required String review,
   }) async {
     try {
-      String url = ApiConstants.addReviewApi; // define in ApiConstants
+      String url = ApiConstants.addReviewApi;
       SharedPreferences preferences = await SharedPreferences.getInstance();
 
-      // Fetch auth token and user ID from preferences
       String token = preferences.getString(ApiConstants.token) ?? "";
       String userId = preferences.getString(ApiConstants.userId) ?? "";
 
       var headers = {"Authorization": "Bearer $token"};
 
-      // Prepare the data payload
       final data = {
         "bookingId": bookingId,
         "customerId": userId,
@@ -52,7 +53,6 @@ class ReviewRemoteDatasourceImpl implements ReviewRemoteDatasource {
         "serviceId": serviceId
       };
 
-      // POST request
       final response = await dioClient.post(
         url,
         data: data,
@@ -61,7 +61,12 @@ class ReviewRemoteDatasourceImpl implements ReviewRemoteDatasource {
 
       print("ADD REVIEW RESPONSE: ${response.data}");
       return response.data;
+    } on ServerException catch (e) {
+      // Rethrow ServerException as-is
+      print("ServerException caught in datasource: ${e.message}");
+      rethrow;
     } catch (e) {
+      print("Other error: $e");
       rethrow;
     }
   }

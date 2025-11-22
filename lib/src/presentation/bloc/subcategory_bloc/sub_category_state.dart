@@ -1,5 +1,6 @@
 // Subcategory States
 import 'package:equatable/equatable.dart';
+import 'package:panimithra/src/data/models/fetch_subcategory_by_id_model.dart';
 import 'package:panimithra/src/data/models/sub_category_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 
@@ -81,6 +82,75 @@ class CreateSubcategoryError extends SubcategoryState {
   final String message;
 
   const CreateSubcategoryError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+
+class DeleteSubcategoryLoading extends SubcategoryState {
+  const DeleteSubcategoryLoading();
+}
+
+class DeleteSubcategoryLoaded extends SubcategoryState {
+  final SuccessModel successModel;
+
+  const DeleteSubcategoryLoaded({required this.successModel});
+
+  @override
+  List<Object?> get props => [successModel];
+}
+
+class DeleteSubcategoryError extends SubcategoryState {
+  final String message;
+
+  const DeleteSubcategoryError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+
+class FetchSubcategoryByIdLoading extends SubcategoryState {
+  const FetchSubcategoryByIdLoading();
+}
+
+class FetchSubcategoryByIdLoaded extends SubcategoryState {
+  final FetchSubCategoryByIdModel subcategory;
+
+  const FetchSubcategoryByIdLoaded({required this.subcategory});
+
+  @override
+  List<Object?> get props => [subcategory];
+}
+
+class FetchSubcategoryByIdError extends SubcategoryState {
+  final String message;
+
+  const FetchSubcategoryByIdError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+
+class UpdateSubcategoryLoading extends SubcategoryState {
+  const UpdateSubcategoryLoading();
+}
+
+class UpdateSubcategoryLoaded extends SubcategoryState {
+  final SuccessModel successModel;
+
+  const UpdateSubcategoryLoaded({required this.successModel});
+
+  @override
+  List<Object?> get props => [successModel];
+}
+
+class UpdateSubcategoryError extends SubcategoryState {
+  final String message;
+
+  const UpdateSubcategoryError({required this.message});
 
   @override
   List<Object?> get props => [message];

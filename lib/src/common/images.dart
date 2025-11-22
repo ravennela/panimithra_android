@@ -4,7 +4,7 @@ class Images {
   // static const String LOGO = 'assets/images/logo.png';
   static const String LOGO = 'assets/images/logo.svg';
   static const String SPLASH_BACKGROUND = 'assets/images/splash.png';
-  static const String SPLASH_LOGO = "assets/images/splash.png";
+  static const String SPLASH_LOGO = "assets/images/panimithra_logo.png";
   static const String WELCOME_IMAGE = "assets/images/welcome_screen.svg";
 }
 

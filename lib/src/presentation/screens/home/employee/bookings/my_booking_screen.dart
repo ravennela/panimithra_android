@@ -186,6 +186,7 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                 return state.totalRecords > 0
                     ? Expanded(
                         child: ListView.builder(
+                            controller: _scrollController,
                             itemCount: state.item.length + 1,
                             itemBuilder: (context, index) {
                               if (index >= state.item.length) {

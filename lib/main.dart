@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:panimithra/src/injection.dart' as di;
@@ -14,10 +16,22 @@ import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_b
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/cubit/provider_registration/provider_registration_cubit.dart';
 import 'package:panimithra/src/utilities/gorouter_init.dart';
+import 'package:panimithra/src/utilities/notification_service/firebase_background_handler.dart';
+import 'package:panimithra/src/utilities/notification_service/firebase_options.dart';
+import 'package:panimithra/src/utilities/notification_service/firebase_service.dart';
+import 'package:panimithra/src/utilities/notification_service/notification_service.dart';
 import 'src/presentation/bloc/login/login_bloc.dart';
+
+Future<void> setupFirebaseMessaging() async {
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await setupFirebaseMessaging();
+  NotificationInitService().initialize();
+  FirebaseService().initialize();
   await di.init();
   runApp(
     MultiBlocProvider(

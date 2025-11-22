@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,8 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
+import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
+import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
 
 class FindServicesScreen extends StatefulWidget {
@@ -22,10 +25,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   bool showFilters = false;
   final ScrollController _scrollController = ScrollController();
   TextEditingController searchController = TextEditingController();
-  RangeValues priceRange = const RangeValues(0, 500);
+  RangeValues priceRange = const RangeValues(0, 10000);
   String selectedDistance = '50';
   String sortBy = 'Low to High';
   double minRating = 0;
+  double maxRating = 0.0;
   double minPrice = 0.0;
   double maxPrice = 0.0;
   String selectedCategory = 'All';
@@ -53,7 +57,15 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   void initState() {
     super.initState();
     context.read<ServiceBloc>().add(const SearchServiceEvent(page: 0));
+    getToken();
     _scrollController.addListener(_scrollListener);
+  }
+
+  getToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    context
+        .read<FetchUsersBloc>()
+        .add(RegisterFcmTokenEvent(deviceToken: token.toString()));
   }
 
   @override
@@ -69,11 +81,10 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     if (isLoading) {
       return;
     }
-    print("is Loading" + isLoading.toString());
+
     if (!mounted) return;
     if (_debounce?.isActive ?? false) _debounce?.cancel();
-    print("total records" + totalRecords.toString());
-    print("total fetched" + totalLength.toString());
+
     _debounce = Timer(const Duration(milliseconds: 300), () {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 100) {
@@ -147,7 +158,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 20,
                   ),
                   const Expanded(
@@ -322,7 +333,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<ServiceBloc>().add(const SearchServiceEvent(
+                          page: 0,
+                        ));
+                  },
                   child: const Text('Retry'),
                 ),
               ],
@@ -349,7 +364,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                           : 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600',
                       title:
                           capitalize(state.items[index].serviceName.toString()),
-                      subtitle: 'Eco',
+                      subtitle: '',
                       serviceId: state.items[index].serviceId.toString(),
                       category:
                           '${state.items[index].categoryName.toString()} ',
@@ -357,7 +372,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                       reviewCount: 5,
                       joinedDate: DateFormat("MMM dd yyyy").format(
                           state.items[index].createdAt ?? DateTime(000)),
-                      location: state.items[index].address ?? "",
+                      location: state.items[index].address.toString() ?? "",
                       workingDays: '',
                       workingHours:
                           '${state.items[index].startTime}- ${state.items[index].endTime}',
@@ -556,7 +571,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                           RangeSlider(
                             values: priceRange,
                             min: 0,
-                            max: 500,
+                            max: 10000,
                             divisions: 50,
                             activeColor: Colors.blue,
                             onChanged: (RangeValues values) {
@@ -623,13 +638,13 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                             setState(() {
                               showFilters = false;
                             });
-
-                            print(priceRange.start);
-                            print(priceRange.end);
+                            print(minRating);
                             context.read<ServiceBloc>().add(SearchServiceEvent(
                                 page: 0,
                                 categoryName: selectedCategory.toLowerCase(),
                                 minPrice: priceRange.start,
+                                maxRating: maxRating,
+                                minRating: minRating,
                                 maxPrice: priceRange.end));
                           },
                           style: ElevatedButton.styleFrom(
@@ -944,29 +959,6 @@ class _ServiceCardState extends State<ServiceCard> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      '(${widget.subtitle})',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -1043,6 +1035,8 @@ class _ServiceCardState extends State<ServiceCard> {
               color: Colors.grey.shade800,
               fontWeight: FontWeight.w400,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -1068,22 +1062,25 @@ class _ServiceCardState extends State<ServiceCard> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '${widget.price}',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1F2937),
-                      height: 1,
+                  Flexible(
+                    child: Text(
+                      '${widget.price}',
+                      style: const TextStyle(
+                        fontSize: 23,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1F2937),
+                        height: 1,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 4),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
-                      '\$/${widget.priceUnit}',
+                      '\₹/${widget.priceUnit}',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Colors.grey.shade700,
                       ),
@@ -1105,7 +1102,7 @@ class _ServiceCardState extends State<ServiceCard> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 13),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

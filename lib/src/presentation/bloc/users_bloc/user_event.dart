@@ -48,3 +48,25 @@ class GetEmployeeDashboardEvent extends FetchUsersEvent {
   @override
   List<Object?> get props => [userId];
 }
+
+class RegisterFcmTokenEvent extends FetchUsersEvent {
+  final String deviceToken;
+
+  const RegisterFcmTokenEvent({required this.deviceToken});
+
+  @override
+  List<Object?> get props => [deviceToken];
+}
+
+class ChangeUserStatusEvent extends FetchUsersEvent {
+  final String userId;
+  final String status;
+
+  const ChangeUserStatusEvent({
+    required this.userId,
+    required this.status,
+  });
+
+  @override
+  List<Object?> get props => [userId, status];
+}

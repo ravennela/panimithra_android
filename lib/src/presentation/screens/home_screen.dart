@@ -57,9 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const BookingsScreen(), // Index 1
 
     const UserProfileScreen(),
-    Center(
-      child: Text("Test"),
-    )
+
 // Index 2
   ];
 

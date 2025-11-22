@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "564205773146",
+    "project_id": "panimithra-e575e",
+    "storage_bucket": "panimithra-e575e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564205773146:android:58f63b95aae2fe70acd363",
+        "android_client_info": {
+          "package_name": "com.example.panimithra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaE2KbbRxQqAX9tmVCmJXAzjzQv_Jh560"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,6 +33,7 @@ import 'package:panimithra/src/domain/repositories/users_repository.dart';
 import 'package:panimithra/src/domain/usecase/add_review_usecase.dart';
 import 'package:panimithra/src/domain/usecase/admin_dashboard_usecase.dart';
 import 'package:panimithra/src/domain/usecase/booking_byid_usecase.dart';
+import 'package:panimithra/src/domain/usecase/change_user_status_usecase.dart';
 import 'package:panimithra/src/domain/usecase/create_booking_usecase.dart';
 
 import 'package:panimithra/src/domain/usecase/create_category_usecase.dart';
@@ -40,24 +41,31 @@ import 'package:panimithra/src/domain/usecase/create_order_usecase.dart';
 import 'package:panimithra/src/domain/usecase/create_plan_usecase.dart';
 import 'package:panimithra/src/domain/usecase/create_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/create_subcategory_usecase.dart';
+import 'package:panimithra/src/domain/usecase/delete_category_usecase.dart';
 import 'package:panimithra/src/domain/usecase/delete_plan_usecase.dart';
+import 'package:panimithra/src/domain/usecase/delete_subcategory_usecase.dart';
 import 'package:panimithra/src/domain/usecase/employee_plans_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_all_reviews_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_booking_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_categories_usecase.dart';
+import 'package:panimithra/src/domain/usecase/fetch_category_by_id_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_employee_dashboard_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_plan_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_service_by_id_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_service_usecase.dart';
+import 'package:panimithra/src/domain/usecase/fetch_subcategory_byid_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_subcategory_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_users_usecase.dart';
 import 'package:panimithra/src/domain/usecase/login/createlogin_login_usecase.dart';
 import 'package:panimithra/src/domain/usecase/provider_registration_usecase.dart';
+import 'package:panimithra/src/domain/usecase/register_fcm_usecase.dart';
 import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/top_five_review_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
+import 'package:panimithra/src/domain/usecase/update_category_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_payment_status_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_service_usecase.dart';
+import 'package:panimithra/src/domain/usecase/update_subcategory_usecase.dart';
 import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
@@ -97,19 +105,27 @@ Future<void> init() async {
   );
   sl.registerFactory(
     () => CategoriesBloc(
-        fetchCategoriesUseCase: sl(), createCategoryUseCase: sl()),
+        fetchCategoriesUseCase: sl(),
+        fetchCategoryByIdUseCase: sl(),
+        createCategoryUseCase: sl(),
+        updateCategoryUseCase: sl(),
+        deleteCategoryUseCase: sl()),
   );
   sl.registerFactory(
     () => SubcategoryBloc(
-      fetchSubcategoriesUseCase: sl(),
-      createSubcategoryUseCase: sl(),
-    ),
+        fetchSubcategoriesUseCase: sl(),
+        createSubcategoryUseCase: sl(),
+        deleteSubcategoryUseCase: sl(),
+        fetchSubcategoryByIdUseCase: sl(),
+        updateSubCategoryUseCase: sl()),
   );
   sl.registerFactory(() => FetchUsersBloc(
       fetchUsersUseCase: sl(),
       getUserProfileUsecase: sl(),
       getAdminDashboardUsecase: sl(),
-      getEmployeeDashboardUsecase: sl()));
+      getEmployeeDashboardUsecase: sl(),
+      changeUserStatusUseCase: sl(),
+      registerFcmTokenUseCase: sl()));
   sl.registerFactory(() => EmployeePaymentBloc(
       fetchEmployeePaymentsUseCase: sl(), createOrderUseCase: sl()));
   sl.registerFactory(() => BookingBloc(
@@ -166,6 +182,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeletePlanUseCase(sl()));
   sl.registerLazySingleton(() => UpdateServiceUseCase(sl()));
   sl.registerLazySingleton(() => UpdatePaymentStatusUseCase(sl()));
+  sl.registerLazySingleton(() => RegisterFcmTokenUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteSubcategoryUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteCategoryUsecase(sl()));
+  sl.registerLazySingleton(() => FetchCategoryByIdUseCase(sl()));
+  sl.registerLazySingleton(() => FetchSubcategoryByIdUsecase(sl()));
+  sl.registerLazySingleton(() => UpdateCategoryUseCase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateSubCategoryUseCase(repository: sl()));
+  sl.registerLazySingleton(() => ChangeUserStatusUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<LoginRepository>(

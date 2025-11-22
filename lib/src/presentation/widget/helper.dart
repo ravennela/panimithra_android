@@ -63,9 +63,9 @@ Color getBackgroundColor(String categoryName) {
 
 Color getStatusColor(String status) {
   final statusLower = status.toLowerCase();
-  if (statusLower.contains('active')) return const Color(0xFF4CAF50);
+  if (statusLower.contains('ACTIVE')) return const Color(0xFF4CAF50);
   if (statusLower.contains('archive')) return const Color(0xFFFFA726);
-  if (statusLower.contains('disable') || statusLower.contains('inactive')) {
+  if (statusLower.contains('INACTIVE') || statusLower.contains('inactive')) {
     return const Color(0xFFEF5350);
   }
   return const Color(0xFF9E9E9E);
@@ -73,9 +73,9 @@ Color getStatusColor(String status) {
 
 String getStatusText(String status) {
   final statusLower = status.toLowerCase();
-  if (statusLower.contains('active')) return 'Active';
+  if (statusLower.contains('ACTIVE')) return 'Active';
   if (statusLower.contains('archive')) return 'Archived';
-  if (statusLower.contains('disable') || statusLower.contains('inactive')) {
+  if (statusLower.contains('INACTIVE') || statusLower.contains('inactive')) {
     return 'Disabled';
   }
   return status;

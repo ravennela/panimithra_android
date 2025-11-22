@@ -9,7 +9,7 @@ import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({Key? key}) : super(key: key);
+  const AdminDashboardScreen({super.key});
 
   @override
   State<AdminDashboardScreen> createState() => _DashboardScreenState();
@@ -58,20 +58,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
   void initState() {
     super.initState();
     context.read<FetchUsersBloc>().add(const GetAdminDashboardEvent());
-    // Call your API here
-    // fetchDashboardData();
   }
-
-  // Future<void> fetchDashboardData() async {
-  //   setState(() => isLoading = true);
-  //   try {
-  //     // Your API calls here
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   } finally {
-  //     setState(() => isLoading = false);
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +161,11 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              context
+                                  .read<FetchUsersBloc>()
+                                  .add(const GetAdminDashboardEvent());
+                            },
                             child: const Text('Retry'),
                           ),
                         ],

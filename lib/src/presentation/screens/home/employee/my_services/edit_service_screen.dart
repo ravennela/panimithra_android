@@ -211,6 +211,7 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                             _priceController.text =
                                 state.service.price.toString();
                             imageUrl = state.service.imageUrl;
+
                             selectedDays = state.service.datesSelected ?? [];
 
                             setState(() {});
@@ -693,6 +694,26 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                               ),
                             ),
                           ),
+                        if (_selectedFile == null && imageUrl == null)
+                          GestureDetector(
+                              onTap: () {
+                                _pickAndUpload();
+                              },
+                              child: GestureDetector(
+                                onTap: () async {
+                                  _pickAndUpload();
+                                },
+                                child: Container(
+                                  width: size.width * 0.2,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Icon(Icons.add_photo_alternate,
+                                          color: Color(0xFF2563EB))),
+                                ),
+                              )),
                         _sectionCard(
                           title: 'Set Your Availability',
                           child: Column(

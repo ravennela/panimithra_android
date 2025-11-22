@@ -12,6 +12,8 @@ import 'package:panimithra/src/presentation/screens/home/admin/settings/category
 import 'package:panimithra/src/presentation/screens/home/admin/settings/create_category_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/create_subcategory_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/create_subcripion_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/settings/edit_category_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/settings/edit_subcategory_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/sub_category_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/subscription_plan_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/bookings/booking_details_screen.dart';
@@ -183,6 +185,32 @@ final router = GoRouter(
             : '';
         return PreBookingScreen(
           serviceId: serviceId,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.EDIT_CATEGORY_SCREEN_PATH,
+      builder: (context, state) {
+        final categoryId = state.extra is Map
+            ? (state.extra as Map)['categoryId'] as String? ?? ''
+            : '';
+        return EditCategoryScreen(
+          categoryId: categoryId,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.EDIT_SUBCATEGORY_SCREEN_PATH,
+      builder: (context, state) {
+        final categoryId = state.extra is Map
+            ? (state.extra as Map)['categoryId'] as String? ?? ''
+            : '';
+        final subCategoryId = state.extra is Map
+            ? (state.extra as Map)['subCategoryId'] as String? ?? ''
+            : '';
+        return EditSubcategoryScreen(
+          categoryId: categoryId,
+          subCategoryId: subCategoryId,
         );
       },
     ),

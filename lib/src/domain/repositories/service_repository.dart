@@ -12,15 +12,18 @@ abstract class ServiceRepository {
     required String subCategoryId,
   });
 
-  Future<Either<String, FetchSearchServiceModel>> fetchSearchService(
-      {int? page,
-      String? serviceName,
-      String? categoryName,
-      String? subCategoryName,
-      double? minPrice,
-      double? maxPrice,
-      double? price,
-      String? priceSort});
+  Future<Either<String, FetchSearchServiceModel>> fetchSearchService({
+    int? page,
+    String? serviceName,
+    String? categoryName,
+    String? subCategoryName,
+    double? minPrice,
+    double? maxPrice,
+    double? price,
+    String? priceSort,
+    double? minRating,
+    double? maxRating,
+  });
 
   Future<Either<String, ServiceByIdModel>> fetchServiceById(
       {required String serviceId});

@@ -39,6 +39,8 @@ class SearchServiceEvent extends ServiceEvent {
   final String? subCategoryName;
   final double? minPrice;
   final double? maxPrice;
+  final double? minRating;
+  final double? maxRating;
   final double? price;
   final String? priceSort;
   const SearchServiceEvent(
@@ -46,6 +48,8 @@ class SearchServiceEvent extends ServiceEvent {
       this.page,
       this.maxPrice,
       this.minPrice,
+      this.maxRating,
+      this.minRating,
       this.price,
       this.priceSort,
       this.serviceName,

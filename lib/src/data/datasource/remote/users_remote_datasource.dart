@@ -13,6 +13,13 @@ abstract class UserRemoteDataSource {
   Future<Map<String, dynamic>> fetchAdminDashboard();
   Future<Map<String, dynamic>> getUserProfile({required String userId});
   Future<Map<String, dynamic>> fetchEmployeeDashboard({required String userId});
+  Future<Map<String, dynamic>> registerFcmToken({
+    required String deviceToken,
+  });
+  Future<Map<String, dynamic>> changeUserStatus({
+    required String userId,
+    required String status,
+  });
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -104,6 +111,64 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       // Send GET request with userId as query param
       final response = await dioClient.get(
         '${ApiConstants.fetchEmployeeDashboardApi}?userId=$userid', // ✅ define in ApiConstants
+        options: Options(headers: headers),
+      );
+
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> registerFcmToken({
+    required String deviceToken,
+  }) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+
+      String token = preferences.getString(ApiConstants.token) ?? "";
+      String userId = preferences.getString(ApiConstants.userId) ?? "";
+
+      final headers = {"Authorization": "Bearer $token"};
+
+      final queryParams = {
+        "userId": userId,
+        "token": deviceToken,
+      };
+
+      final response = await dioClient.post(
+        ApiConstants.registerToken,
+        queryParameters: queryParams,
+        options: Options(headers: headers),
+      );
+
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> changeUserStatus({
+    required String userId,
+    required String status,
+  }) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+      //String id = preferences.getString(ApiConstants.userId) ?? "";
+
+      final headers = {"Authorization": "Bearer $token"};
+
+      final queryParams = {
+        "userId": userId,
+        "status": status,
+      };
+
+      final response = await dioClient.put(
+        ApiConstants.changeUserStatusApi, // define this in ApiConstants
+        queryParameters: queryParams,
         options: Options(headers: headers),
       );
 

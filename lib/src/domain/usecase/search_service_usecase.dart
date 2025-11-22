@@ -14,12 +14,16 @@ class SearchServiSeceUsecase {
       double? minPrice,
       double? maxPrice,
       double? price,
+      double? maxRating,
+      double? minRating,
       String? priceSort}) {
     return serviceRepository.fetchSearchService(
         categoryName: categoryName,
         maxPrice: maxPrice,
         minPrice: minPrice,
         page: page,
+        maxRating: maxRating,
+        minRating: minRating,
         price: price,
         priceSort: priceSort,
         serviceName: serviceName,

@@ -46,4 +46,6 @@ class AppRoutes {
   static const String EDIT_SERVICE_SCREEN_PATH = "/edit_user_screen.dart";
   static const String EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH =
       "/employee_booking_details";
+  static const String EDIT_CATEGORY_SCREEN_PATH = "/edit_category_screen";
+  static const String EDIT_SUBCATEGORY_SCREEN_PATH = "/edit_subcategory_screen";
 }

@@ -1,10 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:panimithra/src/common/toast.dart';
-import 'package:panimithra/src/data/models/fetch_users_model.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
@@ -162,77 +159,28 @@ class _CustomerScreenState extends State<CustomerScreen> {
             ),
           ),
 
-          // Filters Row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                // Status Filter
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: DropdownButton<String>(
-                      value: selectedStatus,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      icon: const Icon(Icons.keyboard_arrow_down),
-                      items: ['All', 'Active', 'Blocked']
-                          .map((status) => DropdownMenuItem(
-                                value: status,
-                                child: Text('Status: $status'),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedStatus = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                // Sort Filter
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: DropdownButton<String>(
-                      value: selectedSort,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      icon: const Icon(Icons.keyboard_arrow_down),
-                      items: ['Newest', 'Oldest', 'Name']
-                          .map((sort) => DropdownMenuItem(
-                                value: sort,
-                                child: Text('Sort By: $sort'),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedSort = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
 
           // Customer List
           Expanded(
             child: BlocConsumer<FetchUsersBloc, FetchUsersState>(
+              buildWhen: (previous, current) =>
+                  ((current is FetchUsersError || current is FetchUsersLoaded)),
               listener: (context, state) {
+                print(state);
+                if (state is ChangeUserStatusSuccess) {
+                  ToastHelper.showToast(
+                      context: context,
+                      type: "success",
+                      title: "User Status Updated Successfully");
+                  context
+                      .read<FetchUsersBloc>()
+                      .add(const GetUsersEvent(page: 0, role: "USER"));
+                }
+                if (state is ChangeUserStatusError) {
+                  ToastHelper.showToast(
+                      context: context, type: "error", title: state.message);
+                }
                 if (state is FetchUsersLoaded) {
                   isLoading = false;
                   totalRecords = state.totalRecords;
@@ -302,7 +250,24 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                   child: const Center(
                                       child: CircularProgressIndicator()));
                             }
-                            return _buildCustomerCard(state.item[index]);
+                            return UserCard(
+                              name: state.item[index].userName ?? "-",
+                              phone: state.item[index].contactNumber ?? "-",
+                              status: state.item[index].status ?? "-",
+                              onToggleStatus: () {
+                                context.read<FetchUsersBloc>().add(
+                                    ChangeUserStatusEvent(
+                                        userId:
+                                            state.item[index].userId.toString(),
+                                        status:
+                                            state.item[index].status == "ACTIVE"
+                                                ? "INACTIVE"
+                                                : "ACTIVE"));
+                              },
+                              role: state.item[index].role.toString(),
+                              onView: () {},
+                              onEdit: () {},
+                            );
                           },
                         )
                       : _buildEmptyState();
@@ -315,187 +280,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
       ),
     );
   }
-
-  Widget _buildCustomerCard(UserItem customer) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Header Row
-          Row(
-            children: [
-              // Avatar
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: const Color(0xFFFF6B6B),
-                child: Text(
-                  customer.userName!.isNotEmpty
-                      ? customer.userName!.substring(0, 1)
-                      : "",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-
-              // Name and Email
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      customer.userName.toString(),
-                      style: const TextStyle(
-                        color: Color(0xFF1E3A8A),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      customer.email.toString(),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Status Badge
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: customer.status != "ACTIVE"
-                      ? const Color(0xFFFFEBEE)
-                      : const Color(0xFFE8F5E9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.circle,
-                      size: 8,
-                      color: customer.status == "INACTIVE"
-                          ? const Color(0xFFFF5252)
-                          : const Color(0xFF4CAF50),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      customer.status.toString(),
-                      style: TextStyle(
-                        color: customer.status == "INACTIVE"
-                            ? const Color(0xFFFF5252)
-                            : const Color(0xFF4CAF50),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Info Row
-          Row(
-            children: [
-              const Icon(Icons.phone, size: 16, color: Colors.grey),
-              const SizedBox(width: 6),
-              Text(
-                customer.contactNumber.toString(),
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-              Expanded(child: Container()),
-              const SizedBox(width: 20),
-              const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-              const SizedBox(width: 6),
-              Text(
-                DateFormat("dd/MM/yyyy").format(customer.dob ?? DateTime.now()),
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-              Expanded(child: Container()),
-              const SizedBox(width: 20),
-              const Icon(Icons.shopping_bag, size: 16, color: Colors.grey),
-              const SizedBox(width: 6),
-              const Text(
-                "6",
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-          const Divider(height: 1),
-          const SizedBox(height: 16),
-
-          // Action Buttons
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () {
-                    // View details action
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF1E3A8A),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text(
-                    'View Details',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              Container(width: 1, height: 40, color: Colors.grey.shade300),
-              Expanded(
-                child: TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    foregroundColor: customer.status == "INACTIVE"
-                        ? const Color(0xFF4CAF50)
-                        : const Color(0xFFFF5252),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: Text(
-                    customer.status == "INACTIVE" ? 'ACTIVATE' : 'IN ACTIVATE',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
+  
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -532,5 +317,181 @@ class _CustomerScreenState extends State<CustomerScreen> {
   void dispose() {
     searchController.dispose();
     super.dispose();
+  }
+}
+
+class UserCard extends StatelessWidget {
+  final String name;
+  final String phone;
+  final String role;
+  final String status; // "Active" or "Inactive"
+  final VoidCallback onView;
+  final VoidCallback onEdit;
+  final VoidCallback onToggleStatus;
+
+  const UserCard({
+    super.key,
+    required this.name,
+    required this.phone,
+    required this.role,
+    required this.status,
+    required this.onView,
+    required this.onEdit,
+    required this.onToggleStatus,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Avatar Circle
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: Colors.blue.shade50,
+            child: const Icon(Icons.person, color: Colors.blue),
+          ),
+
+          const SizedBox(width: 14),
+
+          // Main content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Name
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                // Phone
+                Text(
+                  phone,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                Row(
+                  children: [
+                    // Role chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        role,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // Active/Inactive chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: status == "ACTIVE"
+                            ? Colors.green.shade50
+                            : Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: status == "ACTIVE" ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+
+          // Popup menu
+          PopupMenuButton<String>(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            onSelected: (value) {
+              if (value == "view") onView();
+              if (value == "edit") onEdit();
+              if (value == "toggle") onToggleStatus();
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: "view",
+                child: Row(
+                  children: [
+                    Icon(Icons.visibility, size: 18),
+                    SizedBox(width: 10),
+                    Text("View Details"),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: "edit",
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, size: 18),
+                    SizedBox(width: 10),
+                    Text("Edit User"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: "toggle",
+                child: Row(
+                  children: [
+                    Icon(Icons.power_settings_new, size: 18),
+                    SizedBox(width: 10),
+                    Text(
+                      status == "ACTIVE" ? "Deactivate" : "Activate",
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

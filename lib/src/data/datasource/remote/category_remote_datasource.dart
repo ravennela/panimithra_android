@@ -9,6 +9,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class FetchCategoryRemoteDataSource {
   Future<Map<String, dynamic>> fetchCategories(int page);
   Future<Map<String, dynamic>> createCategory(Map<String, dynamic> data);
+  Future<Map<String, dynamic>> deleteCategory({
+    required String categoryId,
+  });
+  Future<Map<String, dynamic>> updateCategory({
+    required Map<String, dynamic> data,
+  });
+  Future<Map<String, dynamic>> fetchCategoryById({
+    required String categoryId,
+  });
 }
 
 class FetchCategoryRemoteDataSourceImpl
@@ -54,6 +63,77 @@ class FetchCategoryRemoteDataSourceImpl
         data: data,
         options: Options(headers: headers),
       );
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteCategory({
+    required String categoryId,
+  }) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+      var headers = {"Authorization": "Bearer $token"};
+
+      final response = await dioClient.delete(
+        "${ApiConstants.deleteCategoryApi}?categoryId=$categoryId",
+        options: Options(headers: headers),
+      );
+      print(response.toString());
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> fetchCategoryById({
+    required String categoryId,
+  }) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+      var headers = {"Authorization": "Bearer $token"};
+      final response = await dioClient.get(
+        "${ApiConstants.fetchCategoryByIdApi}?categoryId=$categoryId",
+        options: Options(headers: headers),
+      );
+
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateCategory({
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      File? photo;
+      String? photoUrl = "";
+      if (data['iconUrl'] != null) {
+        photo = data["iconUrl"];
+      }
+      if (photo != null) {
+        photoUrl =
+            await UploadFileRemoteDatasource(client: Dio()).uploadPhoto(photo);
+        data['iconUrl'] = photoUrl ?? '';
+      }
+
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+      var headers = {"Authorization": "Bearer $token"};
+
+      final response = await dioClient.put(
+        ApiConstants.updateCategoryApi,
+        data: data,
+        options: Options(headers: headers),
+      );
+
       return response.data;
     } catch (e) {
       rethrow;

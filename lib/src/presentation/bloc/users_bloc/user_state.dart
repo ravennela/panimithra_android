@@ -105,3 +105,48 @@ class EmployeeDashboardError extends FetchUsersState {
   @override
   List<Object?> get props => [message];
 }
+
+
+class RegisterFcmTokenLoading extends FetchUsersState {}
+
+class RegisterFcmTokenSuccess extends FetchUsersState {
+  final String message; // or SuccessModel if you prefer
+
+  const RegisterFcmTokenSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class RegisterFcmTokenError extends FetchUsersState {
+  final String message;
+
+  const RegisterFcmTokenError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+
+/// Change User Status Loading
+class ChangeUserStatusLoading extends FetchUsersState {}
+
+/// Change User Status Success
+class ChangeUserStatusSuccess extends FetchUsersState {
+  final String message; // or SuccessModel if needed
+
+  const ChangeUserStatusSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// Change User Status Error
+class ChangeUserStatusError extends FetchUsersState {
+  final String message;
+
+  const ChangeUserStatusError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

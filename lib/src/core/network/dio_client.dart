@@ -27,7 +27,8 @@ class DioClient {
     ));
   }
 
-  Future<Response<T>> get<T>(String path, {
+  Future<Response<T>> get<T>(
+    String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -47,7 +48,8 @@ class DioClient {
     }
   }
 
-  Future<Response<T>> post<T>(String path, {
+  Future<Response<T>> post<T>(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -71,7 +73,8 @@ class DioClient {
     }
   }
 
-  Future<Response<T>> put<T>(String path, {
+  Future<Response<T>> put<T>(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -95,7 +98,8 @@ class DioClient {
     }
   }
 
-  Future<Response<T>> patch<T>(String path, {
+  Future<Response<T>> patch<T>(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -119,7 +123,8 @@ class DioClient {
     }
   }
 
-  Future<Response<T>> delete<T>(String path, {
+  Future<Response<T>> delete<T>(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -139,7 +144,9 @@ class DioClient {
     }
   }
 
-  Future<Response<dynamic>> download(String urlPath, String savePath, {
+  Future<Response<dynamic>> download(
+    String urlPath,
+    String savePath, {
     ProgressCallback? onReceiveProgress,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
@@ -166,7 +173,9 @@ class DioClient {
     }
   }
 
-  Future<Response<T>> uploadFile<T>(String path, String filePath, {
+  Future<Response<T>> uploadFile<T>(
+    String path,
+    String filePath, {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -177,7 +186,7 @@ class DioClient {
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(filePath),
       });
-      
+
       final response = await _dio.post<T>(
         path,
         data: formData,
@@ -196,15 +205,30 @@ class DioClient {
   Exception _handleDioError(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
-        return ServerException('Connection timeout: Unable to connect to server');
+        return ServerException(
+            'Connection timeout: Unable to connect to server');
       case DioExceptionType.sendTimeout:
         return ServerException('Send timeout: Request took too long to send');
       case DioExceptionType.receiveTimeout:
-        return ServerException('Receive timeout: Response took too long to receive');
+        return ServerException(
+            'Receive timeout: Response took too long to receive');
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
-        final message = e.response?.data?['message'] ?? e.message;
-        return ServerException('Server error: ${statusCode} - ${message}');
+        final responseData = e.response?.data;
+
+        // Extract error message - check both 'error' and 'message' fields
+        String? errorMessage;
+        if (responseData is Map<String, dynamic>) {
+          errorMessage = responseData['error'] ??
+              responseData['message'] ??
+              responseData['errorMessage'];
+        }
+
+        // Return just the error message if available, otherwise include status code
+        if (errorMessage != null && errorMessage.isNotEmpty) {
+          return ServerException(errorMessage);
+        }
+        return ServerException('Server error: $statusCode - ${e.message}');
       case DioExceptionType.cancel:
         return ServerException('Request cancelled');
       case DioExceptionType.connectionError:

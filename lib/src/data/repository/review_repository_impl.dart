@@ -15,25 +15,54 @@ class ReviewRepositoryImpl implements ReviewRepository {
   ReviewRepositoryImpl({required this.reviewRemoteDatasource});
 
   @override
-  Future<Either<String, SuccessModel>> addReviewRepo(
-      {required String bookingId,
-      required String employeeId,
-      required double rating,
-      required String review,
-      required String serviceId}) async {
+  Future<Either<String, SuccessModel>> addReviewRepo({
+    required String bookingId,
+    required String employeeId,
+    required double rating,
+    required String review,
+    required String serviceId,
+  }) async {
     try {
       final response = await reviewRemoteDatasource.addReview(
-          bookingId: bookingId,
-          employeeId: employeeId,
-          rating: rating,
-          review: review,
-          serviceId: serviceId);
+        bookingId: bookingId,
+        employeeId: employeeId,
+        rating: rating,
+        review: review,
+        serviceId: serviceId,
+      );
+
       final successModel = SuccessModel.fromJson(response);
       return Right(successModel);
-    } on ServerException catch (e) {
-      return Left(e.message);
-    } catch (e) {
-      return Left(e.toString());
+    } // 🔹 CATCH SERVEREXCEPTION FIRST
+    on ServerException catch (e) {
+      return Left(e.message ?? "Server error occurred.");
+    }
+
+    // 🔹 THEN CATCH DIO EXCEPTIONS
+    on DioException catch (e) {
+      print("=== DIO EXCEPTION DEBUG ===");
+      print("Status code: ${e.response?.statusCode}");
+      print("Response data: ${e.response?.data}");
+      print("Response data type: ${e.response?.data.runtimeType}");
+      print("===========================");
+      final backendError = e.response?.data?['error']?.toString();
+
+      if (backendError != null && backendError.isNotEmpty) {
+        return Left(backendError);
+      }
+
+      if (e.type == DioExceptionType.connectionError ||
+          e.error is SocketException) {
+        return const Left("No internet connection. Please try again.");
+      }
+
+      return Left(e.message ?? "Network error");
+    }
+
+    // 🔹 FALLBACK CATCH
+    catch (e) {
+      print("e value" + e.toString());
+      return Left("Unexpected error: $e");
     }
   }
 
@@ -63,25 +92,15 @@ class ReviewRepositoryImpl implements ReviewRepository {
         pageNo: pageNo,
       );
 
-      // Parse response into model
       final reviewsModel = FetchReviewsModel.fromJson(response);
       return Right(reviewsModel);
-    }
-
-    // 🔹 Handle specific network-related errors
-    on SocketException {
+    } on SocketException {
       return const Left(
         "No Internet connection. Please check your network.",
       );
-    }
-
-    // 🔹 Handle server or API exceptions (custom class)
-    on ServerException catch (e) {
+    } on ServerException catch (e) {
       return Left(e.message ?? "Server error occurred.");
-    }
-
-    // 🔹 Handle Dio errors
-    on DioException catch (e) {
+    } on DioException catch (e) {
       final message = e.response?.data?['message'] ??
           e.message ??
           "Unexpected network error.";

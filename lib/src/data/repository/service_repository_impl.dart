@@ -98,20 +98,25 @@ class ServiceRepositoryImpl implements ServiceRepository {
       String? serviceName,
       String? categoryName,
       String? subCategoryName,
+      double? price,
+      String? priceSort,
       double? minPrice,
       double? maxPrice,
-      double? price,
-      String? priceSort}) async {
+      double? minRating,
+      double? maxRating}) async {
     try {
       final raw = await serviceDataSource.searchService(
-          categoryName: categoryName,
-          maxPrice: maxPrice,
-          minPrice: minPrice,
-          page: page,
-          price: price,
-          priceSort: priceSort,
-          serviceName: serviceName,
-          subCategoryName: subCategoryName);
+        categoryName: categoryName,
+        maxPrice: maxPrice,
+        minPrice: minPrice,
+        page: page,
+        price: price,
+        priceSort: priceSort,
+        serviceName: serviceName,
+        maxRating: maxRating,
+        minRating: minRating,
+        subCategoryName: subCategoryName,
+      );
 
       FetchSearchServiceModel model = FetchSearchServiceModel.fromJson(raw);
 

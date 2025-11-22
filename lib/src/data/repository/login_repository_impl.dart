@@ -5,10 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/data/models/login_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/error/failures.dart';
 import '../../core/error/exceptions.dart';
-import '../../core/utils/typedef.dart';
-import '../../domain/entities/login.dart';
 
 import '../datasource/remote/login_remote_datasource.dart';
 import '../../domain/repositories/login_repository.dart';
@@ -30,6 +27,8 @@ class LoginRepositoryImpl implements LoginRepository {
       preferences.setString(ApiConstants.userId, model.userId.toString());
       preferences.setString(ApiConstants.userName, model.userName.toString());
       preferences.setString(ApiConstants.emailId, model.emailId.toString());
+      preferences.setDouble(ApiConstants.longitude, model.latitude ?? 0.0);
+      preferences.setDouble(ApiConstants.longitude, model.longitude ?? 0.0);
       preferences.setBool("is_logged_in", true);
       return Right(model);
     } on SocketException {

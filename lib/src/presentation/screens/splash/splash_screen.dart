@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           ),
                           SizedBox(height: SPACE12),
                           Text(
-                            'Welcome to MarbleTech',
+                            'Welcome to Panimithra',
                             style: TextStyle(
                               color: Theme.of(context).cardColor,
                               fontSize: 28,
@@ -75,16 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
                             ),
                           ),
                           SizedBox(height: SPACE12),
-                          Text(
-                            'Effortless project management for Civil & \n Marble works.'
-                            'Streamline tasks,'
-                            ' track progress, and colloborate on the go!',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).cardColor,
-                            ),
-                          ),
+                          
                         ],
                       ),
                     ),

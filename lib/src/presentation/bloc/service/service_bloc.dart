@@ -111,6 +111,8 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
       maxPrice: event.maxPrice,
       minPrice: event.minPrice,
       price: event.price,
+      minRating: event.minRating,
+      maxRating: event.maxRating,
       priceSort: event.priceSort,
       serviceName: event.serviceName,
       subCategoryName: event.subCategoryName,

@@ -92,10 +92,6 @@ class BookingScreenWidget extends State<BookingsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
-        ),
         title: const Text(
           'My Bookings',
           style: TextStyle(

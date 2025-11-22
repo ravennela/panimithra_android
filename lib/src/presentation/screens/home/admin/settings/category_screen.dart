@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/routes.dart';
+import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/data/models/fetch_category_model.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_event.dart';
@@ -216,15 +217,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: category.iconUrl != null
-                      ? Image.network(
-                          category.iconUrl.toString(),
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              getIconData(category.categoryName ?? ''),
-                              color: getIconColor(category.categoryName ?? ''),
-                              size: 28,
-                            );
-                          },
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: Image.network(
+                            category.iconUrl.toString(),
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                getIconData(category.categoryName ?? ''),
+                                color:
+                                    getIconColor(category.categoryName ?? ''),
+                                size: 28,
+                              );
+                            },
+                          ),
                         )
                       : Icon(
                           getIconData(category.categoryName ?? ''),
@@ -266,6 +271,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ),
                   onPressed: () {
                     // Edit category action
+                    context.push(AppRoutes.EDIT_CATEGORY_SCREEN_PATH,
+                        extra: {"categoryId": category.categoryId});
                   },
                 ),
                 IconButton(
@@ -275,6 +282,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     size: 22,
                   ),
                   onPressed: () {
+                    _showDeleteDialog(context, category.categoryName.toString(),
+                        category.categoryId.toString());
                     // Delete category action
                   },
                 ),
@@ -304,7 +313,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  getStatusText(category.status ?? ''),
+                  getStatusText(category.status.toString()),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -319,5 +328,80 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // Helper methods to determine icon based on category name
+  void _showDeleteDialog(
+      BuildContext context, String subcategoryName, String subCategoryId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Delete Category',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to delete "$subcategoryName"? This action cannot be undone.',
+            style: TextStyle(
+              color: Colors.grey[700],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            BlocListener<CategoriesBloc, CategoriesState>(
+              listener: (context, state) {
+                if (state is DeleteCategoryError) {
+                  ToastHelper.showToast(
+                      context: context, type: "error", title: state.message);
+                }
+                if (state is DeleteCategoryLoaded) {
+                  ToastHelper.showToast(
+                      context: context,
+                      type: "success",
+                      title: "SubCategory Deleted Successfully");
+                  context
+                      .read<CategoriesBloc>()
+                      .add(const FetchCategoriesEvent(page: 0));
+                  context.pop();
+                }
+              },
+              child: ElevatedButton(
+                onPressed: () {
+                  context
+                      .read<CategoriesBloc>()
+                      .add(DeleteCategoryEvent(categoryId: subCategoryId));
+                  // Delete action
+
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF5350),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  } // Helper methods to determine icon based on category name
 }

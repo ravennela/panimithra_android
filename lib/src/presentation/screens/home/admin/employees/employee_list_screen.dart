@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
@@ -161,30 +163,15 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             Container(
               color: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child:const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, size: 24),
-                    onPressed: () {},
-                  ),
-                  const Text(
+                   Text(
                     'Employees',
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF111827),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border:
-                          Border.all(color: const Color(0xFF111827), width: 2),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.add, size: 24),
-                      onPressed: () {},
                     ),
                   ),
                 ],
@@ -222,81 +209,14 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             ),
 
             // Filters
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              statusFilter,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Color(0xFF374151),
-                              ),
-                            ),
-                            Icon(Icons.keyboard_arrow_down,
-                                color: Colors.grey[700], size: 22),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              serviceFilter,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Color(0xFF374151),
-                              ),
-                            ),
-                            Icon(Icons.keyboard_arrow_down,
-                                color: Colors.grey[700], size: 22),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
             // Employee List
             BlocConsumer<FetchUsersBloc, FetchUsersState>(
               buildWhen: (previous, current) {
                 return (current is FetchUsersLoaded ||
-                        current is FetchUsersError) ||
+                        current is FetchUsersError ||
+                        current is ChangeUserStatusSuccess ||
+                        current is ChangeUserStatusError) ||
                     (x != 2 && current is FetchUsersLoading);
               },
               listener: (context, state) {
@@ -315,6 +235,20 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     type: 'error',
                     title: state.message,
                   );
+                }
+                if (state is ChangeUserStatusSuccess) {
+                  ToastHelper.showToast(
+                      context: context,
+                      type: "success",
+                      title: "Employee Status Updated Successfully");
+                  context
+                      .read<FetchUsersBloc>()
+                      .add(const GetUsersEvent(page: 0, role: "EMPLOYEE"));
+                  context.pop();
+                }
+                if (state is ChangeUserStatusError) {
+                  ToastHelper.showToast(
+                      context: context, type: "error", title: state.message);
                 }
               },
               builder: (context, state) {
@@ -371,274 +305,28 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                         child: CircularProgressIndicator()));
                               }
                               final employee = state.item[index];
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    // Employee Header
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          width: 65,
-                                          height: 65,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Color(0xFFFFFBEB),
-                                              width: 3,
-                                            ),
-                                            image: const DecorationImage(
-                                              image: NetworkImage(
-                                                  'https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200'),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      employee.userName ?? "",
-                                                      style: const TextStyle(
-                                                        fontSize: 22,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color:
-                                                            Color(0xFF111827),
-                                                        height: 1.2,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 0,
-                                                      vertical: 0,
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(
-                                                          getStatusIcon(
-                                                              employee.status ??
-                                                                  ""),
-                                                          color: getStatusColor(
-                                                              employee.status ??
-                                                                  ""),
-                                                          size: 18,
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        Text(
-                                                          employee.status ?? "",
-                                                          style: TextStyle(
-                                                            color: getStatusColor(
-                                                                employee.status ??
-                                                                    ""),
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                employee.primaryService
-                                                    .toString(),
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color(0xFF6B7280),
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-
-                                    // Employee Stats
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF9FAFB),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      "4.8",
-                                                      style: const TextStyle(
-                                                        fontSize: 24,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color:
-                                                            Color(0xFF111827),
-                                                      ),
-                                                    ),
-                                                    if (employee.city != 'N/A')
-                                                      const SizedBox(width: 4),
-                                                    if (employee.city != 'N/A')
-                                                      const Icon(
-                                                        Icons.star,
-                                                        color:
-                                                            Color(0xFFFBBF24),
-                                                        size: 20,
-                                                      ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  'Rating',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[600],
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            width: 1,
-                                            height: 40,
-                                            color: Colors.grey[300],
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  employee.experiance
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0xFF111827),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  'Experience',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[600],
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            width: 1,
-                                            height: 40,
-                                            color: Colors.grey[300],
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  "1 mo",
-                                                  style: const TextStyle(
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0xFF111827),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  'Member',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[600],
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 18),
-
-                                    // Location
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.location_on,
-                                              color: Colors.grey[600],
-                                              size: 20,
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              employee.city ?? "",
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                color: Color(0xFF6B7280),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF3B82F6),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: const Icon(
-                                            Icons.arrow_forward,
-                                            color: Colors.white,
-                                            size: 18,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              return EmployeeCard(
+                                isActive: state.item[index].status.toString() ==
+                                        "ACTIVE"
+                                    ? true
+                                    : false,
+                                name: state.item[index].userName.toString(),
+                                onActivate: () {
+                                  context.read<FetchUsersBloc>().add(
+                                      ChangeUserStatusEvent(
+                                          userId: state.item[index].userId
+                                              .toString(),
+                                          status: "ACTIVE"));
+                                },
+                                onDeactivate: () {
+                                  context.read<FetchUsersBloc>().add(
+                                      ChangeUserStatusEvent(
+                                          userId: state.item[index].userId
+                                              .toString(),
+                                          status: "INACTIVE"));
+                                },
+                                onEdit: () {},
+                                role: state.item[index].role.toString(),
                               );
                             },
                           ),
@@ -665,5 +353,146 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+}
+
+class EmployeeCard extends StatelessWidget {
+  final String name;
+  final String role;
+  final bool isActive;
+  final VoidCallback onActivate;
+  final VoidCallback onDeactivate;
+  final VoidCallback onEdit;
+
+  const EmployeeCard({
+    Key? key,
+    required this.name,
+    required this.role,
+    required this.isActive,
+    required this.onActivate,
+    required this.onDeactivate,
+    required this.onEdit,
+  }) : super(key: key);
+
+  void _openActions(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => CupertinoActionSheet(
+        title: Text(name,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        message: Text(role),
+        actions: [
+          CupertinoActionSheetAction(
+            isDefaultAction: true,
+            onPressed: onEdit,
+            child: const Text("Edit Details"),
+          ),
+          if (isActive)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: onDeactivate,
+              child: const Text("Deactivate"),
+            )
+          else
+            CupertinoActionSheetAction(
+              onPressed: onActivate,
+              child: const Text("Activate"),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          )
+        ],
+      ),
+      child: Row(
+        children: [
+          // Leading Avatar Circle
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: const Icon(Icons.person, color: Colors.blue, size: 26),
+          ),
+
+          const SizedBox(width: 14),
+
+          // Text Section
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  role,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                // ACTIVE / INACTIVE chip
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isActive ? Colors.green.shade50 : Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    isActive ? "Active" : "Inactive",
+                    style: TextStyle(
+                      color: isActive ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // More Options
+          IconButton(
+            onPressed: () => _openActions(context),
+            icon: const Icon(Icons.more_vert, size: 24),
+          ),
+        ],
+      ),
+    );
   }
 }

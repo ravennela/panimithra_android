@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:panimithra/src/data/models/fetch_category_by_id_model.dart';
 import 'package:panimithra/src/data/models/fetch_category_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 
@@ -74,6 +75,72 @@ class CreateCategoryError extends CategoriesState {
   final String message;
 
   const CreateCategoryError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class DeleteCategoryLoading extends CategoriesState {
+  const DeleteCategoryLoading();
+}
+
+class DeleteCategoryLoaded extends CategoriesState {
+  final SuccessModel successModel;
+
+  const DeleteCategoryLoaded({required this.successModel});
+
+  @override
+  List<Object?> get props => [successModel];
+}
+
+class DeleteCategoryError extends CategoriesState {
+  final String message;
+
+  const DeleteCategoryError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class FetchCategoryByIdLoading extends CategoriesState {
+  const FetchCategoryByIdLoading();
+}
+
+class FetchCategoryByIdLoaded extends CategoriesState {
+  final FetchCategoryByIdModel fetchCategoryByIdModel;
+
+  const FetchCategoryByIdLoaded({required this.fetchCategoryByIdModel});
+
+  @override
+  List<Object?> get props => [fetchCategoryByIdModel];
+}
+
+class FetchCategoryByIdError extends CategoriesState {
+  final String message;
+
+  const FetchCategoryByIdError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class UpdateCategoryLoading extends CategoriesState {
+  const UpdateCategoryLoading();
+}
+
+class UpdateCategoryLoaded extends CategoriesState {
+  final SuccessModel successModel;
+
+  const UpdateCategoryLoaded({required this.successModel});
+
+  @override
+  List<Object?> get props => [successModel];
+}
+
+class UpdateCategoryError extends CategoriesState {
+  final String message;
+
+  const UpdateCategoryError({required this.message});
 
   @override
   List<Object?> get props => [message];
