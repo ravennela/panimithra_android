@@ -12,8 +12,13 @@ abstract class CreatePlanRemoteDataSource {
     required double originalPrice,
     required String discount,
   });
+  Future<Map<String, dynamic>> updatePlan({
+    required String planId,
+    required Map<String, dynamic> body,
+  });
   Future<Map<String, dynamic>> deletePlan(String planId);
   Future<Map<String, dynamic>> fetchPlans();
+  Future<Map<String, dynamic>> fetchPlanById(String planId);
 }
 
 /// Implementation
@@ -61,9 +66,11 @@ class CreatePlanRemoteDataSourceImpl implements CreatePlanRemoteDataSource {
   @override
   Future<Map<String, dynamic>> fetchPlans() async {
     try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String role = preferences.getString(ApiConstants.role) ?? "";
       // Send GET request (no headers required)
       final response = await dioClient.get(
-        ApiConstants.fetchPlanApi,
+        ApiConstants.fetchPlanApi + "?role=$role",
         options: Options(),
       );
 
@@ -91,6 +98,46 @@ class CreatePlanRemoteDataSourceImpl implements CreatePlanRemoteDataSource {
       final response = await dioClient.delete(
           "${ApiConstants.deletePlanApi}?planId=$planId",
           options: Options(headers: headers));
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> fetchPlanById(String planId) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      var headers = {"Authorization": "Bearer $token"};
+      // No token needed unless API requires it
+      final response = await dioClient.get(
+        "${ApiConstants.fetchPlanById}?planId=$planId",
+        options: Options(headers: headers),
+      );
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> updatePlan({
+    required String planId,
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      var headers = {"Authorization": "Bearer $token"};
+
+      final response = await dioClient.put(
+        "${ApiConstants.updatePlan}?planId=$planId",
+        data: body,
+        options: Options(headers: headers),
+      );
       return response.data;
     } catch (e) {
       rethrow;

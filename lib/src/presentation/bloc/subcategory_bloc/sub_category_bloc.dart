@@ -36,7 +36,7 @@ class SubcategoryBloc extends Bloc<SubcategoryEvent, SubcategoryState> {
     FetchSubcategoriesEvent event,
     Emitter<SubcategoryState> emit,
   ) async {
-    if (event.page == 1) {
+    if (event.page == 0) {
       emit(const SubcategoryLoading());
     }
 
@@ -50,7 +50,7 @@ class SubcategoryBloc extends Bloc<SubcategoryEvent, SubcategoryState> {
       (fetchSubcategoryModel) {
         List<SubcategoryItem> newData = fetchSubcategoryModel.data ?? [];
 
-        if (event.page > 1 && state is SubcategoryLoaded) {
+        if (event.page > 0 && state is SubcategoryLoaded) {
           final current = state as SubcategoryLoaded;
           if (current.categoryId == event.categoryId) {
             newData = [...(current.data ?? []), ...newData];

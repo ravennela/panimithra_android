@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
@@ -117,6 +118,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   if (state is BookingDetailsError) {
                     ToastHelper.showToast(
                         context: context, type: "error", title: state.message);
+                  }
+                  if (state is UpdateBookingStatusLoaded) {
+                    ToastHelper.showToast(
+                        context: context,
+                        type: "success",
+                        title: "Booking Cancelled Successfully");
+                    context.read<BookingBloc>().add(FetchBookingsEvent(0));
+                    context.pop();
                   }
                 },
                 builder: (context, state) {

@@ -242,7 +242,10 @@ class SubscriptionCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push(AppRoutes.EDIT_PLAN_SCREEN_PATH,
+                      extra: {"planId": planId});
+                },
                 icon: const Icon(
                   Icons.edit_outlined,
                   color: Color(0xFF9E9E9E),

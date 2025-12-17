@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,8 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/login/login_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/login/login_event.dart';
 import 'package:panimithra/src/presentation/bloc/login/login_state.dart';
+import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
+import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -160,7 +163,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               type: 'success',
                               title: "Login Successful",
                             );
+                            getToken();
                             context.go(AppRoutes.HOME_SCREEN_PATH);
+
+
                           } else if (state is LoginError) {
                             ToastHelper.showToast(
                               context: context,
@@ -172,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async{
                               if (!formKey.currentState!.validate()) return;
                               context.read<LoginBloc>().add(
                                     CreateloginLoginEvent({
@@ -238,6 +244,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+  getToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    context
+        .read<FetchUsersBloc>()
+        .add(RegisterFcmTokenEvent(deviceToken: token.toString()));
   }
 
   Widget _buildInputField({

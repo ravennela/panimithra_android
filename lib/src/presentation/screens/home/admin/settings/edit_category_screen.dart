@@ -110,7 +110,10 @@ class _EditCategoryScreenState extends State<EditCategoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.read<CategoriesBloc>().add(FetchCategoryByIdEvent(
+                          categoryId: widget.categoryId));
+                    },
                     child: const Text('Retry'),
                   ),
                 ],

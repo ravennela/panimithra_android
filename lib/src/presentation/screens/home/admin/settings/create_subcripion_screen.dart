@@ -423,7 +423,8 @@ class _CreateSubscriptionPlanScreenState
                           originalPrice: originalPriceController.text.isNotEmpty
                               ? double.parse(originalPriceController.text)
                               : 0.0,
-                          duration: selectedDuration));
+                          duration: selectedDuration
+                          ));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF7A00),

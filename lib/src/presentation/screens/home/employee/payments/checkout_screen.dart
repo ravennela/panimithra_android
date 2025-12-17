@@ -60,6 +60,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    context
+        .read<EmployeePaymentBloc>()
+        .add(LoadEmployeePaymentsEvent(userId: ""));
     // Handle success
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

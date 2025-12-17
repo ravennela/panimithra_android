@@ -41,13 +41,22 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   Timer? _searchDebounce;
   bool isLoading = false;
   final List<String> categories = [
+    'Pest Control',
+    'Painter',
+    'Mobile Repair',
+    'Laundry',
+    'It & Computer Support',
+    'Gardening',
+    'Home renovation',
+    'CCTV & Security',
+    'Car Washing',
+    'Home Shifting',
+    'Applieance Repair',
+    'Beauty & Wellness',
+    'Home Cleaning',
+    'Carpenter',
     'Plumber',
-    'Electrical',
-    'Cleaning',
-    'Carpentry',
-    'Painting',
-    'HVAC',
-    'Landscaping'
+    'Electrician'
   ];
   final List<String> sortOptions = [
     'Price: Low to High',
@@ -57,7 +66,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   void initState() {
     super.initState();
     context.read<ServiceBloc>().add(const SearchServiceEvent(page: 0));
-    getToken();
+    //getToken();
     _scrollController.addListener(_scrollListener);
   }
 
@@ -375,7 +384,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                       location: state.items[index].address.toString() ?? "",
                       workingDays: '',
                       workingHours:
-                          '${state.items[index].startTime}- ${state.items[index].endTime}',
+                          '${state.items[index].startTime}  -  ${state.items[index].endTime}',
                       price: state.items[index].price!.toInt() ?? 0,
                       priceUnit: 'Day',
                       onBookingPressed: () {},
@@ -868,7 +877,7 @@ class _ServiceCardState extends State<ServiceCard> {
                     ),
                     _buildInfoRow(
                       Icons.access_time,
-                      '${widget.workingDays}  ${widget.workingHours}',
+                      '${widget.workingHours}',
                     ),
                     const SizedBox(height: 5),
                     _buildPriceAndButton(),

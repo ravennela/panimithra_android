@@ -13,6 +13,7 @@ import 'package:panimithra/src/presentation/screens/home/admin/settings/create_c
 import 'package:panimithra/src/presentation/screens/home/admin/settings/create_subcategory_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/create_subcripion_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/edit_category_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/admin/settings/edit_plan_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/edit_subcategory_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/sub_category_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/settings/subscription_plan_screen.dart';
@@ -214,6 +215,16 @@ final router = GoRouter(
         );
       },
     ),
+    GoRoute(
+      path: AppRoutes.EDIT_PLAN_SCREEN_PATH,
+      builder: (context, state) {
+        final planId = state.extra is Map
+            ? (state.extra as Map)['planId'] as String? ?? ''
+            : '';
+
+        return EditPlanScreen(planId: planId);
+      },
+    )
   ],
   redirect: (context, state) {
     return null;

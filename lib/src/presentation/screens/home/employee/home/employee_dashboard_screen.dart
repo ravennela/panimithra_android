@@ -134,7 +134,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.read<FetchUsersBloc>().add(
+                                  const GetEmployeeDashboardEvent(userId: ""));
+                            },
                             child: const Text('Retry'),
                           ),
                         ],
@@ -563,22 +566,22 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
         radius: touchedIndex == 1 ? 50 : 45,
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF5DC8CD),
-            Color(0xFF7FD8DB),
+            Color.fromARGB(255, 228, 87, 27),
+            Color.fromARGB(255, 228, 87, 27),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
       PieChartSectionData(
-        color: const Color.fromARGB(255, 218, 140, 24),
+        color: const Color.fromARGB(255, 200, 181, 36),
         value: rejected.toDouble(),
         title: '',
         radius: touchedIndex == 1 ? 50 : 45,
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF5DC8CD),
-            Color(0xFF7FD8DB),
+            Color.fromARGB(255, 200, 181, 36),
+            Color.fromARGB(255, 200, 181, 36),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

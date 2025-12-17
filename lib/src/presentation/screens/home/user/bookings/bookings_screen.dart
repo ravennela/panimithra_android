@@ -27,7 +27,7 @@ class BookingScreenWidget extends State<BookingsScreen> {
   final ScrollController _scrollController = ScrollController();
   int totalRecords = 0;
   int totalLength = 0;
-  int page = 1;
+  int page = 0;
   int x = 0;
   String searchString = "";
   Timer? _debounce;
@@ -139,7 +139,7 @@ class BookingScreenWidget extends State<BookingsScreen> {
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
                   const Text(
-                    'Error loading Site Manager',
+                    'Error loading Bookings',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -150,7 +150,9 @@ class BookingScreenWidget extends State<BookingsScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.read<BookingBloc>().add(FetchBookingsEvent(0));
+                    },
                     child: Text('Retry'),
                   ),
                 ],
@@ -161,6 +163,7 @@ class BookingScreenWidget extends State<BookingsScreen> {
             return state.totalRecords > 0
                 ? ListView.builder(
                     itemCount: state.item.length + 1,
+                    controller: _scrollController,
                     itemBuilder: (context, index) {
                       if (index >= state.item.length) {
                         return Visibility(
@@ -177,11 +180,10 @@ class BookingScreenWidget extends State<BookingsScreen> {
                           });
                         },
                         child: BookingTile(
-                          amount: state.bookings.data[index].amount.toString(),
+                          amount: state.item[index].amount.toString(),
                           bookingDate: DateFormat("dd/MMM/yyyy").format(
-                              state.bookings.data[index].bookingDate ??
-                                  DateTime.now()),
-                          provider: state.bookings.data[index].employeeName,
+                              state.item[index].bookingDate ?? DateTime.now()),
+                          provider: state.item[index].employeeName,
                           serviceName: capitalize(state.item[index].name),
                           status: state.item[index].bookingStatus.toString(),
                           timeSlot: "",

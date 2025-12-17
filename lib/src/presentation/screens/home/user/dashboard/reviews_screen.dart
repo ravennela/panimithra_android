@@ -164,7 +164,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 const Icon(Icons.error_outline, size: 48, color: Colors.red),
                 const SizedBox(height: 16),
                 const Text(
-                  'Error loading Site Manager',
+                  'Error loading Reviews',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -175,7 +175,10 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<ReviewBloc>().add(FetchAllReviewsEvent(
+                        serviceId: widget.serviceId, pageNo: 0));
+                  },
                   child: Text('Retry'),
                 ),
               ],

@@ -74,7 +74,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                         size: 48, color: Colors.red),
                     const SizedBox(height: 16),
                     const Text(
-                      'Error loading Site Manager',
+                      'Error loading Profile',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
@@ -86,7 +86,11 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context
+                            .read<FetchUsersBloc>()
+                            .add(const GetUserProfileEvent(userId: ""));
+                      },
                       child: const Text('Retry'),
                     ),
                     _buildMenuItem(

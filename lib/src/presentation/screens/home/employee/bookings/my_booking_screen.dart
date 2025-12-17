@@ -134,6 +134,17 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                 totalRecords = state.totalRecords;
                 totalLength = state.item.length;
               }
+              if (state is UpdateBookingStatusLoaded) {
+                ToastHelper.showToast(
+                    context: context,
+                    type: "success",
+                    title: "Updated Booking Status Successfully");
+                context.read<BookingBloc>().add(FetchBookingsEvent(0));
+              }
+              if (state is UpdateBookingStatusError) {
+                ToastHelper.showToast(
+                    context: context, type: "error", title: state.message);
+              }
               if (state is BookingLoadingState) {
                 isLoading = true;
               }
@@ -163,7 +174,7 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                           size: 48, color: Colors.red),
                       const SizedBox(height: 16),
                       const Text(
-                        'Error loading Site Manager',
+                        'Error loading Bookings',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
@@ -175,7 +186,11 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context
+                              .read<BookingBloc>()
+                              .add(FetchBookingsEvent(0));
+                        },
                         child: Text('Retry'),
                       ),
                     ],
@@ -199,30 +214,17 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                                         child: CircularProgressIndicator()));
                               }
 
-                              return GestureDetector(
-                                  onTap: () {
-                                    context.push(
-                                        AppRoutes
-                                            .EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH,
-                                        extra: {
-                                          "bookingId": state
-                                              .bookings.data[index].bookingId
-                                        });
-                                  },
-                                  child:
-                                      // BookingCard(booking: state.item[index])
-                                      BookingCardUltraUC(
-                                    item: state.item[index],
-                                    onTap: () {
-                                      context.push(
-                                          AppRoutes
-                                              .EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH,
-                                          extra: {
-                                            "bookingId": state
-                                                .bookings.data[index].bookingId
-                                          });
-                                    },
-                                  ));
+                              return BookingCardUltraUC(
+                                item: state.item[index],
+                                onTap: () {
+                                  context.push(
+                                      AppRoutes
+                                          .EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH,
+                                      extra: {
+                                        "bookingId": state.item[index].bookingId
+                                      });
+                                },
+                              );
                             }),
                       )
                     : Column(
@@ -387,8 +389,14 @@ class BookingCardUltraUC extends StatelessWidget {
 
                 /// STATUS BADGE
                 _statusChip(item.bookingStatus),
+
+                const SizedBox(height: 12),
               ],
             ),
+            SizedBox(
+              height: 10,
+            ),
+            _buildActionButtons(item.bookingId, item.bookingStatus, context),
           ],
         ),
       ),
@@ -428,6 +436,97 @@ class BookingCardUltraUC extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Widget _buildActionButtons(
+    String bookingId, String status, BuildContext context) {
+  print("status" + status.toString());
+  switch (status.toUpperCase()) {
+    case "PENDING":
+      return Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () {
+                context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                    bookingId: bookingId, bookingStatus: "INPROGRESS"));
+              },
+              child: const Text(
+                "Accept",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () {
+                context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                    bookingId: bookingId, bookingStatus: "REJECTED"));
+              },
+              child: const Text(
+                "Reject",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      );
+
+    case "INPROGRESS":
+      return GestureDetector(
+        onTap: () {
+          context.read<BookingBloc>().add(
+                UpdateBookingStatusEvent(
+                  bookingId: bookingId,
+                  bookingStatus: "COMPLETED",
+                ),
+              );
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF4FACFE),
+                Color(0xFF00F2FE),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: const Center(
+            child: Text(
+              "Complete Booking",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      );
+
+    default:
+      return const SizedBox.shrink();
   }
 }
 

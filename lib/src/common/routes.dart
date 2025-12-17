@@ -48,4 +48,5 @@ class AppRoutes {
       "/employee_booking_details";
   static const String EDIT_CATEGORY_SCREEN_PATH = "/edit_category_screen";
   static const String EDIT_SUBCATEGORY_SCREEN_PATH = "/edit_subcategory_screen";
+  static const String EDIT_PLAN_SCREEN_PATH = "/edit_plan_screen";
 }

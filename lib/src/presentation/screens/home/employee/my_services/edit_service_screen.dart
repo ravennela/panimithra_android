@@ -19,6 +19,7 @@ import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_event.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_state.dart';
+import 'package:panimithra/src/presentation/widget/helper.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
 
 class EditServiceScreen extends StatefulWidget {
@@ -211,6 +212,8 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                             _priceController.text =
                                 state.service.price.toString();
                             imageUrl = state.service.imageUrl;
+                            _selectedDuration =
+                                timeToDuration(state.service.duration!);
 
                             selectedDays = state.service.datesSelected ?? [];
 
@@ -240,7 +243,18 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      context.read<CategoriesBloc>().add(
+                                          const FetchCategoriesEvent(page: 0));
+                                      context.read<SubcategoryBloc>().add(
+                                          FetchSubcategoriesEvent(
+                                              categoryId:
+                                                  _selectedCategory.toString(),
+                                              page: 0));
+                                      context.read<ServiceBloc>().add(
+                                          GetServiceByIdEvent(
+                                              widget.serviceId));
+                                    },
                                     child: const Text('Retry'),
                                   ),
                                 ],
@@ -256,6 +270,10 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                                 context: context,
                                 type: 'error',
                                 title: state.message);
+                          }
+                          if (state is CategoriesLoaded) {
+                            totalLength = state.data!.length;
+                            totalRecords = state.totalRecords;
                           }
                         }, builder: (context, state) {
                           if (state is CategoriesLoading ||
@@ -382,6 +400,10 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                                 context: context,
                                 type: 'error',
                                 title: state.message);
+                          }
+                          if (state is SubcategoryLoaded) {
+                            subTotalLength = state.data!.length;
+                            subTotalRecords = state.totalRecords;
                           }
                         }, builder: (context, state) {
                           if (state is SubcategoryLoading ||
@@ -771,6 +793,9 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                                         context: context,
                                         type: 'success',
                                         title: "Service Updated Successfully");
+                                    context
+                                        .read<ServiceBloc>()
+                                        .add(FetchServicesEvent(page: 0));
                                     context.pop();
                                   }
                                 },
@@ -900,7 +925,8 @@ class EditServiceScreenWidget extends State<EditServiceScreen> {
                                                   ? double.parse(
                                                       _priceController.text)
                                                   : 0.0,
-                                          "duration": 1,
+                                          "duration": convertTimeToMinutes(
+                                              _selectedDuration.toString()),
                                           "status": "ACTIVE",
                                           "iconUrl": _selectedFile,
                                           "timeIn": availableStartTime,

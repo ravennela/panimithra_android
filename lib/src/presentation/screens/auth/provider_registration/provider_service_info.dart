@@ -120,7 +120,7 @@ class _ServiceInformationScreenState extends State<ServiceInformationScreen> {
                       DropdownButtonFormField<String>(
                         value: _selectedServiceCategory,
                         decoration: InputDecoration(
-                          hintText: 'Select the service you specialize in',
+                          hintText: 'Select specialize in',
                           hintStyle: const TextStyle(
                             color: Color(0xFF999999),
                             fontSize: 16,

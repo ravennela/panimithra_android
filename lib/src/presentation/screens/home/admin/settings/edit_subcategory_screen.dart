@@ -113,7 +113,10 @@ class _EditSubcategoryScreenState extends State<EditSubcategoryScreen> {
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.read<SubcategoryBloc>().add(
+                              FetchSubcategoryByIdEvent(widget.subCategoryId));
+                        },
                         child: const Text('Retry'),
                       ),
                     ],

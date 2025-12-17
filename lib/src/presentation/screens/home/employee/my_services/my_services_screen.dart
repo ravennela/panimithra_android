@@ -364,7 +364,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                                                           _infoLabel(
                                                               "Duration"),
                                                           _infoValue(
-                                                              "${state.data![index].duration ?? 0} mins"),
+                                                              "${timeToDuration(state.data![index].duration ?? 0) ?? 0}"),
                                                         ],
                                                       ),
                                                     ),

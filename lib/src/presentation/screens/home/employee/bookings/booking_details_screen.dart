@@ -33,9 +33,22 @@ class BookingDetailsWidget extends State<EmployeeBookingDetailsScreen> {
         child: BlocConsumer<BookingBloc, BookingState>(
           buildWhen: (previous, current) => (current is BookingDetailsLoading ||
               current is BookingDetailsError ||
-              current is BookingDetailsLoaded ||
-              current is UpdatePaymentStatusLoaded),
-          listener: (context, state) {},
+              current is BookingDetailsLoaded),
+          listener: (context, state) {
+            if (state is UpdatePaymentStatusLoaded) {
+              ToastHelper.showToast(
+                  context: context,
+                  type: "success",
+                  title: "Status Changed Successfully");
+              context.pop();
+            }
+            if(state is UpdatePaymentStatusError){
+              ToastHelper.showToast(
+                  context: context,
+                  type: "error",
+                  title: state.message);
+            }
+          },
           builder: (context, state) {
             if (state is BookingDetailsLoading) {
               return const Center(

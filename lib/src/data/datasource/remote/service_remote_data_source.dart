@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/core/network/dio_client.dart';
 import 'package:panimithra/src/data/datasource/remote/upload_file_remote_datasource.dart';
+import 'package:panimithra/src/utilities/location_fetch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ServiceDataSource {
@@ -176,11 +177,19 @@ class ServiceDataSourceImpl implements ServiceDataSource {
         "Authorization": "Bearer $token",
         'Content-Type': 'application/json'
       };
-      print("min" + minRating.toString());
-      print("max" + maxRating.toString());
+
       String url = ApiConstants.searchService;
       double latitude = preferences.getDouble(ApiConstants.latitude) ?? 0.0;
       double longitude = preferences.getDouble(ApiConstants.longitude) ?? 0.0;
+      print("latitude value" + latitude.toString());
+      if (latitude == 0.0) {
+        Map<String, double>? location = await getCurrentLocation();
+        print("get location called");
+        latitude = location!['lat']!;
+        longitude = location['lng']!;
+        preferences.setDouble(ApiConstants.latitude, latitude);
+        preferences.setDouble(ApiConstants.longitude, longitude);
+      }
       final response = await dioClient.get(
           queryParameters: {
             'page': page ?? 0,

@@ -115,3 +115,27 @@ int calculateDaysBetween(DateTime startDate, DateTime endDate) {
 
 String capitalize(String s) =>
     s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1).toLowerCase()}' : s;
+
+int convertTimeToMinutes(String duration) {
+  Map<String, dynamic> time = {
+    "30 min": 30,
+    "1 hour": 60,
+    "2 hours": 120,
+    "Half day": 72,
+    "Full day": 144
+  };
+  int value = time[duration];
+  return value;
+}
+
+String timeToDuration(int time) {
+  Map<int, dynamic> duration = {
+    30: "30 min",
+    60: "1 hour",
+    120: "2 hours",
+    72: "Half day",
+    144: "Full day"
+  };
+  String value = duration[time];
+  return value;
+}

@@ -50,6 +50,7 @@ import 'package:panimithra/src/domain/usecase/fetch_booking_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_categories_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_category_by_id_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_employee_dashboard_usecase.dart';
+import 'package:panimithra/src/domain/usecase/fetch_plan_by_id_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_plan_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_service_by_id_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_service_usecase.dart';
@@ -64,6 +65,7 @@ import 'package:panimithra/src/domain/usecase/top_five_review_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_category_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_payment_status_usecase.dart';
+import 'package:panimithra/src/domain/usecase/update_plan_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_subcategory_usecase.dart';
 import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
@@ -93,7 +95,9 @@ Future<void> init() async {
   sl.registerFactory(() => PlanBloc(
       createPlanUseCase: sl(),
       fetchPlansUseCase: sl(),
-      deletePlanUseCase: sl()));
+      deletePlanUseCase: sl(),
+      fetchPlanByIdUseCase: sl(),
+      updatePlanUseCase: sl()));
   sl.registerFactory(() => ServiceBloc(
       fetchServicesUseCase: sl(),
       createServiceUseCase: sl(),
@@ -148,6 +152,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateOrderUseCase(sl()));
   sl.registerLazySingleton(() => CreatePlanUseCase(repository: sl()));
   sl.registerLazySingleton(() => CreateCategoryUseCase(repository: sl()));
+  sl.registerLazySingleton(() => FetchPlanByIdUseCase(sl()));
   sl.registerLazySingleton(
     () => FetchCategoriesUseCase(
       repository: sl(),
@@ -190,6 +195,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateCategoryUseCase(repository: sl()));
   sl.registerLazySingleton(() => UpdateSubCategoryUseCase(repository: sl()));
   sl.registerLazySingleton(() => ChangeUserStatusUseCase(sl()));
+  sl.registerLazySingleton(() => UpdatePlanUseCase(repository: sl()));
 
   // Repository
   sl.registerLazySingleton<LoginRepository>(

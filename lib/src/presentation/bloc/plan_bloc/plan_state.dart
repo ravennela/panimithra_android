@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:panimithra/src/data/models/fetch_plan_model.dart';
+import 'package:panimithra/src/data/models/plan_by_id_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 
 abstract class PlanState extends Equatable {
@@ -74,6 +75,50 @@ class DeletePlanError extends PlanState {
   final String message;
 
   const DeletePlanError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class FetchPlanByIdLoadingState extends PlanState {}
+
+class FetchPlanByIdLoaded extends PlanState {
+  final PlanById plan;
+
+  const FetchPlanByIdLoaded(this.plan);
+
+  @override
+  List<Object?> get props => [plan];
+}
+
+/// 🔹 Error state — contains message
+class FetchPlanByIdError extends PlanState {
+  final String message;
+
+  const FetchPlanByIdError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔹 Update Plan Loading State
+class UpdatePlanLoading extends PlanState {}
+
+/// 🔹 Update Plan Loaded (Success)
+class UpdatePlanLoaded extends PlanState {
+  final SuccessModel success;
+
+  const UpdatePlanLoaded(this.success);
+
+  @override
+  List<Object?> get props => [success];
+}
+
+/// 🔹 Update Plan Error
+class UpdatePlanError extends PlanState {
+  final String message;
+
+  const UpdatePlanError(this.message);
 
   @override
   List<Object?> get props => [message];

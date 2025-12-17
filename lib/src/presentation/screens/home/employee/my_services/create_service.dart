@@ -20,6 +20,7 @@ import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_event.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_state.dart';
+import 'package:panimithra/src/presentation/widget/helper.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,7 +48,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   Timer? _debounce;
   int totalRecords = 0;
   int totalLength = 0;
-  int page = 1;
+  int page = 0;
   int x = 0;
   File? _selectedFile;
   bool hasMoreRecords = true;
@@ -65,7 +66,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   int subTotalLength = 0;
   String? selectedCategoryId;
   String? selectedSubCategoryId;
-  int subPage = 1;
+  int subPage = 0;
   bool subHasMoreRecords = true;
   TimeOfDay? startTime;
   TimeOfDay? endTime;
@@ -90,7 +91,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   }
 
   String formatTime(TimeOfDay? time) {
-    if (time == null) return "--:--";
+    if (time == null) return "Select time";
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
     return DateFormat('hh:mm a').format(dt);
@@ -116,6 +117,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   }
 
   void _scrollListener() {
+    print("Scrolling");
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       if (scrollController.position.pixels >=
@@ -124,6 +126,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
           hasMoreRecords = false;
           return;
         }
+        print("length passed");
 
         if (totalLength <= totalRecords) {
           page += 1;
@@ -143,9 +146,9 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
           return;
         }
         if (subTotalLength <= subTotalRecords) {
-          page += 1;
+          subPage += 1;
           context.read<SubcategoryBloc>().add(FetchSubcategoriesEvent(
-              categoryId: _selectedCategory.toString(), page: page));
+              categoryId: _selectedCategory.toString(), page: subPage));
         }
       }
     });
@@ -155,20 +158,28 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F7FA),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.arrow_back_ios_new,
+                color: Colors.black87, size: 18),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Create New Service',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
           ),
         ),
         centerTitle: false,
@@ -178,7 +189,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
           key: _formKey,
           child: LayoutBuilder(
             builder: (context, constraints) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               physics: const BouncingScrollPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -188,15 +199,45 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Fill in the details below to list a new service.',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                      // Header Description
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFBFDBFE)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2563EB),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.info_outline,
+                                  color: Colors.white, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Fill in the details below to list your service',
+                                style: TextStyle(
+                                  color: Color(0xFF1E40AF),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
-                      // ---------- Service Details ----------
+                      // ---------- Service Category ----------
                       _sectionCard(
-                        title: 'Service Details',
+                        title: 'Service Category',
+                        icon: Icons.category_outlined,
                         child: Column(
                           children: [
                             BlocConsumer<CategoriesBloc, CategoriesState>(
@@ -206,6 +247,10 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                     context: context,
                                     type: 'error',
                                     title: state.message);
+                              }
+                              if (state is CategoriesLoaded) {
+                                totalLength = state.data!.length;
+                                totalRecords = state.totalRecords;
                               }
                             }, builder: (context, state) {
                               if (state is CategoriesLoading ||
@@ -230,33 +275,43 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                       },
                                       decoration: InputDecoration(
                                         hintText: 'Select Category',
+                                        hintStyle:
+                                            TextStyle(color: Colors.grey[400]),
+                                        prefixIcon: const Icon(
+                                            Icons.grid_view_rounded,
+                                            size: 20),
                                         suffixIcon: Padding(
-                                          padding: EdgeInsets.only(right: 12.0),
-                                          child: IconButton(
-                                            icon: Icon(Icons
-                                                .keyboard_arrow_down_outlined),
-                                            onPressed: () {
-                                              setState(() {
-                                                showManagerDropdown =
-                                                    !showManagerDropdown;
-                                              });
-                                            },
+                                          padding: const EdgeInsets.only(
+                                              right: 12.0),
+                                          child: Icon(
+                                            showManagerDropdown
+                                                ? Icons
+                                                    .keyboard_arrow_up_outlined
+                                                : Icons
+                                                    .keyboard_arrow_down_outlined,
+                                            color: const Color(0xFF2563EB),
                                           ),
                                         ),
                                       ),
-                                      onChanged: (value) {
-                                        // _onManagerSearchChanged(value);
-                                      },
                                     ),
                                     if (showManagerDropdown) ...[
+                                      const SizedBox(height: 8),
                                       Container(
-                                          height: 260,
+                                          height: 240,
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                                color: ColorLight.textborder),
+                                                color: Colors.grey[300]!),
                                             borderRadius:
-                                                BorderRadius.circular(8),
+                                                BorderRadius.circular(12),
                                             color: Colors.white,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.05),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
                                           ),
                                           child: state.totalRecords > 0
                                               ? ListView.builder(
@@ -277,15 +332,16 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                                                           .length
                                                                   ? false
                                                                   : true,
-                                                          child: const Center(
-                                                              child:
-                                                                  CircularProgressIndicator()));
+                                                          child: const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    16.0),
+                                                            child: Center(
+                                                                child:
+                                                                    CircularProgressIndicator()),
+                                                          ));
                                                     }
-                                                    return ListTile(
-                                                      title: Text(state
-                                                          .data![index]
-                                                          .categoryName
-                                                          .toString()),
+                                                    return InkWell(
                                                       onTap: () {
                                                         subCategoryController
                                                             .clear();
@@ -311,17 +367,98 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                                                 page: 0));
                                                         setState(() {});
                                                       },
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 16,
+                                                          vertical: 12,
+                                                        ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                              color: Colors
+                                                                  .grey[200]!,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Container(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: const Color(
+                                                                    0xFFEFF6FF),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                              child: const Icon(
+                                                                Icons
+                                                                    .folder_outlined,
+                                                                size: 18,
+                                                                color: Color(
+                                                                    0xFF2563EB),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 12),
+                                                            Expanded(
+                                                              child: Text(
+                                                                state
+                                                                    .data![
+                                                                        index]
+                                                                    .categoryName
+                                                                    .toString(),
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize: 15,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const Icon(
+                                                              Icons
+                                                                  .chevron_right,
+                                                              color:
+                                                                  Colors.grey,
+                                                              size: 20,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     );
                                                   })
                                               : const Center(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                          "No Category Available"),
-                                                    ],
+                                                  child: Padding(
+                                                    padding:
+                                                        EdgeInsets.all(16.0),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Icon(
+                                                            Icons
+                                                                .category_outlined,
+                                                            size: 48,
+                                                            color: Colors.grey),
+                                                        SizedBox(height: 8),
+                                                        Text(
+                                                          "No Category Available",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ))
                                     ]
@@ -330,7 +467,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                               }
                               return Container();
                             }),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             //sub category
                             BlocConsumer<SubcategoryBloc, SubcategoryState>(
                                 listener: (context, state) {
@@ -339,6 +476,10 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                     context: context,
                                     type: 'error',
                                     title: state.message);
+                              }
+                              if (state is SubcategoryLoaded) {
+                                subTotalLength = state.data!.length;
+                                subTotalRecords = state.totalRecords;
                               }
                             }, builder: (context, state) {
                               if (state is SubcategoryLoading ||
@@ -365,33 +506,43 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                       },
                                       decoration: InputDecoration(
                                         hintText: 'Select SubCategory',
+                                        hintStyle:
+                                            TextStyle(color: Colors.grey[400]),
+                                        prefixIcon: const Icon(
+                                            Icons.apps_outlined,
+                                            size: 20),
                                         suffixIcon: Padding(
-                                          padding: EdgeInsets.only(right: 12.0),
-                                          child: IconButton(
-                                            icon: Icon(Icons
-                                                .keyboard_arrow_down_outlined),
-                                            onPressed: () {
-                                              setState(() {
-                                                subShowManagerDropdown =
-                                                    !subShowManagerDropdown;
-                                              });
-                                            },
+                                          padding: const EdgeInsets.only(
+                                              right: 12.0),
+                                          child: Icon(
+                                            subShowManagerDropdown
+                                                ? Icons
+                                                    .keyboard_arrow_up_outlined
+                                                : Icons
+                                                    .keyboard_arrow_down_outlined,
+                                            color: const Color(0xFF2563EB),
                                           ),
                                         ),
                                       ),
-                                      onChanged: (value) {
-                                        // _onManagerSearchChanged(value);
-                                      },
                                     ),
                                     if (subShowManagerDropdown) ...[
+                                      const SizedBox(height: 8),
                                       Container(
-                                          height: 260,
+                                          height: 240,
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                                color: ColorLight.textborder),
+                                                color: Colors.grey[300]!),
                                             borderRadius:
-                                                BorderRadius.circular(8),
+                                                BorderRadius.circular(12),
                                             color: Colors.white,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.05),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
                                           ),
                                           child: state.totalRecords > 0
                                               ? ListView.builder(
@@ -413,15 +564,16 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                                                           .length
                                                                   ? false
                                                                   : true,
-                                                          child: const Center(
-                                                              child:
-                                                                  CircularProgressIndicator()));
+                                                          child: const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    16.0),
+                                                            child: Center(
+                                                                child:
+                                                                    CircularProgressIndicator()),
+                                                          ));
                                                     }
-                                                    return ListTile(
-                                                      title: Text(state
-                                                          .data![index]
-                                                          .categoryName
-                                                          .toString()),
+                                                    return InkWell(
                                                       onTap: () {
                                                         subCategoryController
                                                                 .text =
@@ -435,17 +587,97 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                                                 .categoryId;
                                                         setState(() {});
                                                       },
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 16,
+                                                          vertical: 12,
+                                                        ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                              color: Colors
+                                                                  .grey[200]!,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Container(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: const Color(
+                                                                    0xFFFEF3C7),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                              child: const Icon(
+                                                                Icons
+                                                                    .label_outline,
+                                                                size: 18,
+                                                                color: Color(
+                                                                    0xFFD97706),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 12),
+                                                            Expanded(
+                                                              child: Text(
+                                                                state
+                                                                    .data![
+                                                                        index]
+                                                                    .categoryName
+                                                                    .toString(),
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize: 15,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const Icon(
+                                                              Icons
+                                                                  .chevron_right,
+                                                              color:
+                                                                  Colors.grey,
+                                                              size: 20,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     );
                                                   })
                                               : const Center(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                          "No SubCategries Available"),
-                                                    ],
+                                                  child: Padding(
+                                                    padding:
+                                                        EdgeInsets.all(16.0),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Icon(
+                                                            Icons.apps_outlined,
+                                                            size: 48,
+                                                            color: Colors.grey),
+                                                        SizedBox(height: 8),
+                                                        Text(
+                                                          "No SubCategories Available",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ))
                                     ]
@@ -454,150 +686,261 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                               }
                               return Container();
                             }),
+                          ],
+                        ),
+                      ),
 
-                            const SizedBox(height: 24),
+                      const SizedBox(height: 20),
+
+                      // ---------- Service Details ----------
+                      _sectionCard(
+                        title: 'Service Details',
+                        icon: Icons.description_outlined,
+                        child: Column(
+                          children: [
                             _buildTextField(
                               controller: _serviceNameController,
                               maxLines: 1,
                               label: 'Service Name',
                               maxLenghth: 100,
                               hint: 'e.g., Leaky Faucet Repair',
+                              icon: Icons.build_outlined,
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 20),
                             _buildTextField(
                               controller: _descriptionController,
                               maxLenghth: 100,
                               label: 'Service Description',
                               hint: 'Describe the service you offer...',
                               maxLines: 4,
+                              icon: Icons.notes_outlined,
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 20),
                             _buildTextField(
                               controller: addressController,
-                              label: 'Address',
+                              label: 'Service Address',
                               maxLenghth: 100,
-                              hint: 'Address',
-                              maxLines: 4,
+                              hint: 'Enter service location',
+                              maxLines: 3,
+                              icon: Icons.location_on_outlined,
                             ),
-                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // ---------- Additional Information ----------
+                      _sectionCard(
+                        title: 'Additional Information',
+                        icon: Icons.info_outline,
+                        child: Column(
+                          children: [
                             _buildTextField(
                               controller: addInfoLine1Controller,
-                              label: 'Additinal Info 1',
+                              label: 'Additional Info 1',
                               maxLenghth: 100,
-                              hint: 'About Your Items Inlided In Service',
+                              hint: 'Items included in service',
                               maxLines: 2,
+                              icon: Icons.check_circle_outline,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: addInfoLine2Controller,
-                              label: 'Additinal Info 2',
+                              label: 'Additional Info 2',
                               maxLenghth: 100,
-                              hint: 'About Your Items Inlided In Service',
+                              hint: 'Items included in service',
                               maxLines: 2,
+                              icon: Icons.check_circle_outline,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: addInfoLine3Controller,
-                              label: 'Additinal Info 3',
+                              label: 'Additional Info 3',
                               maxLenghth: 100,
-                              hint: 'About Your Items Inlided In Service',
+                              hint: 'Items included in service',
                               maxLines: 2,
+                              icon: Icons.check_circle_outline,
                             ),
-                            const SizedBox(height: 16),
-                            Container(
-                              margin: EdgeInsets.only(right: size.width * 0.45),
-                              child: const Text("Select Available Timings",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15)),
-                            ),
-                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
 
-                            Row(
-                              children: [
-                                // Start Time Field
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => _selectTime(context, true),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14, horizontal: 16),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF9FAFB),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            formatTime(startTime),
-                                            style:
-                                                const TextStyle(fontSize: 16),
-                                          ),
-                                          const Icon(Icons.access_time,
-                                              size: 20, color: Colors.grey),
-                                        ],
-                                      ),
+                      const SizedBox(height: 20),
+
+                      // ---------- Pricing & Duration ----------
+                      _sectionCard(
+                        title: 'Pricing & Duration',
+                        icon: Icons.attach_money_outlined,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _buildTextField(
+                                controller: _priceController,
+                                label: 'Price',
+                                hint: '50',
+                                prefix: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
+                                  child: const Text(
+                                    '\$',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF2563EB),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                // End Time Field
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => _selectTime(context, false),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14, horizontal: 16),
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFF9FAFB),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            formatTime(endTime),
-                                            style:
-                                                const TextStyle(fontSize: 16),
-                                          ),
-                                          const Icon(Icons.access_time,
-                                              size: 20, color: Colors.grey),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                keyboardType: TextInputType.number,
+                              ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildDropdown(
+                                label: 'Duration',
+                                value: _selectedDuration,
+                                hint: '1 hour',
+                                onChanged: (val) =>
+                                    setState(() => _selectedDuration = val),
+                                items: [
+                                  '30 min',
+                                  '1 hour',
+                                  '2 hours',
+                                  'Half day',
+                                  'Full day'
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // ---------- Service Timings ----------
+                      _sectionCard(
+                        title: 'Service Timings',
+                        icon: Icons.access_time_outlined,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Row(
                               children: [
                                 Expanded(
-                                  child: _buildTextField(
-                                    controller: _priceController,
-                                    label: 'Price',
-                                    hint: 'e.g., 50',
-                                    prefix: const Text('\$ '),
-                                    keyboardType: TextInputType.number,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Start Time',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Color(0xFF374151),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      GestureDetector(
+                                        onTap: () => _selectTime(context, true),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16, horizontal: 16),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF9FAFB),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: startTime != null
+                                                  ? const Color(0xFF2563EB)
+                                                      .withOpacity(0.3)
+                                                  : Colors.grey[300]!,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                formatTime(startTime),
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: startTime != null
+                                                      ? Colors.black
+                                                      : Colors.grey[400],
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.access_time_rounded,
+                                                size: 20,
+                                                color: startTime != null
+                                                    ? const Color(0xFF2563EB)
+                                                    : Colors.grey[400],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: _buildDropdown(
-                                    label: 'Duration',
-                                    value: _selectedDuration,
-                                    hint: 'e.g., 1 hour',
-                                    onChanged: (val) =>
-                                        setState(() => _selectedDuration = val),
-                                    items: [
-                                      '30 min',
-                                      '1 hour',
-                                      '2 hours',
-                                      'Half day',
-                                      'Full day'
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'End Time',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Color(0xFF374151),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      GestureDetector(
+                                        onTap: () =>
+                                            _selectTime(context, false),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16, horizontal: 16),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF9FAFB),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: endTime != null
+                                                  ? const Color(0xFF2563EB)
+                                                      .withOpacity(0.3)
+                                                  : Colors.grey[300]!,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                formatTime(endTime),
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: endTime != null
+                                                      ? Colors.black
+                                                      : Colors.grey[400],
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.access_time_rounded,
+                                                size: 20,
+                                                color: endTime != null
+                                                    ? const Color(0xFF2563EB)
+                                                    : Colors.grey[400],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -607,85 +950,180 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
                       // ---------- Service Images ----------
-                      if (_selectedFile == null)
-                        _sectionCard(
-                          title: 'Service Images',
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Add up to 5 images',
-                                style: TextStyle(color: Colors.grey),
+                      _sectionCard(
+                        title: 'Service Images',
+                        icon: Icons.image_outlined,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Add up to 5 images to showcase your service',
+                              style: TextStyle(
+                                color: Color(0xFF6B7280),
+                                fontSize: 14,
                               ),
-                              const SizedBox(height: 12),
-                              Wrap(
-                                spacing: 10,
-                                runSpacing: 10,
-                                children: List.generate(1, (index) {
-                                  return GestureDetector(
-                                    onTap: () async {
-                                      _pickAndUpload();
-                                    },
-                                    child: Container(
-                                      width: (size.width - 64) / 4,
-                                      height: 80,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.grey.shade300,
-                                          style: index == 0
-                                              ? BorderStyle.solid
-                                              : BorderStyle.none,
-                                        ),
-                                        color: index == 0
-                                            ? Colors.transparent
-                                            : Colors.grey.shade200,
-                                      ),
-                                      child: index == 0
-                                          ? const Icon(
-                                              Icons.add_photo_alternate,
-                                              color: Color(0xFF2563EB))
-                                          : null,
+                            ),
+                            const SizedBox(height: 16),
+                            if (_selectedFile == null)
+                              GestureDetector(
+                                onTap: () async {
+                                  _pickAndUpload();
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 160,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: const Color(0xFF2563EB),
+                                      width: 2,
+                                      style: BorderStyle.solid,
                                     ),
-                                  );
-                                }),
+                                    color: const Color(0xFFEFF6FF),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF2563EB)
+                                              .withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          color: Color(0xFF2563EB),
+                                          size: 32,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        'Upload Image',
+                                        style: TextStyle(
+                                          color: Color(0xFF2563EB),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'JPG, PNG up to 10MB',
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ],
-                          ),
+                            if (_selectedFile != null)
+                              Stack(
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    height: 200,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.file(
+                                        File(_selectedFile!.path),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.1),
+                                                blurRadius: 4,
+                                              ),
+                                            ],
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(Icons.edit,
+                                                color: Color(0xFF2563EB)),
+                                            onPressed: () {
+                                              _pickAndUpload();
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.1),
+                                                blurRadius: 4,
+                                              ),
+                                            ],
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(Icons.delete,
+                                                color: Colors.red),
+                                            onPressed: () {
+                                              setState(() {
+                                                _selectedFile = null;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
                         ),
-                      if (_selectedFile != null)
-                        GestureDetector(
-                          onTap: () {
-                            _pickAndUpload();
-                          },
-                          child: Container(
-                            width: size.width * 0.2,
-                            height: 80,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10)),
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(14),
-                                child: Image.file(
-                                  File(_selectedFile!.path),
-                                  fit: BoxFit.cover,
-                                )),
-                          ),
-                        ),
+                      ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
                       // ---------- Availability ----------
                       _sectionCard(
                         title: 'Set Your Availability',
+                        icon: Icons.calendar_today_outlined,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const Text(
+                              'Select the days you are available',
+                              style: TextStyle(
+                                color: Color(0xFF6B7280),
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
                             Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
+                              spacing: 10,
+                              runSpacing: 10,
                               children: [
                                 'Mon',
                                 'Tue',
@@ -696,38 +1134,56 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                 'Sun'
                               ]
                                   .map(
-                                    (day) => ChoiceChip(
-                                      label: Text(day),
-                                      selected:
-                                          selectedDays.contains(day), // demo
-                                      onSelected: (element) {
-                                        setState(() {});
-                                        if (selectedDays.contains(day)) {
-                                          selectedDays.remove(day);
-                                        } else {
-                                          selectedDays.add(day);
-                                        }
+                                    (day) => InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          if (selectedDays.contains(day)) {
+                                            selectedDays.remove(day);
+                                          } else {
+                                            selectedDays.add(day);
+                                          }
+                                        });
                                       },
-                                      selectedColor:
-                                          (selectedDays.contains(day))
-                                              ? Color(0xFF2563EB)
-                                              : Colors.white,
-                                      labelStyle: TextStyle(
-                                        color: (selectedDays.contains(day))
-                                            ? Colors.white
-                                            : Colors.black,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: selectedDays.contains(day)
+                                              ? const Color(0xFF2563EB)
+                                              : const Color(0xFFF9FAFB),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: selectedDays.contains(day)
+                                                ? const Color(0xFF2563EB)
+                                                : Colors.grey[300]!,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          day,
+                                          style: TextStyle(
+                                            color: selectedDays.contains(day)
+                                                ? Colors.white
+                                                : const Color(0xFF374151),
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   )
                                   .toList(),
                             ),
-                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
 
                       const Spacer(),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
 
                       // ---------- Submit Button ----------
                       BlocConsumer<ServiceBloc, ServiceState>(
@@ -743,174 +1199,263 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                 context: context,
                                 type: 'success',
                                 title: "Service Created Successfully");
+                            context
+                                .read<ServiceBloc>()
+                                .add(FetchServicesEvent(page: 0));
                             context.pop();
                           }
                         },
                         builder: (context, state) {
-                          return SizedBox(
-                            width: double.infinity,
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color(0xFF2563EB).withOpacity(0.3),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF2563EB),
                                 foregroundColor: Colors.white,
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                    const EdgeInsets.symmetric(vertical: 18),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
+                                elevation: 0,
                               ),
-                              onPressed: () async {
-                                print("form valid");
-                                if (!_formKey.currentState!.validate()) {
-                                  return;
-                                }
-                                if (_selectedCategory == null) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title: 'Please Select Category');
-                                  return;
-                                }
-                                if (_selectedSubcategory == null) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title: 'Please Select Sub Category');
-                                  return;
-                                }
-                                if (_serviceNameController.text.isEmpty) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title: 'Please Select Service Name');
-                                  return;
-                                }
-                                if (_serviceNameController.text.isEmpty) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title:
-                                          'Please Select Service Description');
-                                  return;
-                                }
-                                if (_priceController.text.isEmpty) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title: 'Please Select Price');
-                                  return;
-                                }
-                                for (int i = 0; i < selectedDays.length; i++) {
-                                  availableDatesList.add({
-                                    "availableDate": selectedDays[i].toString(),
-                                  });
-                                }
-                                if (startTime == null) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title: 'Please Select Satrt Time');
-                                  return;
-                                }
-                                if (endTime == null) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title: 'Please Select Satrt Time');
-                                  return;
-                                }
-                                if (addressController.text.isEmpty) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title: 'Please Select Address');
-                                  return;
-                                }
-                                if (startTime!.isAfter(endTime!)) {
-                                  ToastHelper.showToast(
-                                      context: context,
-                                      type: 'error',
-                                      title:
-                                          'Please Select Satrt Time Before End Time');
-                                  return;
-                                }
+                              onPressed: state is CreateServiceLoading
+                                  ? null
+                                  : () async {
+                                      print("form valid");
+                                      if (!_formKey.currentState!.validate()) {
+                                        return;
+                                      }
+                                      print("valid");
+                                      if (_selectedCategory == null) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title: 'Please Select Category');
+                                        return;
+                                      }
+                                      print("category");
+                                      if (_selectedSubcategory == null) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title:
+                                                'Please Select Sub Category');
+                                        return;
+                                      }
+                                      print("sub category");
+                                      if (_serviceNameController.text.isEmpty) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title:
+                                                'Please Select Service Name');
+                                        return;
+                                      }
+                                      print('service name');
+                                      if (_serviceNameController.text.isEmpty) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title:
+                                                'Please Select Service Description');
+                                        return;
+                                      }
+                                      print("price");
+                                      if (_priceController.text.isEmpty) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title: 'Please Select Price');
+                                        return;
+                                      }
+                                      for (int i = 0;
+                                          i < selectedDays.length;
+                                          i++) {
+                                        availableDatesList.add({
+                                          "availableDate":
+                                              selectedDays[i].toString(),
+                                        });
+                                      }
+                                      print("dates");
+                                      if (startTime == null) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title: 'Please Select Start Time');
+                                        return;
+                                      }
+                                      if (endTime == null) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title: 'Please Select End Time');
+                                        return;
+                                      }
+                                      print("address");
+                                      if (addressController.text.isEmpty) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title: 'Please Select Address');
+                                        return;
+                                      }
+                                      if (startTime!.isAfter(endTime!)) {
+                                        ToastHelper.showToast(
+                                            context: context,
+                                            type: 'error',
+                                            title:
+                                                'Please Select Start Time Before End Time');
+                                        return;
+                                      }
+                                      print("location");
+                                      double latitude = 0.0;
+                                      double longitude = 0.0;
+                                      try {
+                                        Map<String, double>? location =
+                                            await getCurrentLocation();
+                                        latitude = location!['lat']!;
+                                        longitude = location['lng']!;
+                                      } catch (e) {
+                                        print(e.toString());
+                                      }
+                                      print("till location");
+                                      SharedPreferences preferences =
+                                          await SharedPreferences.getInstance();
 
-                                //sprint("available dates" + availableDate.toString());
-                                double latitude = 0.0;
-                                double longitude = 0.0;
-                                try {
-                                  Map<String, double>? location =
-                                      await getCurrentLocation();
-                                  latitude = location!['lat']!;
-                                  longitude = location['lng']!;
-                                } catch (e) {
-                                  print(e.toString());
-                                }
-                                SharedPreferences preferences =
-                                    await SharedPreferences.getInstance();
+                                      String employeeId = preferences
+                                              .getString(ApiConstants.userId) ??
+                                          '';
 
-                                String employeeId = preferences
-                                        .getString(ApiConstants.userId) ??
-                                    '';
+                                      final availableEndDates =
+                                          '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}';
+                                      final availableStartTime =
+                                          '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}';
+                                      print("till data");
+                                      Map<String, dynamic> data = {
+                                        "employeeId": employeeId,
+                                        "name": _serviceNameController.text,
+                                        "description":
+                                            _descriptionController.text,
+                                        "price":
+                                            _priceController.text.isNotEmpty
+                                                ? double.parse(
+                                                    _priceController.text)
+                                                : 0.0,
+                                        "duration": convertTimeToMinutes(
+                                            _selectedDuration ?? ""),
+                                        "status": "ACTIVE",
+                                        "iconUrl": _selectedFile,
+                                        "timeIn": availableStartTime,
+                                        "timeOut": availableEndDates,
+                                        "addInfoOne":
+                                            addInfoLine1Controller.text,
+                                        "addInfoTwo":
+                                            addInfoLine2Controller.text,
+                                        "addInfoThree":
+                                            addInfoLine3Controller.text,
+                                        "availableStartTime":
+                                            availableStartTime,
+                                        "availableEndTime": availableEndDates,
+                                        "latitude": latitude,
+                                        "longitude": longitude,
+                                        "availableDates": availableDatesList,
+                                        "images": [
+                                          {"imageUrls": "hg"}
+                                        ],
+                                        "address": addressController.text
+                                      };
 
-                                final availableEndDates =
-                                    '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}'; // "09:45"
-                                final availableStartTime =
-                                    '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}'; // "09:45"
-
-                                Map<String, dynamic> data = {
-                                  "employeeId": employeeId,
-                                  "name": _serviceNameController.text,
-                                  "description": _descriptionController.text,
-                                  "price": _priceController.text.isNotEmpty
-                                      ? double.parse(_priceController.text)
-                                      : 0.0,
-                                  "duration": 1,
-                                  "status": "ACTIVE",
-                                  "iconUrl": _selectedFile,
-                                  "timeIn": availableStartTime,
-                                  "timeOut": availableEndDates,
-                                  "addInfoOne": addInfoLine1Controller.text,
-                                  "addInfoTwo": addInfoLine2Controller.text,
-                                  "addInfoThree": addInfoLine3Controller.text,
-                                  "availableStartTime": availableStartTime,
-                                  "availableEndTime": availableEndDates,
-                                  "latitude": latitude,
-                                  "longitude": longitude,
-                                  "availableDates": availableDatesList,
-                                  "images": [
-                                    {"imageUrls": "hg"}
-                                  ],
-                                  "address": addressController.text
-                                };
-
-                                context.read<ServiceBloc>().add(
-                                    CreateServiceEvent(
-                                        serviceData: data,
-                                        categoryId:
-                                            _selectedCategory.toString(),
-                                        subCategoryId:
-                                            _selectedSubcategory.toString()));
-                              },
-                              child: Text(
-                                state is CreateServiceLoading
-                                    ? 'Creating Service ....'
-                                    : "Create Service",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                                      context.read<ServiceBloc>().add(
+                                          CreateServiceEvent(
+                                              serviceData: data,
+                                              categoryId:
+                                                  _selectedCategory.toString(),
+                                              subCategoryId:
+                                                  _selectedSubcategory
+                                                      .toString()));
+                                    },
+                              child: state is CreateServiceLoading
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        const Text(
+                                          'Creating Service...',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.add_circle_outline,
+                                            size: 22),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Create Service',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                             ),
                           );
                         },
                       ),
-                      const SizedBox(height: 8),
-                      const Center(
-                        child: Text(
-                          'Your service will be reviewed by our team before it goes live.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              color: Color(0xFFD97706),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: const Text(
+                                'Your service will be reviewed by our team before it goes live.',
+                                style: TextStyle(
+                                  color: Color(0xFF92400E),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -926,8 +1471,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   }
 
   Future<void> _pickAndUpload() async {
-    final picked = await UploadFileRemoteDatasource(client: Dio())
-        .pickImage(); // pick from gallery
+    final picked = await UploadFileRemoteDatasource(client: Dio()).pickImage();
     if (picked == null) return;
 
     setState(() {
@@ -935,25 +1479,54 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
     });
   }
 
-  Widget _sectionCard({required String title, required Widget child}) {
+  Widget _sectionCard({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  color: const Color(0xFF2563EB),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF111827),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           child,
         ],
       ),
@@ -970,24 +1543,44 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Color(0xFF374151),
+          ),
+        ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: value,
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey[400]),
             filled: true,
             fillColor: const Color(0xFFF9FAFB),
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
             ),
           ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+              color: Color(0xFF2563EB)),
           items: items
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .map((e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: const TextStyle(fontSize: 15)),
+                  ))
               .toList(),
           onChanged: onChanged,
         ),
@@ -1002,37 +1595,58 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
     int maxLines = 1,
     int? maxLenghth,
     Widget? prefix,
+    IconData? icon,
     TextInputType? keyboardType,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Color(0xFF374151),
+          ),
+        ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
           maxLength: maxLenghth ?? 10,
+          style: const TextStyle(fontSize: 15),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey[400]),
             counterText: '',
-            prefixIcon: prefix != null
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 4),
-                    child: prefix,
-                  )
-                : null,
+            prefixIcon: icon != null
+                ? Icon(icon, color: const Color(0xFF6B7280), size: 20)
+                : (prefix != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 16, right: 8),
+                        child: prefix,
+                      )
+                    : null),
             prefixIconConstraints:
-                const BoxConstraints(minWidth: 0, minHeight: 0),
+                const BoxConstraints(minWidth: 48, minHeight: 0),
             filled: true,
-            fillColor: const Color.fromARGB(255, 237, 241, 245),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            fillColor: const Color(0xFFF9FAFB),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: icon != null || prefix != null ? 12 : 16,
+              vertical: maxLines > 1 ? 16 : 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
             ),
           ),
         ),

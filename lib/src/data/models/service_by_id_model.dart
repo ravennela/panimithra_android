@@ -35,6 +35,7 @@ class ServiceByIdModel {
   String categoryId;
   String sabCategoryId;
   List<String> datesSelected;
+  int? duration;
 
   ServiceByIdModel({
     required this.serviceId,
@@ -42,6 +43,7 @@ class ServiceByIdModel {
     required this.description,
     required this.avaragerating,
     required this.price,
+    this.duration,
     this.addInfoOne,
     this.addInfoTwo,
     required this.sabCategoryId,
@@ -64,6 +66,7 @@ class ServiceByIdModel {
   factory ServiceByIdModel.fromJson(Map<String, dynamic> json) =>
       ServiceByIdModel(
         serviceId: json["serviceId"] ?? "",
+        duration: json["duration"],
         employeeId: json["employeeId"] ?? "",
         serviceName: json["serviceName"] ?? "",
         sabCategoryId: json["subCategoryId"] ?? '',

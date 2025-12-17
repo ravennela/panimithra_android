@@ -43,9 +43,6 @@ class _SplashScreenState extends State<SplashScreen> {
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned.fill(
-              child: Image.asset(Images.SPLASH_BACKGROUND, fit: BoxFit.fill),
-            ),
             SizedBox(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
@@ -62,20 +59,10 @@ class _SplashScreenState extends State<SplashScreen> {
                           Image.asset(
                             key: Key("splash_logo"),
                             Images.SPLASH_LOGO,
-                            height: 156,
-                            width: 162,
+                            height: 300,
+                            width: 300,
                           ),
                           SizedBox(height: SPACE12),
-                          Text(
-                            'Welcome to Panimithra',
-                            style: TextStyle(
-                              color: Theme.of(context).cardColor,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: SPACE12),
-                          
                         ],
                       ),
                     ),

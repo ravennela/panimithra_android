@@ -1,7 +1,9 @@
 class ApiConstants {
-  //static const String baseUrl = 'http://localhost:8080';
   static const String baseUrl = 'http://192.168.1.120:8080';
-  //static const String baseUrl = "https://panimithra.onrender.com";
+  //static const String baseUrl = 'https://cc9658415e7e.ngrok-free.app';
+//static const String baseUrl = 'https://panimithra-564205773146.us-central1.run.app';
+
+  // static const String baseUrl = "https://panimithra.onrender.com";
   static const String login = '$baseUrl/auth/login';
   static const String registration = "/auth/create-user";
   static const String fetchCategoryApi = "$baseUrl/categories/fetch-category";
@@ -19,7 +21,7 @@ class ApiConstants {
   static const String fetchPlanApi = "$baseUrl/auth/fetch-plans";
   static const String fetchUsers = "$baseUrl/auth/getAllUsers";
   static const String fetchEmployeePlans = "$baseUrl/subcription/employee-plan";
-  static const String orderCreationApi = "$baseUrl/payments/checkout";
+  static const String orderCreationApi = "$baseUrl/webhook/checkout";
 
   static const String getServiceById = "$baseUrl/service/getServiceById";
   static const String createBooking = "$baseUrl/bookings/create";
@@ -72,4 +74,7 @@ class ApiConstants {
 
   static const folderName = "my_photos";
   static const String claudinaryBaseUrl = "https://api.cloudinary.com/v1_1";
+  static const String fetchPlanById = "$baseUrl/auth/get-plan";
+  static const String updatePlan = "$baseUrl/auth/update-plan";
+  static const String gcpApi = "$baseUrl/api/files/upload";
 }

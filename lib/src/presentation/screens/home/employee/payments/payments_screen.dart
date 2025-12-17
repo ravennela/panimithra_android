@@ -77,7 +77,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context
+                          .read<EmployeePaymentBloc>()
+                          .add(LoadEmployeePaymentsEvent(userId: ""));
+                    },
                     child: const Text('Retry'),
                   ),
                 ],
