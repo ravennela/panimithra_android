@@ -25,6 +25,8 @@ import 'package:panimithra/src/presentation/screens/home/employee/payments/plans
 import 'package:panimithra/src/presentation/screens/home/user/bookings/booking_details_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/pre_booking_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/reviews_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/profile/faq_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/profile/help_and_support.dart';
 import 'package:panimithra/src/presentation/screens/home_screen.dart';
 import 'package:panimithra/src/presentation/screens/splash/splash_screen.dart';
 
@@ -223,6 +225,18 @@ final router = GoRouter(
             : '';
 
         return EditPlanScreen(planId: planId);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.HELP_SUPPORT_SCREEN_PATH,
+      builder: (context, state) {
+        return HelpSupportScreen();
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.FAQ_SCREEN_PATH,
+      builder: (context, state) {
+        return FaqScreen();
       },
     )
   ],

@@ -114,6 +114,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: BlocConsumer<BookingBloc, BookingState>(
+                buildWhen: (previous, current) =>
+                    (current is BookingDetailsError ||
+                        current is BookingDetailsLoading ||
+                        current is BookingDetailsLoaded),
                 listener: (context, state) {
                   if (state is BookingDetailsError) {
                     ToastHelper.showToast(
@@ -129,7 +133,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   }
                 },
                 builder: (context, state) {
-                  if (state is BookingErrorState) {
+                  if (state is BookingDetailsError) {
                     return const Text("Retry");
                   }
                   if (state is BookingDetailsLoading) {

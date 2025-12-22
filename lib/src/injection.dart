@@ -81,6 +81,7 @@ import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/cubit/provider_registration/provider_registration_cubit.dart';
+import 'package:panimithra/src/domain/usecase/fetch_faq_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -129,7 +130,8 @@ Future<void> init() async {
       getAdminDashboardUsecase: sl(),
       getEmployeeDashboardUsecase: sl(),
       changeUserStatusUseCase: sl(),
-      registerFcmTokenUseCase: sl()));
+      registerFcmTokenUseCase: sl(),
+      fetchFaqUseCase: sl()));
   sl.registerFactory(() => EmployeePaymentBloc(
       fetchEmployeePaymentsUseCase: sl(), createOrderUseCase: sl()));
   sl.registerFactory(() => BookingBloc(
@@ -196,6 +198,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateSubCategoryUseCase(repository: sl()));
   sl.registerLazySingleton(() => ChangeUserStatusUseCase(sl()));
   sl.registerLazySingleton(() => UpdatePlanUseCase(repository: sl()));
+  sl.registerLazySingleton(() => FetchFaqUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<LoginRepository>(

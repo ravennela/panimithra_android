@@ -6,8 +6,6 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/cubit/provider_registration/provider_registration_cubit.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
 
-import '../../../../common/toast.dart';
-
 class ProviderBaseRegistrationScreen extends StatefulWidget {
   const ProviderBaseRegistrationScreen({super.key});
 
@@ -31,61 +29,86 @@ class _ProviderRegistrationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F6F9),
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8FAFC),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: Color(0xFF1E293B), size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Provider Registration',
+          style: TextStyle(
+            color: Color(0xFF1E293B),
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          physics: const BouncingScrollPhysics(),
           child: Form(
             key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(child: Container()),
-                    const Center(
-                      child: Text(
-                        "Provider Registration",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    Expanded(child: Container()),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Step progress
+                // Steps Progress
                 Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       buildProgressStep(isActive: true, isCompleted: true),
-                      buildProgressLine(isActive: false),
-                      buildProgressStep(isActive: true, isCompleted: false),
-                      buildProgressLine(isActive: false),
+                      buildProgressLine(isActive: false, width: 40),
                       buildProgressStep(isActive: false, isCompleted: false),
-                      buildProgressLine(isActive: false),
+                      buildProgressLine(isActive: false, width: 40),
+                      buildProgressStep(isActive: false, isCompleted: false),
+                      buildProgressLine(isActive: false, width: 40),
                       buildProgressStep(isActive: false, isCompleted: false),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
                 // Card Container
+                const Text(
+                  "Basic Information",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Enter your personal details to create a provider account.",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -98,28 +121,26 @@ class _ProviderRegistrationScreenState
                     ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Basic Information",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
                       // Full Name
                       _buildTextField(
-                        label: "Full Name",
-                        hint: "Enter your full name",
-                        controller: _fullNameController,
-                      ),
-                      const SizedBox(height: 16),
+                          label: "Full Name",
+                          hint: "Enter your full name",
+                          icon: Icons.person_outline_rounded,
+                          controller: _fullNameController,
+                          isRequired: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your full name';
+                            }
+                            return null;
+                          }),
+                      const SizedBox(height: 20),
 
                       // Email
                       _buildTextField(
                         label: "Email",
+                        icon: Icons.email_outlined,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -135,14 +156,17 @@ class _ProviderRegistrationScreenState
                         hint: "Enter your email address",
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
+                        isRequired: true,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // Mobile Number
                       _buildTextField(
                         label: "Mobile Number",
                         hint: "Enter your mobile number",
+                        icon: Icons.phone_outlined,
                         controller: _mobileController,
+                        isRequired: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your mobile number';
@@ -156,109 +180,117 @@ class _ProviderRegistrationScreenState
                         },
                         keyboardType: TextInputType.phone,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // Alternate Number
                       _buildTextField(
-                        label: "Alternate Number (Optional)",
+                        label: "Alternate Number",
                         hint: "Enter alternate number",
+                        icon: Icons.phone_iphone_rounded,
                         controller: _alternateController,
                         keyboardType: TextInputType.phone,
+                        isRequired: false,
+                        validator: (value) {
+                          if (value != null && value.isNotEmpty) {
+                            final mobileRegex = RegExp(r'^[0-9]{10}$');
+                            if (!mobileRegex.hasMatch(value)) {
+                              return 'Please enter a valid 10-digit number';
+                            }
+                          }
+                          return null;
+                        },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // Gender
-                      const Text(
-                        "Gender",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      DropdownButtonFormField<String>(
-                        value: _selectedGender,
-                        decoration: _inputDecoration("Select your gender"),
-                        items: const [
-                          DropdownMenuItem(value: "Male", child: Text("Male")),
-                          DropdownMenuItem(
-                            value: "Female",
-                            child: Text("Female"),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Text(
+                                "Gender",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF334155),
+                                ),
+                              ),
+                              Text(' *',
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold)),
+                            ],
                           ),
-                          DropdownMenuItem(
-                            value: "Other",
-                            child: Text("Other"),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            value: _selectedGender,
+                            icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                                color: Color(0xFF64748B)),
+                            decoration: _inputDecoration("Select your gender",
+                                icon: Icons.wc_outlined),
+                            items: const [
+                              DropdownMenuItem(
+                                  value: "Male",
+                                  child: Text("Male",
+                                      style: TextStyle(fontSize: 15))),
+                              DropdownMenuItem(
+                                value: "Female",
+                                child: Text("Female",
+                                    style: TextStyle(fontSize: 15)),
+                              ),
+                              DropdownMenuItem(
+                                value: "Other",
+                                child: Text("Other",
+                                    style: TextStyle(fontSize: 15)),
+                              ),
+                            ],
+                            onChanged: (value) => setState(() {
+                              _selectedGender = value;
+                            }),
+                            validator: (value) =>
+                                value == null ? 'Please Select Gender' : null,
                           ),
                         ],
-                        onChanged: (value) => setState(() {
-                          _selectedGender = value;
-                        }),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // Date of Birth
                       _buildDatePickerField(),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+
+                const SizedBox(height: 32),
+
                 // Next button
-                Align(
-                  alignment: Alignment.centerRight,
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 14,
-                      ),
+                      shadowColor: const Color(0xFF2563EB).withOpacity(0.4),
                     ),
                     onPressed: () {
                       if (!formKey.currentState!.validate()) {
                         return;
                       }
-                      if (_fullNameController.text.isEmpty) {
-                        ToastHelper.showToast(
-                          context: context,
-                          type: 'error',
-                          title: "Please Enter Full Name",
-                        );
-                        return;
-                      }
-                      if (_emailController.text.isEmpty) {
-                        ToastHelper.showToast(
-                          context: context,
-                          type: 'error',
-                          title: "Please Enter Email Id",
-                        );
-                        return;
-                      }
-                      if (_mobileController.text.isEmpty) {
-                        ToastHelper.showToast(
-                          context: context,
-                          type: 'error',
-                          title: "Please Enter Mobile Number",
-                        );
-                        return;
-                      }
-                      if (_selectedGender == null) {
-                        ToastHelper.showToast(
-                          context: context,
-                          type: 'error',
-                          title: "Please Select Gender",
-                        );
-                        return;
-                      }
+
                       if (selectedDate == null) {
                         ToastHelper.showToast(
                           context: context,
                           type: 'error',
                           title: "Please Select Date of Birth",
                         );
+                        return;
                       }
+
                       context.read<ProviderRegistrationCubit>().addBaseInfo(
                             _fullNameController.text,
                             _emailController.text,
@@ -272,15 +304,15 @@ class _ProviderRegistrationScreenState
                       );
                     },
                     child: const Text(
-                      "Next",
+                      "Next Step",
                       style: TextStyle(
-                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -293,23 +325,47 @@ class _ProviderRegistrationScreenState
   Widget _buildTextField({
     required String label,
     required String hint,
+    required IconData icon,
     String? Function(String?)? validator,
     required TextEditingController controller,
     TextInputType? keyboardType,
+    bool isRequired = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF334155),
+              ),
+            ),
+            if (isRequired)
+              const Text(' *',
+                  style: TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold)),
+            if (!isRequired)
+              const Text(' (Optional)',
+                  style: TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400)),
+          ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         TextFormField(
           validator: validator,
           controller: controller,
           keyboardType: keyboardType,
-          decoration: _inputDecoration(hint),
+          style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1E293B)),
+          decoration: _inputDecoration(hint, icon: icon),
         ),
       ],
     );
@@ -320,32 +376,54 @@ class _ProviderRegistrationScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Date of Birth",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        Row(
+          children: const [
+            Text(
+              "Date of Birth",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF334155),
+              ),
+            ),
+            Text(' *',
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ],
         ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: _dobController,
-          readOnly: true,
-          decoration: _inputDecoration("mm/dd/yyyy").copyWith(
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.calendar_today_outlined),
-              onPressed: () async {
-                final pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime(2000),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (pickedDate != null) {
-                  selectedDate = pickedDate;
-                  setState(() {
-                    _dobController.text =
-                        "${pickedDate.month}/${pickedDate.day}/${pickedDate.year}";
-                  });
-                }
-              },
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () async {
+            final pickedDate = await showDatePicker(
+              context: context,
+              initialDate: DateTime(2000),
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now(),
+            );
+            if (pickedDate != null) {
+              selectedDate = pickedDate;
+              setState(() {
+                _dobController.text =
+                    "${pickedDate.month}/${pickedDate.day}/${pickedDate.year}";
+              });
+            }
+          },
+          child: IgnorePointer(
+            child: TextFormField(
+              controller: _dobController,
+              readOnly: true,
+              validator: (val) =>
+                  val == null || val.isEmpty ? "Please enter DOB" : null,
+              style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1E293B)),
+              decoration: _inputDecoration("mm/dd/yyyy",
+                      icon: Icons.calendar_month_rounded)
+                  .copyWith(
+                suffixIcon:
+                    const Icon(Icons.arrow_drop_down, color: Color(0xFF64748B)),
+              ),
             ),
           ),
         ),
@@ -354,19 +432,35 @@ class _ProviderRegistrationScreenState
   }
 
   // Common Input Decoration
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(String hint, {IconData? icon}) {
     return InputDecoration(
       hintText: hint,
       filled: true,
-      fillColor: const Color(0xFFF6F6F9),
+      fillColor: const Color(0xFFF8FAFC),
+      prefixIcon: icon != null
+          ? Icon(icon, color: const Color(0xFF94A3B8), size: 20)
+          : null,
+      hintStyle: TextStyle(
+        color: Colors.grey.shade400,
+        fontSize: 15,
+        fontWeight: FontWeight.normal,
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFD8D8DD)),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade200),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFF2563EB)),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.red.shade200),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.red.shade400),
       ),
     );
   }

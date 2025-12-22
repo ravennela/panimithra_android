@@ -7,6 +7,7 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
+import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -30,10 +31,6 @@ class _ProfileScreenState extends State<UserProfileScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
-        ),
         title: const Text(
           'Profile',
           style: TextStyle(
@@ -46,6 +43,9 @@ class _ProfileScreenState extends State<UserProfileScreen> {
       ),
       body: SingleChildScrollView(
         child: BlocConsumer<FetchUsersBloc, FetchUsersState>(
+          buildWhen: (previous, current) => (current is UserProfileError ||
+              current is UserProfileLoaded ||
+              current is UserProfileLoading),
           listener: (context, state) {
             if (state is UserProfileLoaded) {
               ToastHelper.showToast(
@@ -281,7 +281,9 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                     child: _buildMenuItem(
                       icon: Icons.help_outline,
                       title: 'Help & Support',
-                      onTap: () {},
+                      onTap: () {
+                        context.push(AppRoutes.HELP_SUPPORT_SCREEN_PATH);
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -315,7 +317,12 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                         _buildMenuItem(
                           icon: Icons.shield_outlined,
                           title: 'Privacy Policy',
-                          onTap: () {},
+                          onTap: () async {
+                            UrlLauncherHelper.launchWebUrl(
+                              'https://steady-puffpuff-d12fe7.netlify.app/',
+                              context: context,
+                            );
+                          },
                         ),
                       ],
                     ),

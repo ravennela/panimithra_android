@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
-import 'package:panimithra/src/common/exception.dart';
+
+import '../../core/error/exceptions.dart';
 import 'package:panimithra/src/data/datasource/remote/payments_remote_datasource.dart';
 import 'package:panimithra/src/data/models/employee_active_plan_model.dart';
 import 'package:panimithra/src/data/models/order_creation_model.dart';
@@ -20,6 +22,8 @@ class EmployeePaymentRepositoryImpl implements EmployeePaymentRepository {
           await remoteDataSource.fetchEmployeePayments(userId: userId);
       final result = EmployeeActivePlanModel.fromJson(response);
       return Right(result);
+    } on SocketException {
+      return const Left("No Internet Connection");
     } on ServerException catch (e) {
       return Left(e.message);
     } catch (e) {
@@ -35,8 +39,8 @@ class EmployeePaymentRepositoryImpl implements EmployeePaymentRepository {
       final response = await remoteDataSource.createOrder(planId: planId);
       final model = OrderCreationModel.fromJson(response);
       return Right(model);
-    } on DioException catch (e) {
-      return Left(e.response?.data['message'] ?? 'Failed to create order');
+    } on ServerException catch (e) {
+      return Left(e.message);
     } catch (e) {
       return Left(e.toString());
     }

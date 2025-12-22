@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:panimithra/src/common/exception.dart';
+import 'package:panimithra/src/core/error/exceptions.dart';
+
 import 'package:panimithra/src/data/datasource/remote/review_remote_datasource.dart';
 import 'package:panimithra/src/data/models/fetch_reviews_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';

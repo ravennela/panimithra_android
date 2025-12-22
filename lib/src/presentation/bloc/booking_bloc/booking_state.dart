@@ -32,7 +32,7 @@ class BookingLoadedState extends BookingState {
 class BookingErrorState extends BookingState {
   final String message;
 
-  BookingErrorState(this.message);
+  BookingErrorState({required this.message});
   List<Object?> get props => [message];
 }
 

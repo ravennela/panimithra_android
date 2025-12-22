@@ -41,8 +41,8 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FD),
       body: Column(
         children: [
           BlocConsumer<ServiceBloc, ServiceState>(
@@ -60,204 +60,256 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
             },
             builder: (context, state) {
               if (state is ServiceByIdLoading) {
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: size.height * 0.3,
+                return Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: const Color(0xFF1A1D1E),
                     ),
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    SizedBox(
-                      height: size.height * 0.4,
-                    ),
-                  ],
+                  ),
                 );
               }
               if (state is ServiceByIdError) {
-                return Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Error loading Employee',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          context
-                              .read<ServiceBloc>()
-                              .add(GetServiceByIdEvent(widget.serviceId));
-                        },
-                        child: const Text('Retry'),
-                      ),
-                    ],
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline_rounded,
+                            size: 48, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Something went wrong',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A1D1E)),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          state.message,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey[500]),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () {
+                            context
+                                .read<ServiceBloc>()
+                                .add(GetServiceByIdEvent(widget.serviceId));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1A1D1E),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Retry',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
               if (state is ServiceByIdLoaded) {
                 return Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Hero Image with App Bar
-                        Stack(
-                          children: [
-                            Image.network(
-                              state.service.imageUrl != null
-                                  ? state.service.imageUrl.toString()
-                                  : 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800',
-                              width: double.infinity,
-                              height: 250,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: double.infinity,
-                                  height: 250,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.plumbing,
-                                      size: 80, color: Colors.grey),
-                                );
-                              },
-                            ),
-                            SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.white,
-                                      child: IconButton(
-                                        icon: const Icon(Icons.arrow_back,
-                                            color: Colors.black),
-                                        onPressed: () {
-                                          context.pop();
-                                        },
-                                      ),
-                                    ),
-                                    CircleAvatar(
-                                      backgroundColor: Colors.white,
-                                      child: IconButton(
-                                        icon: const Icon(Icons.share,
-                                            color: Colors.black),
-                                        onPressed: () {},
-                                      ),
-                                    ),
-                                  ],
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverAppBar(
+                        expandedHeight: 280,
+                        backgroundColor: const Color(0xFFF8F9FD),
+                        elevation: 0,
+                        pinned: true,
+                        leading: Container(
+                          margin: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back_rounded,
+                                color: Colors.black, size: 20),
+                            onPressed: () => context.pop(),
+                          ),
+                        ),
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.network(
+                                state.service.imageUrl != null
+                                    ? state.service.imageUrl.toString()
+                                    : 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800',
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey[200],
+                                    child: Icon(
+                                        Icons.image_not_supported_rounded,
+                                        size: 60,
+                                        color: Colors.grey[400]),
+                                  );
+                                },
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.4),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-
-                        // Content
-                        Container(
-                          color: Colors.white,
+                      ),
+                      SliverToBoxAdapter(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF8F9FD),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(32)),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.all(16.0),
+                                padding: const EdgeInsets.all(24.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Breadcrumb
-                                    Text(
-                                      '${state.service.categoryName} > ${state.service.subCategoryName}',
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
+                                    // Categories
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1A1D1E)
+                                            .withOpacity(0.05),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        '${state.service.categoryName} • ${state.service.subCategoryName}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF1A1D1E),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 16),
 
-                                    // Title
+                                    // Title & Price
                                     Text(
                                       state.service.serviceName,
                                       style: const TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF1A1D1E),
                                         height: 1.2,
+                                        letterSpacing: -0.5,
                                       ),
                                     ),
                                     const SizedBox(height: 12),
-
-                                    // Rating and Price
                                     Row(
                                       children: [
-                                        const Icon(Icons.star,
-                                            color: Colors.amber, size: 20),
-                                        const SizedBox(width: 4),
                                         Text(
-                                          state.service.avaragerating
-                                              .toString(),
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
+                                          '\₹${state.service.price}',
+                                          style: const TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF1A1D1E),
                                           ),
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          ' (${state.service.totalReviewCount})',
+                                          'starts from',
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color: Colors.grey[600],
+                                            color: Colors.grey[500],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.orange.withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                                color: Colors.orange
+                                                    .withOpacity(0.2)),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.star_rounded,
+                                                  color: Colors.orange,
+                                                  size: 18),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                state.service.avaragerating
+                                                    .toString(),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.orange,
+                                                ),
+                                              ),
+                                              Text(
+                                                ' (${state.service.totalReviewCount})',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.local_offer_outlined,
-                                          color: Colors.blue[700],
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Starts from \₹${state.service.price.toString()}',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 20),
+                                    const SizedBox(height: 24),
 
                                     // Professional Card
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey[50],
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                            color: Colors.grey[200]!),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.04),
+                                            blurRadius: 16,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
                                       ),
                                       child: Row(
                                         children: [
-                                          CircleAvatar(
-                                            radius: 28,
-                                            backgroundColor: Colors.blue[100],
-                                            child: const Icon(Icons.person,
-                                                size: 32, color: Colors.blue),
+                                          Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF1A1D1E),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: const Icon(
+                                                Icons.person_rounded,
+                                                color: Colors.white,
+                                                size: 24),
                                           ),
                                           const SizedBox(width: 16),
                                           Expanded(
@@ -268,42 +320,61 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                                 Text(
                                                   state.service.employeeName,
                                                   style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Color(0xFF1A1D1E),
                                                   ),
                                                 ),
-                                                const SizedBox(height: 4),
+                                                const SizedBox(height: 2),
                                                 Text(
-                                                  '${state.service.employeeExperiance}+ years of experience',
+                                                  '${state.service.employeeExperiance}+ years exp',
                                                   style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey,
+                                                    fontSize: 13,
+                                                    color: Colors.grey[500],
+                                                    fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
                                           Container(
-                                            padding: const EdgeInsets.all(8),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
                                             decoration: BoxDecoration(
-                                              color: Colors.blue[50],
-                                              shape: BoxShape.circle,
+                                              color:
+                                                  Colors.green.withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                             ),
-                                            child: Icon(Icons.verified,
-                                                color: Colors.blue[700],
-                                                size: 20),
+                                            child: Row(
+                                              children: const [
+                                                Icon(Icons.verified_rounded,
+                                                    size: 14,
+                                                    color: Colors.green),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'Verified',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: 24),
+                                    const SizedBox(height: 32),
 
                                     // About Section
                                     const Text(
-                                      'About this service',
+                                      'About Service',
                                       style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1A1D1E),
                                       ),
                                     ),
                                     const SizedBox(height: 12),
@@ -311,38 +382,45 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                       state.service.description,
                                       style: TextStyle(
                                         fontSize: 15,
-                                        color: Colors.grey[700],
-                                        height: 1.5,
+                                        color: Colors.grey[600],
+                                        height: 1.6,
+                                        fontWeight: FontWeight.w400,
                                       ),
                                     ),
-                                    const SizedBox(height: 24),
+                                    const SizedBox(height: 32),
 
                                     // What's Included
-                                    const Text(
-                                      'What\'s Included',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                    if ((state.service.addInfoOne != null && state.service.addInfoOne!.isNotEmpty) ||
+                                        (state.service.addInfoTwo != null &&
+                                            state.service.addInfoTwo!
+                                                .isNotEmpty) ||
+                                        (state.service.addInfoThree != null &&
+                                            state.service.addInfoThree!
+                                                .isNotEmpty)) ...[
+                                      const Text(
+                                        'What\'s Included',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF1A1D1E),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    if (state.service.addInfoOne != null &&
-                                        state.service.addInfoOne!.isNotEmpty)
-                                      _buildIncludedItem(
-                                        '${state.service.addInfoOne}',
-                                      ),
-                                    if (state.service.addInfoTwo != null &&
-                                        state.service.addInfoTwo!.isNotEmpty)
-                                      _buildIncludedItem(
-                                        '${state.service.addInfoTwo}',
-                                      ),
-                                    if (state.service.addInfoThree != null &&
-                                        state.service.addInfoThree!.isNotEmpty)
-                                      _buildIncludedItem(
-                                        '${state.service.addInfoThree}',
-                                      ),
-                                    const SizedBox(height: 24),
+                                      const SizedBox(height: 16),
+                                      if (state.service.addInfoOne != null &&
+                                          state.service.addInfoOne!.isNotEmpty)
+                                        _buildIncludedItem(
+                                            '${state.service.addInfoOne}'),
+                                      if (state.service.addInfoTwo != null &&
+                                          state.service.addInfoTwo!.isNotEmpty)
+                                        _buildIncludedItem(
+                                            '${state.service.addInfoTwo}'),
+                                      if (state.service.addInfoThree != null &&
+                                          state
+                                              .service.addInfoThree!.isNotEmpty)
+                                        _buildIncludedItem(
+                                            '${state.service.addInfoThree}'),
+                                      const SizedBox(height: 32),
+                                    ],
 
                                     // Reviews Section
                                     Row(
@@ -352,8 +430,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                         const Text(
                                           'Reviews',
                                           style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF1A1D1E),
                                           ),
                                         ),
                                         TextButton(
@@ -364,48 +443,76 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                                   "serviceId": widget.serviceId
                                                 });
                                           },
-                                          child: const Text('See all'),
+                                          child: Text(
+                                            'See all',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              color: const Color(0xFF1A1D1E),
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
-                                    BlocConsumer<ReviewBloc, ReviewState>(
-                                        buildWhen: (previous, current) =>
-                                            (current is TopFiveRatingsError ||
-                                                current
-                                                    is TopFiveRatingsLoaded ||
-                                                current
-                                                    is TopFiveRatingsLoaded),
-                                        builder: (context, state) {
-                                          if (state is TopFiveRatingsLoading) {
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          }
-                                          if (state is TopFiveRatingsError) {
-                                            return Center(
-                                              child: Text(state.message),
+                                    const SizedBox(height: 16),
+                                    BlocBuilder<ReviewBloc, ReviewState>(
+                                      buildWhen: (previous, current) =>
+                                          (current is TopFiveRatingsLoading ||
+                                              current is TopFiveRatingsLoaded ||
+                                              current is TopFiveRatingsError),
+                                      builder: (context, state) {
+                                        if (state is TopFiveRatingsLoading) {
+                                          return const Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(20.0),
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                          );
+                                        }
+                                        if (state is TopFiveRatingsLoaded) {
+                                          final ratings =
+                                              state.topFiveRatingModel.rating ??
+                                                  [];
+                                          if (ratings.isEmpty) {
+                                            return Container(
+                                              padding: const EdgeInsets.all(24),
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                border: Border.all(
+                                                    color: Colors.grey
+                                                        .withOpacity(0.1)),
+                                              ),
+                                              child: Column(
+                                                children: [
+                                                  Icon(
+                                                      Icons
+                                                          .chat_bubble_outline_rounded,
+                                                      size: 32,
+                                                      color: Colors.grey[300]),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    'No reviews yet',
+                                                    style: TextStyle(
+                                                        color: Colors.grey[500],
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                ],
+                                              ),
                                             );
                                           }
-                                          if (state is TopFiveRatingsLoaded) {
-                                            final ratings = state
-                                                    .topFiveRatingModel
-                                                    .rating ??
-                                                [];
-
-                                            if (ratings.isEmpty) {
-                                              return const Center(
-                                                  child: Text(
-                                                      'No reviews available'));
-                                            }
-
-                                            return Column(
-                                              children: List.generate(
-                                                  ratings.length, (index) {
+                                          return Column(
+                                            children: List.generate(
+                                              ratings.length,
+                                              (index) {
                                                 final item = ratings[index];
                                                 return Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(vertical: 8.0),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 12.0),
                                                   child: _buildReviewCard(
                                                     name: item.userName
                                                         .toString(),
@@ -414,18 +521,13 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                                     review: item.comment ?? "",
                                                   ),
                                                 );
-                                              }),
-                                            );
-                                          }
-
-                                          return Container();
-                                        },
-                                        listener: (context, state) {}),
-
-                                    // Review 1
-
-                                    // Review 2
-
+                                              },
+                                            ),
+                                          );
+                                        }
+                                        return const SizedBox();
+                                      },
+                                    ),
                                     const SizedBox(height: 100),
                                   ],
                                 ),
@@ -433,95 +535,116 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               }
-              return Container();
+              return const SizedBox();
             },
           ),
-
-          // Bottom Button
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                child: BlocListener<BookingBloc, BookingState>(
-                  listener: (context, state) {
-                    if (state is CreateBokkingLoadedState) {
-                      ToastHelper.showToast(
-                          context: context,
-                          type: 'success',
-                          title: "Booking Created Successfully");
-                      context.pop();
-                    }
-                    if (state is CreateBookingErrorState) {
-                      ToastHelper.showToast(
-                          context: context,
-                          type: 'error',
-                          title: state.message);
-                    }
-                  },
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      SharedPreferences preferences =
-                          await SharedPreferences.getInstance();
-                      String userId =
-                          preferences.getString(ApiConstants.userId) ?? "";
-                      if (employeeId == "") {
-                        return;
-                      }
-
-                      Map<String, dynamic> data = {
-                        "name": name,
-                        "bookingDate": DateTime.now().toIso8601String(),
-                        "paymentStatus": "PENDING",
-                        "description": description,
-                        "serviceId": widget.serviceId,
-                        "userId": userId,
-                        "totalAmount": totalAmount,
-                        "employeeId": employeeId,
-                        "bookingStatus": "PENDING"
-                      };
-
-                      context
-                          .read<BookingBloc>()
-                          .add(CreateBookingEvent(data: data));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700],
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Book Now',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
+      ),
+      bottomSheet: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BlocConsumer<BookingBloc, BookingState>(
+                listener: (context, state) {
+                  if (state is CreateBokkingLoadedState) {
+                    ToastHelper.showToast(
+                        context: context,
+                        type: 'success',
+                        title: "Booking Created Successfully");
+                    context.pop();
+                  }
+                  if (state is CreateBookingErrorState) {
+                    ToastHelper.showToast(
+                        context: context, type: 'error', title: state.message);
+                  }
+                },
+                builder: (context, state) {
+                  bool isLoading = state is CreateBookingLoadingState;
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              SharedPreferences preferences =
+                                  await SharedPreferences.getInstance();
+                              String userId =
+                                  preferences.getString(ApiConstants.userId) ??
+                                      "";
+                              if (employeeId == "") {
+                                return;
+                              }
+
+                              Map<String, dynamic> data = {
+                                "name": name,
+                                "bookingDate": DateTime.now().toIso8601String(),
+                                "paymentStatus": "PENDING",
+                                "description": description,
+                                "serviceId": widget.serviceId,
+                                "userId": userId,
+                                "totalAmount": totalAmount,
+                                "employeeId": employeeId,
+                                "bookingStatus": "PENDING"
+                              };
+
+                              context
+                                  .read<BookingBloc>()
+                                  .add(CreateBookingEvent(data: data));
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A1D1E),
+                        disabledBackgroundColor:
+                            const Color(0xFF1A1D1E).withOpacity(0.7),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Book Service Now',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -529,18 +652,18 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
 
 Widget _buildIncludedItem(String text) {
   return Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: 16),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 2),
-          padding: const EdgeInsets.all(2),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: Colors.blue[50],
+            color: const Color(0xFF1A1D1E).withOpacity(0.05),
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.check, color: Colors.blue[700], size: 16),
+          child: const Icon(Icons.check_rounded,
+              color: Color(0xFF1A1D1E), size: 14),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -550,6 +673,7 @@ Widget _buildIncludedItem(String text) {
               fontSize: 15,
               color: Colors.grey[700],
               height: 1.4,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -566,57 +690,83 @@ Widget _buildReviewCard({
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.grey[50],
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.grey[200]!),
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey[300],
-              child: Icon(Icons.person, color: Colors.grey[600], size: 24),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: List.generate(
-                      rating,
-                      (index) => const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 16,
+                  child: Center(
+                    child: Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A1D1E),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1A1D1E),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (index) => Icon(
+                          Icons.star_rounded,
+                          color:
+                              index < rating ? Colors.amber : Colors.grey[300],
+                          size: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
+            Icon(Icons.format_quote_rounded, color: Colors.grey[200], size: 24),
           ],
         ),
-        const SizedBox(height: 12),
-        Text(
-          '"$review"',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-            height: 1.4,
+        if (review.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            review,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              height: 1.5,
+            ),
           ),
-        ),
+        ],
       ],
     ),
   );

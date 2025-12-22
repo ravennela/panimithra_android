@@ -128,6 +128,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FD),
       body: Column(
         children: [
           // Header
@@ -148,13 +149,15 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
 
   Widget _buildHeader() {
     return Container(
+      padding: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -164,25 +167,52 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
           children: [
             // Top Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
               child: Row(
                 children: [
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Find Services',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Find Services',
+                          style: TextStyle(
+                            fontSize: 28, // Larger, display font
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF1A1D1E),
+                            letterSpacing: -1,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Discover the best services near you',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.account_circle_outlined),
-                    onPressed: () {},
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.notifications_outlined,
+                          color: Color(0xFF1A1D1E)),
+                      onPressed: () {},
+                    ),
                   ),
                 ],
               ),
@@ -190,69 +220,75 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
 
             // Search Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFF8F9FD),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey.withOpacity(0.1)),
                 ),
                 child: TextField(
                   controller: searchController,
                   onChanged: (value) {
                     _onSearchChanged(value);
                   },
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                   decoration: InputDecoration(
-                    hintText: "Search for 'plumbing', 'electrician'...",
-                    hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+                    hintText: "Search for 'plumbing'...",
+                    hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500),
+                    prefixIcon: Icon(Icons.search_rounded,
+                        color: Colors.grey[400], size: 24),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
+                      horizontal: 20,
+                      vertical: 16,
                     ),
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // Filter Chips
             SizedBox(
-              height: 40,
+              height: 44,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
                   _buildFilterChip(
                     'Filters',
-                    Icons.tune,
-                    true,
+                    Icons.tune_rounded,
+                    true, // Keeping logic same, but visually improved
                     () {
                       setState(() {
                         showFilters = !showFilters;
                       });
                     },
+                    isPrimary: true,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   _buildFilterChip(
-                    'Sort By: $sortBy',
-                    Icons.keyboard_arrow_down,
+                    'Sort: $sortBy',
+                    Icons.keyboard_arrow_down_rounded,
                     false,
                     () => _showSortBottomSheet(),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   _buildFilterChip(
                     'Category',
-                    Icons.keyboard_arrow_down,
+                    Icons.category_outlined,
                     false,
                     () => _showCategoryBottomSheet(),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -260,17 +296,29 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   }
 
   Widget _buildFilterChip(
-      String label, IconData icon, bool isActive, VoidCallback onTap) {
+      String label, IconData icon, bool isActive, VoidCallback onTap,
+      {bool isPrimary = false}) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? Colors.blue[50] : Colors.white,
+          color: isPrimary ? const Color(0xFF1A1D1E) : Colors.white,
           border: Border.all(
-            color: isActive ? Colors.blue[200]! : Colors.grey[300]!,
+            color:
+                isPrimary ? const Color(0xFF1A1D1E) : const Color(0xFFE5E7EB),
+            width: 1,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            if (!isPrimary)
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -278,15 +326,15 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
             Icon(
               icon,
               size: 18,
-              color: isActive ? Colors.blue[700] : Colors.grey[700],
+              color: isPrimary ? Colors.white : const Color(0xFF4B5563),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
-                color: isActive ? Colors.blue[700] : Colors.grey[700],
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
+                color: isPrimary ? Colors.white : const Color(0xFF4B5563),
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
           ],
@@ -387,6 +435,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                           '${state.items[index].startTime}  -  ${state.items[index].endTime}',
                       price: state.items[index].price!.toInt() ?? 0,
                       priceUnit: 'Day',
+                      mobileNumber: state.items[index].mobileNumber ?? "",
                       onBookingPressed: () {},
                     );
                   })
@@ -406,30 +455,50 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
 
   Widget _buildNoServicesFound() {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(20),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 80,
-            color: Colors.grey[400],
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.search_off_rounded,
+                size: 60, color: Colors.grey[400]),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           const Text(
             'No Services Found',
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1A1D1E),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
-            'Try adjusting your filters or\nsearching for something else.',
+            'We couldn\'t find any services matching\nyour search. Try different filters.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
+              color: Colors.grey[500],
+              fontSize: 15,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
             ),
+          ),
+          const SizedBox(height: 32),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                searchController.clear();
+                selectedCategory = 'All';
+                _callApi("");
+              });
+            },
+            child: const Text("Clear Filters",
+                style: TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -805,6 +874,7 @@ class ServiceCard extends StatefulWidget {
   final String workingHours;
   final int price;
   final String priceUnit;
+  final String mobileNumber;
   final VoidCallback onBookingPressed;
 
   const ServiceCard({
@@ -822,6 +892,7 @@ class ServiceCard extends StatefulWidget {
     required this.workingHours,
     required this.price,
     required this.priceUnit,
+    required this.mobileNumber,
     required this.onBookingPressed,
   }) : super(key: key);
 
@@ -831,304 +902,278 @@ class ServiceCard extends StatefulWidget {
 
 class _ServiceCardState extends State<ServiceCard> {
   bool isHovered = false;
-  bool isBookmarked = false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: MouseRegion(
-        onEnter: (_) => setState(() => isHovered = true),
-        onExit: (_) => setState(() => isHovered = false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isHovered ? 0.12 : 0.06),
-                blurRadius: isHovered ? 24 : 16,
-                offset: Offset(0, isHovered ? 8 : 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Image Section
-              _buildImageSection(),
-
-              // Content Section
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.only(bottom: 20, left: 24, right: 24),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => isHovered = true),
+        onTapUp: (_) => setState(() => isHovered = false),
+        onTapCancel: () => setState(() => isHovered = false),
+        child: AnimatedScale(
+          scale: isHovered ? 0.98 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1A1D1E).withOpacity(0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image Section
+                Stack(
                   children: [
-                    _buildHeader(),
-                    const SizedBox(height: 5),
-                    _buildInfoRow(
-                      Icons.calendar_today_outlined,
-                      'Joined ${widget.joinedDate}',
+                    ClipRRect(
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(24)),
+                      child: SizedBox(
+                        height: 180,
+                        width: double.infinity,
+                        child: Image.network(
+                          widget.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey[100],
+                              child: Icon(Icons.broken_image_rounded,
+                                  color: Colors.grey[400], size: 40),
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                    _buildInfoRow(
-                      Icons.location_on_outlined,
-                      widget.location,
+                    // Rating Badge
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded,
+                                color: Color(0xFFF59E0B), size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              widget.rating.toString(),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1A1D1E),
+                              ),
+                            ),
+                            Text(
+                              ' (${widget.reviewCount})',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    _buildInfoRow(
-                      Icons.access_time,
-                      '${widget.workingHours}',
+                    // Category Badge
+                    Positioned(
+                      top: 16,
+                      left: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A1D1E).withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(12),
+                          // backdropFilter: null,
+                        ),
+                        child: Text(
+                          widget.category.trim(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 5),
-                    _buildPriceAndButton(),
                   ],
                 ),
-              ),
-            ],
+
+                // Content Section
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        widget.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1A1D1E),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Info Rows
+                      Row(
+                        children: [
+                          _buildIconText(
+                              Icons.location_on_rounded, widget.location,
+                              maxLines: 2),
+                          const SizedBox(width: 16),
+                          if (widget.mobileNumber.isNotEmpty) ...[
+                            _buildIconText(
+                                Icons.phone_rounded, widget.mobileNumber,
+                                maxLines: 1),
+                            const SizedBox(width: 16),
+                          ],
+                          _buildIconText(
+                              Icons.access_time_rounded, widget.workingHours),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+                      const Divider(height: 1, color: Color(0xFFF3F4F6)),
+                      const SizedBox(height: 16),
+
+                      // Footer
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Starting from',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[400],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        '₹${widget.price}',
+                                        style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF1A1D1E),
+                                          letterSpacing: -0.5,
+                                          height: 1,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    // Padding(
+                                    //   padding: const EdgeInsets.only(bottom: 2, left: 2),
+                                    //   child: Text(
+                                    //     '/${widget.priceUnit}',
+                                    //     style: TextStyle(
+                                    //       fontSize: 13,
+                                    //       fontWeight: FontWeight.w600,
+                                    //       color: Colors.grey[500],
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                context.push(AppRoutes.PREBOOKING_SCREEN_PATH,
+                                    extra: {"serviceId": widget.serviceId});
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1A1D1E),
+                                elevation: 0,
+                                shadowColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                              ),
+                              child: const Text(
+                                'Book Now',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildImageSection() {
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          child: Container(
-            width: double.infinity,
-            height: 180,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.grey.shade300,
-                  Colors.grey.shade200,
-                ],
-              ),
-            ),
-            child: Image.network(
-              widget.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey.shade300,
-                  child: const Icon(
-                    Icons.image_outlined,
-                    size: 60,
-                    color: Colors.grey,
-                  ),
-                );
-              },
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
-                    strokeWidth: 3,
-                    color: Colors.orange,
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-
-        // Bookmark Icon
-      ],
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      widget.title,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F2937),
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                widget.category,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade500,
-                  letterSpacing: 0.1,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-
-        // Rating Badge
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Colors.orange.shade100,
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.star,
-                color: Colors.orange,
-                size: 18,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                '${widget.rating}/${widget.reviewCount}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.orange,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: Colors.grey.shade700,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade800,
-              fontWeight: FontWeight.w400,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPriceAndButton() {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Start from',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      '${widget.price}',
-                      style: const TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1F2937),
-                        height: 1,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      '\₹/${widget.priceUnit}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        // Booking Button
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () {
-              context.push(AppRoutes.PREBOOKING_SCREEN_PATH,
-                  extra: {"serviceId": widget.serviceId});
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-              shadowColor: Colors.orange.withOpacity(0.4),
-            ),
-            child: const Text(
-              'View Details',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.2,
+  Widget _buildIconText(IconData icon, String text, {int maxLines = 1}) {
+    return Expanded(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFF9CA3AF)),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: maxLines,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF6B7280),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -26,6 +27,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
   int totalLength = 0;
   Timer? _debounce;
   bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -42,18 +44,19 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
   }
 
   void _scrollListener() {
-    if (isLoading) {
-      return;
-    }
+    if (isLoading) return;
     if (!mounted) return;
     if (_debounce?.isActive ?? false) _debounce?.cancel();
+
     _debounce = Timer(const Duration(milliseconds: 300), () {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 100) {
-        if (totalLength >= totalRecords) {
-          return;
-        }
+        if (totalLength >= totalRecords) return;
+
         if (totalLength <= totalRecords) {
+          setState(() {
+            _isLoadingMore = true;
+          });
           _currentPage += 1;
           context
               .read<ServiceBloc>()
@@ -74,32 +77,32 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push(AppRoutes.CREATE_SERVICE_PATH);
-        },
-        child: const Icon(Icons.add),
-      ),
+      backgroundColor: const Color(0xFFF8F9FC), // Modern light grey background
       appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Column(
+        scrolledUnderElevation: 2,
+        shadowColor: Colors.black.withOpacity(0.05),
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'My Services',
               style: TextStyle(
-                color: Colors.black,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+                color: Color(0xFF1A1D1E),
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
-              'Performance Overview',
+              'Manage your offerings',
               style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
+                color: Colors.grey[500],
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -107,612 +110,260 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey[300],
-              child: const Icon(Icons.person, color: Colors.white),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: const CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person, color: Color(0xFF2563EB), size: 20),
+              ),
             ),
           ),
         ],
       ),
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Services List
-            Expanded(
-              child: BlocConsumer<ServiceBloc, ServiceState>(
-                buildWhen: (previous, current) =>
-                    ((current is ServiceLoaded || current is ServiceError) ||
-                        (current is ServiceLoading && _currentPage == 0)),
-                listener: (context, state) {
-                  if (state is ServiceLoaded) {
-                    totalRecords = state.totalRecords;
-                    totalLength = state.data?.length ?? 0;
-                    isLoading = false;
-                  } else if (state is ServiceError) {
-                    isLoading = false;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.message),
-                        backgroundColor: Colors.red,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                  if (state is ServiceLoading) {
-                    isLoading = true;
-                  }
-                },
-                builder: (context, state) {
-                  if (state is ServiceLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF2563EB),
-                      ),
-                    );
-                  }
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          context.push(AppRoutes.CREATE_SERVICE_PATH);
+        },
+        backgroundColor: const Color(0xFF2563EB),
+        foregroundColor: Colors.white,
+        elevation: 4,
+        highlightElevation: 8,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          'Add Service',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+      body: BlocConsumer<ServiceBloc, ServiceState>(
+        buildWhen: (previous, current) =>
+            ((current is ServiceLoaded || current is ServiceError) ||
+                (current is ServiceLoading && _currentPage == 0)),
+        listener: (context, state) {
+          if (state is ServiceLoaded) {
+            totalRecords = state.totalRecords;
+            totalLength = state.data?.length ?? 0;
+            isLoading = false;
+            if (_isLoadingMore) {
+              setState(() {
+                _isLoadingMore = false;
+              });
+            }
+          } else if (state is ServiceError) {
+            isLoading = false;
+            if (_isLoadingMore) {
+              setState(() {
+                _isLoadingMore = false;
+              });
+            }
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(state.message)),
+                  ],
+                ),
+                backgroundColor: Colors.red.shade600,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                margin: const EdgeInsets.all(16),
+              ),
+            );
+          }
+          if (state is ServiceLoading) {
+            isLoading = true;
+          }
+        },
+        builder: (context, state) {
+          if (state is ServiceLoading && _currentPage == 0) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF2563EB),
+              ),
+            );
+          }
 
-                  if (state is ServiceError && _currentPage == 0) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Failed to load services',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
-                            child: Text(
-                              state.message,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: _onRefresh,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Retry'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2563EB),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
+          if (state is ServiceError && _currentPage == 0) {
+            return _buildErrorState(state.message);
+          }
 
-                  if (state is ServiceLoaded) {
-                    final services = state.data ?? [];
+          if (state is ServiceLoaded) {
+            final services = state.data ?? [];
 
-                    if (services.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.inbox_outlined,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No services yet',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Add your first service to get started',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
+            if (services.isEmpty) {
+              return _buildEmptyState();
+            }
+
+            return RefreshIndicator(
+              onRefresh: _onRefresh,
+              color: const Color(0xFF2563EB),
+              backgroundColor: Colors.white,
+              displacement: 20,
+              child: ListView.separated(
+                controller: _scrollController,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                itemCount: services.length + (_isLoadingMore ? 1 : 0),
+                separatorBuilder: (ctx, index) => const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  if (index == services.length) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Color(0xFF2563EB),
+                          ),
                         ),
-                      );
-                    }
-
-                    return RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      color: const Color(0xFF2563EB),
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: services.length + (_isLoadingMore ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          // Show loading indicator at the bottom
-                          if (index == services.length) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: Color(0xFF2563EB),
-                                ),
-                              ),
-                            );
-                          }
-
-                          final service = services[index];
-                          return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 18),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: Colors.grey.shade300, width: 0.6),
-                                ),
-                                child: Column(
-                                  children: [
-                                    // TOP SECTION
-                                    Padding(
-                                      padding: const EdgeInsets.all(14),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // LEFT IMAGE (Large classic style)
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            child: Container(
-                                              width: 95,
-                                              height: 95,
-                                              color: Colors.grey.shade200,
-                                              child: Image.network(
-                                                service.iconUrl ?? "",
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    Container(
-                                                  color: Colors.grey.shade300,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-
-                                          const SizedBox(width: 14),
-
-                                          // RIGHT DETAILS
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  capitalize(service.serviceName
-                                                          .toString()) ??
-                                                      "",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black,
-                                                  ),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-
-                                                const SizedBox(height: 6),
-
-                                                Text(
-                                                  capitalize(service.description
-                                                          .toString()) ??
-                                                      "",
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    height: 1.3,
-                                                    color: Colors.grey.shade700,
-                                                  ),
-                                                ),
-
-                                                const SizedBox(height: 10),
-
-                                                // 2-COLUMN INFO GRID
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          _infoLabel(
-                                                              "Category"),
-                                                          _infoValue(capitalize(service
-                                                                  .categoryName
-                                                                  .toString()) ??
-                                                              "N/A"),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          _infoLabel(
-                                                              "Duration"),
-                                                          _infoValue(
-                                                              "${timeToDuration(state.data![index].duration ?? 0) ?? 0}"),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-
-                                                const SizedBox(height: 6),
-
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          _infoLabel(
-                                                              "Created on"),
-                                                          _infoValue(
-                                                            DateFormat("dd/MMM/yyyy").format(state
-                                                                        .data![
-                                                                            index]
-                                                                        .createdAt ??
-                                                                    DateTime
-                                                                        .now()) ??
-                                                                "-",
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          _infoLabel(
-                                                              "Sub category"),
-                                                          _infoValue(
-                                                              "${state.data![index].subcategoryName}"),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    // DIVIDER
-                                    Container(
-                                      height: 1,
-                                      color: Colors.grey.shade200,
-                                    ),
-
-                                    // FOOTER SECTION
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          // PRICE
-                                          Text(
-                                            "₹ ${service.price}",
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-
-                                          // STATUS BADGE
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: service.status == "Active"
-                                                  ? Colors.green.shade50
-                                                  : Colors.orange.shade50,
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              border: Border.all(
-                                                color: service.status ==
-                                                        "Active"
-                                                    ? Colors.green.shade300
-                                                    : Colors.orange.shade300,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              service.status ?? "",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 12,
-                                                color: service.status ==
-                                                        "Active"
-                                                    ? Colors.green.shade700
-                                                    : Colors.orange.shade700,
-                                              ),
-                                            ),
-                                          ),
-
-                                          // EDIT BUTTON
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              context.push(
-                                                AppRoutes
-                                                    .EDIT_SERVICE_SCREEN_PATH,
-                                                extra: {
-                                                  "serviceId":
-                                                      service.id.toString()
-                                                },
-                                              );
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.black87,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 10),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                            child: const Text(
-                                              "Edit",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-
-                              // padding: const EdgeInsets.all(12),
-                              // margin: const EdgeInsets.only(bottom: 8),
-                              // decoration: BoxDecoration(
-                              //   color: Colors.white,
-                              //   borderRadius: BorderRadius.circular(8),
-                              //   boxShadow: [
-                              //     BoxShadow(
-                              //       color: Colors.black.withOpacity(0.05),
-                              //       blurRadius: 4,
-                              //       offset: const Offset(0, 2),
-                              //     ),
-                              //   ],
-                              // ),
-                              // child: Column(
-                              //   children: [
-                              //     // Top Row with Image, Info, Price, and Status
-                              //     Row(
-                              //       children: [
-                              //         // Product Image
-                              //         Container(
-                              //           width: 60,
-                              //           height: 60,
-                              //           decoration: BoxDecoration(
-                              //             color: Colors.grey.shade200,
-                              //             borderRadius:
-                              //                 BorderRadius.circular(28),
-                              //           ),
-                              //           child: ClipRRect(
-                              //             borderRadius:
-                              //                 BorderRadius.circular(14),
-                              //             child: Image.network(
-                              //               state.data![index].iconUrl != null
-                              //                   ? state.data![index].iconUrl
-                              //                       .toString()
-                              //                   : "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/a2a45875170291.5c45acd8af715.jpg",
-                              //               fit: BoxFit.fill,
-                              //               errorBuilder:
-                              //                   (context, error, stackTrace) {
-                              //                 return Container();
-                              //               },
-                              //             ),
-                              //           ),
-                              //         ),
-                              //         const SizedBox(width: 12),
-
-                              //         // Product Info
-                              //         Expanded(
-                              //           child: Column(
-                              //             crossAxisAlignment:
-                              //                 CrossAxisAlignment.start,
-                              //             children: [
-                              //               Text(
-                              //                 state.data![index]
-                              //                         .serviceName ??
-                              //                     "",
-                              //                 style: const TextStyle(
-                              //                   fontSize: 14,
-                              //                   fontWeight: FontWeight.w600,
-                              //                   color: Colors.black,
-                              //                 ),
-                              //               ),
-                              //               const SizedBox(height: 4),
-                              //               Text(
-                              //                 state.data![index]
-                              //                         .description ??
-                              //                     "",
-                              //                 style: TextStyle(
-                              //                   fontSize: 12,
-                              //                   color: Colors.grey.shade600,
-                              //                 ),
-                              //                 maxLines: 2,
-                              //                 overflow: TextOverflow.ellipsis,
-                              //               ),
-                              //             ],
-                              //           ),
-                              //         ),
-
-                              //         const SizedBox(width: 8),
-
-                              //         // Amount and Status
-                              //         Column(
-                              //           crossAxisAlignment:
-                              //               CrossAxisAlignment.end,
-                              //           children: [
-                              //             Text(
-                              //               state.data![index].price
-                              //                   .toString(),
-                              //               style: const TextStyle(
-                              //                 fontSize: 14,
-                              //                 fontWeight: FontWeight.w600,
-                              //                 color: Colors.black,
-                              //               ),
-                              //             ),
-                              //             const SizedBox(height: 4),
-                              //             Container(
-                              //               padding:
-                              //                   const EdgeInsets.symmetric(
-                              //                       horizontal: 12,
-                              //                       vertical: 4),
-                              //               decoration: BoxDecoration(
-                              //                 color: Colors.grey.shade100,
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(12),
-                              //               ),
-                              //               child: Text(
-                              //                 state.data![index].status ?? "",
-                              //                 style: const TextStyle(
-                              //                   fontSize: 11,
-                              //                   fontWeight: FontWeight.w500,
-                              //                   color: Colors.black87,
-                              //                 ),
-                              //               ),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //       ],
-                              //     ),
-
-                              //     const SizedBox(height: 12),
-
-                              //     // Edit Button Row (Bottom)
-                              //     Row(
-                              //       mainAxisAlignment: MainAxisAlignment.end,
-                              //       children: [
-                              //         Container(
-                              //           decoration: BoxDecoration(
-                              //             gradient: const LinearGradient(
-                              //               colors: [
-                              //                 Color(0xFF2563EB),
-                              //                 Color(0xFF1D4ED8),
-                              //               ],
-                              //               begin: Alignment.topLeft,
-                              //               end: Alignment.bottomRight,
-                              //             ),
-                              //             borderRadius:
-                              //                 BorderRadius.circular(8),
-                              //             boxShadow: [
-                              //               BoxShadow(
-                              //                 color: const Color(0xFF2563EB)
-                              //                     .withOpacity(0.3),
-                              //                 blurRadius: 8,
-                              //                 offset: const Offset(0, 4),
-                              //               ),
-                              //             ],
-                              //           ),
-                              //           child: Material(
-                              //             color: Colors.transparent,
-                              //             child: InkWell(
-                              //               onTap: () {
-                              //                 // TODO: Add your edit navigation here
-                              //                 // Example: context.push(AppRoutes.EDIT_SERVICE_PATH, extra: service);
-                              //                 context.push(
-                              //                     AppRoutes
-                              //                         .EDIT_SERVICE_SCREEN_PATH,
-                              //                     extra: {
-                              //                       "serviceId": state
-                              //                           .data![index].id
-                              //                           .toString()
-                              //                     });
-                              //               },
-                              //               borderRadius:
-                              //                   BorderRadius.circular(8),
-                              //               child: const Padding(
-                              //                 padding: EdgeInsets.symmetric(
-                              //                   horizontal: 16,
-                              //                   vertical: 8,
-                              //                 ),
-                              //                 child: Row(
-                              //                   mainAxisSize:
-                              //                       MainAxisSize.min,
-                              //                   children: const [
-                              //                     Icon(
-                              //                       Icons.edit_rounded,
-                              //                       color: Colors.white,
-                              //                       size: 18,
-                              //                     ),
-                              //                     SizedBox(width: 6),
-                              //                     Text(
-                              //                       'Edit',
-                              //                       style: TextStyle(
-                              //                         color: Colors.white,
-                              //                         fontSize: 13,
-                              //                         fontWeight:
-                              //                             FontWeight.w600,
-                              //                       ),
-                              //                     ),
-                              //                   ],
-                              //                 ),
-                              //               ),
-                              //             ),
-                              //           ),
-                              //         ),
-                              //       ],
-                              //     ),
-                              //   ],
-                              // ),
-                              );
-                        },
                       ),
                     );
                   }
 
-                  return const SizedBox.shrink();
+                  return _ServiceCard(service: services[index]);
                 },
+              ),
+            );
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.cloud_off_rounded,
+                size: 48,
+                color: Colors.red.shade400,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Oops! Something went wrong',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: 140,
+              height: 44,
+              child: ElevatedButton.icon(
+                onPressed: _onRefresh,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Try Again'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB).withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.add_business_rounded,
+                size: 56,
+                color: Color(0xFF2563EB),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'No services offered yet',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade900,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Create your first service to start reaching customers and growing your business.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.push(AppRoutes.CREATE_SERVICE_PATH);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                ),
+                child: const Text(
+                  'Create Service',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],
@@ -722,157 +373,305 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
   }
 }
 
-Widget serviceCardUC({
-  required ServiceItem item,
-  required VoidCallback onEdit,
-}) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 18),
-    padding: const EdgeInsets.all(18),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.06),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        /// IMAGE + TITLE + PRICE
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
-                width: 70,
-                height: 70,
-                color: Colors.grey.shade200,
-                child: Image.network(
-                  item.iconUrl ?? "",
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.image_not_supported, size: 32),
-                ),
-              ),
-            ),
+class _ServiceCard extends StatelessWidget {
+  final ServiceItem service;
 
-            const SizedBox(width: 16),
+  const _ServiceCard({required this.service});
 
-            /// TITLE + DESCRIPTION
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.serviceName ?? "",
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    item.description ?? "",
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      height: 1.3,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            /// PRICE
-            Text(
-              "₹${item.price}",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 16),
-
-        /// STATUS BADGE
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              item.status ?? "",
-              style: TextStyle(
-                color: Colors.blue.shade700,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
-        ),
-
-        const SizedBox(height: 18),
-
-        /// EDIT BUTTON
-        Align(
-          alignment: Alignment.centerRight,
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF2563EB),
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF2563EB).withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: onEdit,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          BoxShadow(
+            color: Colors.black.withOpacity(0.01),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            // Optional: Navigate to detail view if needed
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.edit_rounded, size: 18, color: Colors.white),
-                    SizedBox(width: 6),
-                    Text(
-                      "Edit",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
+                    // Service Image
+                    Hero(
+                      tag: 'service_img_${service.id}',
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          color: Colors.grey.shade100,
+                          child: Image.network(
+                            service.iconUrl ?? "",
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Center(
+                              child: Icon(
+                                Icons.image_outlined,
+                                color: Colors.grey.shade400,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+
+                    // Main Info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  capitalize(service.serviceName.toString()) ??
+                                      "Untitled",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1A1D1E),
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              _StatusBadge(
+                                  status: service.status ?? 'Inactive'),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            capitalize(service.description.toString()) ??
+                                "No description available",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.4,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
+
+                const SizedBox(height: 16),
+                Divider(height: 1, color: Colors.grey.shade100),
+                const SizedBox(height: 16),
+
+                // Detailed Info Grid
+                Row(
+                  children: [
+                    Expanded(
+                      child: _InfoColumn(
+                        label: 'Category',
+                        value: capitalize(service.categoryName.toString()) ??
+                            'N/A',
+                        icon: Icons.category_outlined,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _InfoColumn(
+                        label: 'Duration',
+                        value: timeToDuration(service.duration ?? 0) ?? '0 min',
+                        icon: Icons.schedule_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _InfoColumn(
+                        label: 'Created',
+                        value: DateFormat("d MMM y").format(
+                          service.createdAt ?? DateTime.now(),
+                        ),
+                        icon: Icons.calendar_today_rounded,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Footer: Price & Action
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Service Price',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '₹${service.price ?? 0}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF2563EB),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 36,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.push(
+                            AppRoutes.EDIT_SERVICE_SCREEN_PATH,
+                            extra: {"serviceId": service.id.toString()},
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF1A1D1E),
+                          elevation: 0,
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.edit_outlined, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              'Edit',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _InfoColumn extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+
+  const _InfoColumn({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 12, color: Colors.grey.shade400),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF333333),
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
-    ),
-  );
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final String status;
+
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isActive = status.toLowerCase() == "active";
+    // Define colors for active vs others
+    final Color backgroundColor =
+        isActive ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2);
+    final Color textColor =
+        isActive ? const Color(0xFF166534) : const Color(0xFF991B1B);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
 }
 
 class BookingDetailsUrbanPro extends StatelessWidget {
@@ -1131,27 +930,4 @@ class BookingDetailsUrbanPro extends StatelessWidget {
         return Colors.blueGrey;
     }
   }
-}
-
-Widget _infoLabel(String text) {
-  return Text(
-    text,
-    style: const TextStyle(
-      fontSize: 11,
-      color: Colors.grey,
-      fontWeight: FontWeight.w500,
-    ),
-  );
-}
-
-Widget _infoValue(String text) {
-  return Text(
-    text,
-    style: const TextStyle(
-      fontSize: 13,
-      fontWeight: FontWeight.w600,
-    ),
-    maxLines: 2,
-    overflow: TextOverflow.ellipsis,
-  );
 }

@@ -49,4 +49,6 @@ class AppRoutes {
   static const String EDIT_CATEGORY_SCREEN_PATH = "/edit_category_screen";
   static const String EDIT_SUBCATEGORY_SCREEN_PATH = "/edit_subcategory_screen";
   static const String EDIT_PLAN_SCREEN_PATH = "/edit_plan_screen";
+  static const String HELP_SUPPORT_SCREEN_PATH = "/help_support_screen";
+  static const String FAQ_SCREEN_PATH = "/faq_screen_path";
 }

@@ -7,7 +7,6 @@ import 'package:panimithra/src/data/models/employee_active_plan_model.dart';
 import 'package:panimithra/src/presentation/bloc/payments_bloc/payments_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/payments_bloc/payments_event.dart';
 import 'package:panimithra/src/presentation/bloc/payments_bloc/payments_state.dart';
-import 'package:panimithra/src/presentation/widget/helper.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -28,26 +27,47 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE5E7EB),
+      backgroundColor: const Color(0xFFF8F9FD),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE5E7EB),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Payments',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1F2937),
-          ),
+        centerTitle: false,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Payments',
+              style: TextStyle(
+                color: Color(0xFF1A1D1E),
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.history,
-              color: Color(0xFF1F2937),
-              size: 28,
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.history_rounded,
+                color: Color(0xFF1A1D1E),
+                size: 24,
+              ),
             ),
-            onPressed: () {},
           ),
         ],
       ),
@@ -264,10 +284,27 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   )
                 : Center(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.36),
-                        const Text("No Employee Plan Available"),
+                        Icon(Icons.credit_card_off_rounded,
+                            size: 64, color: Colors.grey[300]),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "No Active Plans",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF9CA3AF),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Subscribe to a plan to get started",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFFD1D5DB),
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -280,377 +317,198 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 }
 
 Widget _buildSubscriptionCard(Plan subscription, BuildContext context) {
-  final bool isPopular = true && subscription.price == 0;
+  final bool isActive = subscription.status == "ACTIVE";
+  final bool isPending = subscription.status == "PENDING";
+
   return GestureDetector(
     onTap: () {
-      context.push(AppRoutes.EMPLOYEE_PLANS_SCREEN_PATH);
+      if (isActive) {
+        context.push(AppRoutes.EMPLOYEE_PLANS_SCREEN_PATH);
+      } else {
+        context.push(AppRoutes.EMPLOYEE_PLANS_SCREEN_PATH);
+      }
     },
     child: Container(
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF10B981),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF10B981).withOpacity(0.15),
-            blurRadius: 20,
+            color: isActive
+                ? const Color(0xFF10B981).withOpacity(0.12)
+                : Colors.black.withOpacity(0.05),
+            blurRadius: 24,
             offset: const Offset(0, 8),
           ),
         ],
+        border: isActive
+            ? Border.all(
+                color: const Color(0xFF10B981).withOpacity(0.3), width: 1.5)
+            : Border.all(color: Colors.grey.withOpacity(0.05)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
           children: [
-            // Header Row
-            Row(
-              children: [
-                // Radio Button
-
-                const SizedBox(width: 12),
-
-                // Plan Name
-                Expanded(
-                  child: Row(
-                    children: [
-                      Text(
-                        subscription.planname,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1F2937),
-                        ),
-                      ),
-                      if (isPopular) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1F2937),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text(
-                            'Most popular',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                // Price
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (subscription.status.toString() != "PENDING") ...[
-                      Row(
-                        children: [
-                          Text(
-                            subscription.price > 0
-                                ? '-${(subscription.price * 0.5).toInt()}%'
-                                : 'FREE',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: subscription.price > 0
-                                  ? const Color(0xFFEF4444)
-                                  : const Color(0xFF10B981),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                    ],
-                    Text(
-                      subscription.status == "PENDING"
-                          ? 'PENDING'
-                          : '\$${subscription.price.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: subscription.status == "PENDING" ? 14 : 20,
-                        fontWeight: FontWeight.bold,
-                        color: subscription.status == "PENDING"
-                            ? const Color(0xFFF59E0B)
-                            : const Color(0xFF1F2937),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-
-            // Duration
-            Text(
-              "${DateFormat("dd MMM yyyy").format(subscription.startDate)} to ${DateFormat("dd MMM yyyy").format(subscription.enDate)}",
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6B7280),
-              ),
-            ),
-
-            if (!(subscription.status == "PENDING")) ...[
-              const SizedBox(height: 4),
-              GestureDetector(
-                onTap: () {
-                  _showDetailsDialog(subscription, context);
-                },
-                child: const Text(
-                  'View details',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF3B82F6),
-                    decoration: TextDecoration.underline,
-                    fontWeight: FontWeight.w500,
+            if (isActive)
+              Positioned(
+                right: -20,
+                top: -20,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
                 ),
               ),
-            ],
-
-            const SizedBox(height: 16),
-
-            // Description Box
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(10),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!(subscription.status == "PENDING")) ...[
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          size: 16,
-                          color: Color(0xFF10B981),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Active subscription with ${calculateDaysBetween(subscription.startDate ?? DateTime.now(), subscription.enDate ?? DateTime.now())}days validity',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF4B5563),
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: Color(0xFF6B7280),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            '${calculateDaysBetween(DateTime.now(), subscription.enDate)} days remaining',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF4B5563),
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.person_outline,
-                          size: 16,
-                          color: Color(0xFF6B7280),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Employee ID: ${subscription.employeeId}...',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF4B5563),
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ] else ...[
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.schedule,
-                          size: 16,
-                          color: Color(0xFFF59E0B),
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            'Subscription pending activation',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF4B5563),
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.info_outline,
-                          size: 16,
-                          color: Color(0xFF6B7280),
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            'Complete payment to activate',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF4B5563),
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            // Status Badge
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: subscription.status == "ACTIVE"
-                        ? const Color(0xFF10B981).withOpacity(0.1)
-                        : const Color(0xFFF59E0B).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(
-                        subscription.status == "ACTIVE"
-                            ? Icons.check_circle
-                            : Icons.pending,
-                        size: 14,
-                        color: subscription.status == "ACTIVE"
-                            ? const Color(0xFF10B981)
-                            : const Color(0xFFF59E0B),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? const Color(0xFFECFDF5)
+                              : const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          isActive ? 'ACTIVE PLAN' : 'PENDING PAYMENT',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                            color: isActive
+                                ? const Color(0xFF059669)
+                                : const Color(0xFFD97706),
+                          ),
+                        ),
                       ),
-                      const SizedBox(width: 6),
                       Text(
-                        subscription.status,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: subscription.status == "ACTIVE"
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFF59E0B),
+                        '\₹${subscription.price.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1A1D1E),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    subscription.planname,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1D1E),
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: 14,
+                        color: Colors.grey[500],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isPending
+                            ? 'Valid until payment complete'
+                            : '${DateFormat("d MMM yyyy").format(subscription.startDate)} - ${DateFormat("d MMM yyyy").format(subscription.enDate)}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Divider(height: 1),
+                  ),
+                  if (isActive)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Employee ID',
+                                style: TextStyle(
+                                  color: Color(0xFF9CA3AF),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                subscription.employeeId,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFF4B5563),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.arrow_forward_rounded,
+                              size: 18, color: Color(0xFF4B5563)),
+                        ),
+                      ],
+                    )
+                  else
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1A1D1E),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: () {
+                          context.push(AppRoutes.EMPLOYEE_PLANS_SCREEN_PATH);
+                        },
+                        child: const Text(
+                          'Complete Payment',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
       ),
-    ),
-  );
-}
-
-void _showDetailsDialog(Plan subscription, BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      title: const Text('Subscription Details'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _detailRow('Plan ID', subscription.id),
-          _detailRow('Subscription ID', subscription.id),
-          _detailRow('Employee ID', subscription.employeeId),
-          _detailRow('Status', subscription.status),
-          _detailRow(
-              'Start Date',
-              DateFormat("dd/MMM/yyyy").format(subscription.startDate) ??
-                  'N/A'),
-          _detailRow('End Date',
-              DateFormat("dd/MMM/yyyy").format(subscription.enDate) ?? 'N/A'),
-          _detailRow('Price', '\$${subscription.price.toStringAsFixed(2)}'),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _detailRow(String label, String value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 6),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF6B7280),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF1F2937),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     ),
   );
 }

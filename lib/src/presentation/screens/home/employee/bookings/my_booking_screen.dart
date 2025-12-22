@@ -83,162 +83,222 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
     context.read<BookingBloc>().add(FetchBookingsEvent(page));
   }
 
+  bool isActionLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFFF8F9FD),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {},
-        ),
-        title: const Text(
-          'My Bookings',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+        centerTitle: false,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'My Bookings',
+              style: TextStyle(
+                color: Color(0xFF1A1D1E),
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.black),
-            onPressed: () {},
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.notifications_none_rounded,
+                  color: Color(0xFF1A1D1E)),
+            ),
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Manage all your assigned service bookings',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Text(
+                  'Manage all your assigned service bookings here.',
+                  style: TextStyle(
+                    color: const Color(0xFF6B7280),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: BlocConsumer<BookingBloc, BookingState>(
+                  buildWhen: (previous, current) {
+                    return (current is BookingLoadedState ||
+                            current is BookingErrorState) ||
+                        (page == 0 && current is BookingLoadingState);
+                  },
+                  listener: (context, state) {
+                    if (state is UpdateBookingStatusLoading) {
+                      setState(() {
+                        isActionLoading = true;
+                      });
+                    }
+                    if (state is BookingLoadedState) {
+                      isLoading = false;
+                      totalRecords = state.totalRecords;
+                      totalLength = state.item.length;
+                    }
+                    if (state is UpdateBookingStatusLoaded) {
+                      setState(() {
+                        isActionLoading = false;
+                      });
+                      ToastHelper.showToast(
+                          context: context,
+                          type: "success",
+                          title: "Updated Booking Status Successfully");
+                      context.read<BookingBloc>().add(FetchBookingsEvent(0));
+                    }
+                    if (state is UpdateBookingStatusError) {
+                      setState(() {
+                        isActionLoading = false;
+                      });
+                      ToastHelper.showToast(
+                          context: context,
+                          type: "error",
+                          title: state.message);
+                    }
+                    if (state is BookingLoadingState) {
+                      isLoading = true;
+                    }
+                    if (state is BookingErrorState) {
+                      isLoading = false;
+                      ToastHelper.showToast(
+                        context: context,
+                        type: 'error',
+                        title: state.message,
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is BookingLoadingState && page == 0) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state is BookingInitalState && page == 0) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state is BookingErrorState) {
+                      return Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline,
+                                size: 48, color: Colors.red),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Error loading Bookings',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              state.message,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                context
+                                    .read<BookingBloc>()
+                                    .add(FetchBookingsEvent(0));
+                              },
+                              child: Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    if (state is BookingLoadedState) {
+                      return state.totalRecords > 0
+                          ? ListView.builder(
+                              controller: _scrollController,
+                              itemCount: state.item.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index >= state.item.length) {
+                                  return Visibility(
+                                      visible: state.totalRecords <=
+                                              state.item.length
+                                          ? false
+                                          : true,
+                                      child: const Center(
+                                          child: CircularProgressIndicator()));
+                                }
+
+                                return BookingCardUltraUC(
+                                  item: state.item[index],
+                                  onTap: () {
+                                    context.push(
+                                        AppRoutes
+                                            .EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH,
+                                        extra: {
+                                          "bookingId":
+                                              state.item[index].bookingId
+                                        });
+                                  },
+                                );
+                              })
+                          : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.2),
+                                  Icon(Icons.calendar_today_rounded,
+                                      size: 64, color: Colors.grey[300]),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    "No Bookings Available",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF9CA3AF),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                    }
+                    return Container();
+                  },
+                ),
+              ),
+            ],
+          ),
+          if (isActionLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(),
               ),
             ),
-          ),
-          BlocConsumer<BookingBloc, BookingState>(
-            buildWhen: (previous, current) {
-              return (current is BookingLoadedState ||
-                      current is BookingErrorState) ||
-                  (page == 0 && current is BookingLoadingState);
-            },
-            listener: (context, state) {
-              if (state is BookingLoadedState) {
-                isLoading = false;
-                totalRecords = state.totalRecords;
-                totalLength = state.item.length;
-              }
-              if (state is UpdateBookingStatusLoaded) {
-                ToastHelper.showToast(
-                    context: context,
-                    type: "success",
-                    title: "Updated Booking Status Successfully");
-                context.read<BookingBloc>().add(FetchBookingsEvent(0));
-              }
-              if (state is UpdateBookingStatusError) {
-                ToastHelper.showToast(
-                    context: context, type: "error", title: state.message);
-              }
-              if (state is BookingLoadingState) {
-                isLoading = true;
-              }
-              if (state is BookingErrorState) {
-                isLoading = false;
-                ToastHelper.showToast(
-                  context: context,
-                  type: 'error',
-                  title: state.message,
-                );
-              }
-            },
-            builder: (context, state) {
-              if (state is BookingLoadingState && page == 0) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is BookingInitalState && page == 0) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is BookingErrorState) {
-                return Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Error loading Bookings',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          context
-                              .read<BookingBloc>()
-                              .add(FetchBookingsEvent(0));
-                        },
-                        child: Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              if (state is BookingLoadedState) {
-                return state.totalRecords > 0
-                    ? Expanded(
-                        child: ListView.builder(
-                            controller: _scrollController,
-                            itemCount: state.item.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index >= state.item.length) {
-                                return Visibility(
-                                    visible:
-                                        state.totalRecords <= state.item.length
-                                            ? false
-                                            : true,
-                                    child: const Center(
-                                        child: CircularProgressIndicator()));
-                              }
-
-                              return BookingCardUltraUC(
-                                item: state.item[index],
-                                onTap: () {
-                                  context.push(
-                                      AppRoutes
-                                          .EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH,
-                                      extra: {
-                                        "bookingId": state.item[index].bookingId
-                                      });
-                                },
-                              );
-                            }),
-                      )
-                    : Column(
-                        children: [
-                          SizedBox(
-                              height:
-                                  MediaQuery.of(context).size.height * 0.34),
-                          Center(child: const Text("No Bookings Available")),
-                        ],
-                      );
-              }
-              return Container();
-            },
-          ),
         ],
       ),
     );
@@ -270,263 +330,306 @@ class BookingCardUltraUC extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 15,
-              spreadRadius: 1,
-              offset: const Offset(0, 6),
-            )
+              color: const Color(0xFF64748B).withOpacity(0.08),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
           ],
+          border: Border.all(color: Colors.grey.withOpacity(0.05)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// TOP ROW — TITLE + ARROW
+            /// Header: Service Icon, Name & Price
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F9FF),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(Icons.cleaning_services_rounded,
+                      color: Color(0xFF0EA5E9), size: 24),
+                ),
+                const SizedBox(width: 16),
                 Expanded(
-                  child: Text(
-                    capitalize(item.serviceName) ?? "Service Name",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(Icons.arrow_forward_ios_rounded,
-                    size: 18, color: Colors.grey.shade500),
-              ],
-            ),
-
-            const SizedBox(height: 6),
-
-            /// DESCRIPTION
-            Text(
-              capitalize(item.description) ?? "",
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                height: 1.4,
-                fontSize: 14.5,
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            const Divider(height: 1, color: Color(0xFFEAEAEA)),
-            const SizedBox(height: 16),
-
-            /// DATE & TIME
-            Row(
-              children: [
-                Icon(Icons.calendar_today_rounded,
-                    size: 18, color: Colors.blue.shade700),
-                const SizedBox(width: 8),
-                Text(
-                  DateFormat("EEE, dd MMM yyyy")
-                      .format(item.bookingDate ?? DateTime.now()),
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2A2A2A),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Icon(Icons.person_outline,
-                    size: 18, color: Colors.blue.shade700),
-                const SizedBox(width: 8),
-
-                /// YOU WILL REPLACE THIS WITH YOUR REAL TIME
-                Text(
-                  capitalize(item.userName),
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2A2A2A),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            /// AMOUNT + STATUS
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                /// AMOUNT ROW
-                Row(
-                  children: [
-                    Icon(Icons.currency_rupee_rounded,
-                        size: 20, color: Colors.blue.shade700),
-                    Text(
-                      "${item.amount}" ?? "0",
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black87,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        capitalize(item.serviceName) ?? "Service",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1A1D1E),
+                          letterSpacing: -0.5,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        'Booking ID: #${item.bookingId.substring(0, 8)}...',
+                        style: const TextStyle(
+                          color: Color(0xFF9CA3AF),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-
-                /// STATUS BADGE
-                _statusChip(item.bookingStatus),
-
-                const SizedBox(height: 12),
+                Text(
+                  "\₹${item.amount}",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1A1D1E),
+                    letterSpacing: -0.5,
+                  ),
+                ),
               ],
             ),
-            SizedBox(
-              height: 10,
+
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Divider(height: 1, color: Color(0xFFF1F5F9)),
             ),
-            _buildActionButtons(item.bookingId, item.bookingStatus, context),
+
+            /// Info Rows
+            _buildInfoRow(
+                Icons.calendar_today_rounded,
+                DateFormat("EEE, dd MMM yyyy, hh:mm a")
+                    .format(item.bookingDate ?? DateTime.now())),
+            const SizedBox(height: 12),
+            if (item.location.isNotEmpty || item.city.isNotEmpty) ...[
+              _buildInfoRow(
+                  Icons.location_on_outlined, "${item.location}, ${item.city}"),
+              const SizedBox(height: 12),
+            ],
+            _buildInfoRow(Icons.person_outline_rounded,
+                capitalize(item.userName) ?? "Customer"),
+
+            const SizedBox(height: 20),
+
+            /// Footer: Status & Actions
+            Row(
+              children: [
+                _statusChip(item.bookingStatus),
+                const Spacer(),
+                if (_shouldShowActions(item.bookingStatus))
+                  Icon(Icons.arrow_forward_rounded,
+                      color: Colors.grey[400], size: 20),
+              ],
+            ),
+            if (_shouldShowActions(item.bookingStatus)) ...[
+              const SizedBox(height: 16),
+              _buildActionButtons(item.bookingId, item.bookingStatus, context),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  bool _shouldShowActions(String status) {
+    final s = status.toUpperCase();
+    return s == "PENDING" || s == "INPROGRESS";
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFF9CA3AF)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF4B5563),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _statusChip(String? status) {
     Color bg;
     Color text;
+    String label = status ?? "Unknown";
 
-    switch (status) {
-      case "Completed":
-        bg = const Color(0xFFE8F5E9);
-        text = const Color(0xFF2E7D32);
+    switch (status?.toUpperCase()) {
+      case "COMPLETED":
+        bg = const Color(0xFFECFDF5);
+        text = const Color(0xFF10B981);
         break;
-      case "Inprogress":
-        bg = const Color(0xFFE3F2FD);
-        text = const Color(0xFF1A73E8);
+      case "INPROGRESS":
+        bg = const Color(0xFFF0F9FF);
+        text = const Color(0xFF0EA5E9);
+        break;
+      case "PENDING":
+        bg = const Color(0xFFFFF7ED);
+        text = const Color(0xFFF97316);
+        break;
+      case "REJECTED":
+      case "CANCELLED":
+        bg = const Color(0xFFFEF2F2);
+        text = const Color(0xFFEF4444);
         break;
       default:
-        bg = const Color(0xFFFFEBEE);
-        text = const Color(0xFFC62828);
+        bg = const Color(0xFFF3F4F6);
+        text = const Color(0xFF6B7280);
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: bg == const Color(0xFFF3F4F6)
+                ? Colors.grey[300]!
+                : Colors.transparent),
       ),
-      child: Text(
-        status ?? "",
-        style: TextStyle(
-          fontSize: 13.5,
-          fontWeight: FontWeight.w700,
-          color: text,
-        ),
-      ),
-    );
-  }
-}
-
-Widget _buildActionButtons(
-    String bookingId, String status, BuildContext context) {
-  print("status" + status.toString());
-  switch (status.toUpperCase()) {
-    case "PENDING":
-      return Row(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              onPressed: () {
-                context.read<BookingBloc>().add(UpdateBookingStatusEvent(
-                    bookingId: bookingId, bookingStatus: "INPROGRESS"));
-              },
-              child: const Text(
-                "Accept",
-                style: TextStyle(color: Colors.white),
-              ),
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: text,
+              shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              onPressed: () {
-                context.read<BookingBloc>().add(UpdateBookingStatusEvent(
-                    bookingId: bookingId, bookingStatus: "REJECTED"));
-              },
-              child: const Text(
-                "Reject",
-                style: TextStyle(color: Colors.white),
-              ),
+          const SizedBox(width: 8),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: text,
+              letterSpacing: 0.5,
             ),
           ),
         ],
-      );
+      ),
+    );
+  }
 
-    case "INPROGRESS":
-      return GestureDetector(
-        onTap: () {
-          context.read<BookingBloc>().add(
-                UpdateBookingStatusEvent(
-                  bookingId: bookingId,
-                  bookingStatus: "COMPLETED",
+  Widget _buildActionButtons(
+      String bookingId, String status, BuildContext context) {
+    switch (status.toUpperCase()) {
+      case "PENDING":
+        return Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-              );
-        },
-        child: Container(
+                onPressed: () {
+                  context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                      bookingId: bookingId, bookingStatus: "INPROGRESS"));
+                },
+                child: const Text("Accept",
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFFEF4444),
+                  elevation: 0,
+                  side: const BorderSide(color: Color(0xFFEF4444)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () {
+                  context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                      bookingId: bookingId, bookingStatus: "REJECTED"));
+                },
+                child: const Text("Reject",
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        );
+
+      case "INPROGRESS":
+        return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             gradient: const LinearGradient(
-              colors: [
-                Color(0xFF4FACFE),
-                Color(0xFF00F2FE),
-              ],
+              colors: [Color(0xFF0EA5E9), Color(0xFF38BDF8)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: const Center(
-            child: Text(
-              "Complete Booking",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                context.read<BookingBloc>().add(
+                      UpdateBookingStatusEvent(
+                        bookingId: bookingId,
+                        bookingStatus: "COMPLETED",
+                      ),
+                    );
+              },
+              borderRadius: BorderRadius.circular(14),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                child: Center(
+                  child: Text(
+                    "Complete Booking",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-    default:
-      return const SizedBox.shrink();
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }
 

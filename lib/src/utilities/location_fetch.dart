@@ -1,5 +1,7 @@
+import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' hide PermissionStatus;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, double>?> getCurrentLocation() async {
   final location = Location();
@@ -43,5 +45,8 @@ Future<Map<String, double>?> getCurrentLocation() async {
   print(
     '✅ Current Location: ${locationData.latitude}, ${locationData.longitude}',
   );
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  preferences.setDouble(ApiConstants.latitude, locationData.latitude ?? 0.0);
+  preferences.setDouble(ApiConstants.longitude, locationData.longitude ?? 0.0);
   return {"lat": locationData.latitude!, "lng": locationData.longitude!};
 }

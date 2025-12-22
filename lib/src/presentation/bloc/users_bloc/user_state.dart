@@ -3,6 +3,7 @@ import 'package:panimithra/src/data/models/admin_dashboard_model.dart';
 import 'package:panimithra/src/data/models/employee_dashboard_model.dart';
 import 'package:panimithra/src/data/models/fetch_users_model.dart';
 import 'package:panimithra/src/data/models/user_profile_model.dart';
+import 'package:panimithra/src/data/models/faq_model.dart';
 
 abstract class FetchUsersState extends Equatable {
   const FetchUsersState();
@@ -106,7 +107,6 @@ class EmployeeDashboardError extends FetchUsersState {
   List<Object?> get props => [message];
 }
 
-
 class RegisterFcmTokenLoading extends FetchUsersState {}
 
 class RegisterFcmTokenSuccess extends FetchUsersState {
@@ -127,7 +127,6 @@ class RegisterFcmTokenError extends FetchUsersState {
   List<Object?> get props => [message];
 }
 
-
 /// Change User Status Loading
 class ChangeUserStatusLoading extends FetchUsersState {}
 
@@ -147,6 +146,22 @@ class ChangeUserStatusError extends FetchUsersState {
 
   const ChangeUserStatusError(this.message);
 
+  @override
+  List<Object?> get props => [message];
+}
+
+class FaqLoading extends FetchUsersState {}
+
+class FaqLoaded extends FetchUsersState {
+  final List<FaqModel> faqList;
+  const FaqLoaded({required this.faqList});
+  @override
+  List<Object?> get props => [faqList];
+}
+
+class FaqError extends FetchUsersState {
+  final String message;
+  const FaqError(this.message);
   @override
   List<Object?> get props => [message];
 }

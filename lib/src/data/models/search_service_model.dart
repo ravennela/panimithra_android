@@ -69,6 +69,7 @@ class SearchServiceItem {
   String? iconUrl;
   String? employeeName;
   String? employeeId;
+  String? mobileNumber;
   DateTime? createdAt;
 
   SearchServiceItem(
@@ -92,7 +93,8 @@ class SearchServiceItem {
       this.avgrating,
       this.price,
       this.employeeId,
-      this.employeeName});
+      this.employeeName,
+      this.mobileNumber});
 
   factory SearchServiceItem.fromJson(Map<String, dynamic> json) =>
       SearchServiceItem(
@@ -120,7 +122,8 @@ class SearchServiceItem {
           avgrating: json["avgrating"]?.toDouble(),
           price: json["price"] ?? 0.0,
           employeeId: json["employeeId"] ?? "",
-          employeeName: json["employeeName"] ?? '');
+          employeeName: json["employeeName"] ?? '',
+          mobileNumber: json["mobileNumber"] ?? "");
 
   Map<String, dynamic> toJson() => {
         "serviceName": serviceName,
@@ -139,5 +142,6 @@ class SearchServiceItem {
         "subCategoroyDescription": subCategoroyDescription,
         "avgrating": avgrating,
         "price": price,
+        "mobileNumber": mobileNumber,
       };
 }

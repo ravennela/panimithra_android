@@ -11,6 +11,8 @@ import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
 import 'package:panimithra/src/domain/usecase/admin_dashboard_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
+import 'package:panimithra/src/domain/usecase/fetch_faq_usecase.dart';
+import 'package:panimithra/src/data/models/faq_model.dart';
 
 class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
   final FetchUsersUseCase fetchUsersUseCase;
@@ -19,6 +21,7 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
   final FetchEmployeeDashboardUseCase getEmployeeDashboardUsecase;
   final RegisterFcmTokenUseCase registerFcmTokenUseCase;
   final ChangeUserStatusUseCase changeUserStatusUseCase;
+  final FetchFaqUseCase fetchFaqUseCase;
 
   FetchUsersBloc({
     required this.fetchUsersUseCase,
@@ -27,6 +30,7 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
     required this.getEmployeeDashboardUsecase,
     required this.registerFcmTokenUseCase,
     required this.changeUserStatusUseCase,
+    required this.fetchFaqUseCase,
   }) : super(FetchUsersInitial()) {
     on<GetUsersEvent>(_onFetchUsers);
     on<GetUserProfileEvent>(_onGetUserProfile);
@@ -34,6 +38,7 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
     on<GetEmployeeDashboardEvent>(_onGetEmployeeDashboard);
     on<RegisterFcmTokenEvent>(_onRegisterFcmToken);
     on<ChangeUserStatusEvent>(_onChangeUserStatus);
+    on<FetchFaqEvent>(_onFetchFaq);
   }
 
   /// 🧩 Fetch all users
@@ -154,6 +159,18 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
       (success) {
         emit(ChangeUserStatusSuccess(message: success.message.toString()));
       },
+    );
+  }
+
+  Future<void> _onFetchFaq(
+    FetchFaqEvent event,
+    Emitter<FetchUsersState> emit,
+  ) async {
+    emit(FaqLoading());
+    final result = await fetchFaqUseCase.call();
+    result.fold(
+      (failure) => emit(FaqError(failure)),
+      (faqList) => emit(FaqLoaded(faqList: faqList)),
     );
   }
 }

@@ -16,6 +16,7 @@ import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_b
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/cubit/provider_registration/provider_registration_cubit.dart';
 import 'package:panimithra/src/utilities/gorouter_init.dart';
+import 'package:panimithra/src/utilities/location_fetch.dart';
 import 'package:panimithra/src/utilities/notification_service/firebase_background_handler.dart';
 import 'package:panimithra/src/utilities/notification_service/firebase_options.dart';
 import 'package:panimithra/src/utilities/notification_service/firebase_service.dart';
@@ -30,6 +31,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFirebaseMessaging();
+   await getCurrentLocation();
   NotificationInitService().initialize();
   FirebaseService().initialize();
   await di.init();

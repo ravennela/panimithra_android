@@ -70,3 +70,10 @@ class ChangeUserStatusEvent extends FetchUsersEvent {
   @override
   List<Object?> get props => [userId, status];
 }
+
+class FetchFaqEvent extends FetchUsersEvent {
+  const FetchFaqEvent();
+
+  @override
+  List<Object?> get props => [];
+}

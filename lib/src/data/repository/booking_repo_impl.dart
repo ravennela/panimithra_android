@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:panimithra/src/common/exception.dart';
+import '../../core/error/exceptions.dart';
 import 'package:panimithra/src/data/datasource/remote/booking_remote_datasource.dart';
 import 'package:panimithra/src/data/models/booking_details_model.dart';
 import 'package:panimithra/src/data/models/fetch_bookins_model.dart';
@@ -14,13 +14,14 @@ class BookingRepoImpl implements BookingRepository {
   BookingRepoImpl({required this.remoteDatasource});
   @override
   Future<Either<String, SuccessModel>> createBookingRepo(
-      Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final response = await remoteDatasource.createBooking(data);
       final model = SuccessModel.fromJson(response);
       return Right(model);
-    } on DioException catch (e) {
-      return Left(e.response?.data['message'] ?? 'Failed to create order');
+    } on ServerException catch (e) {
+      return Left(e.message);
     } catch (e) {
       return Left(e.toString());
     }
@@ -36,11 +37,6 @@ class BookingRepoImpl implements BookingRepository {
       return const Left("No Internet Connection");
     } on ServerException catch (e) {
       return Left(e.message);
-    } on DioException catch (e) {
-      return Left(
-        e.response?.data['error']?.toString() ??
-            "Error occurred. Please try again",
-      );
     } catch (e) {
       return Left(e.toString());
     }
@@ -62,11 +58,6 @@ class BookingRepoImpl implements BookingRepository {
       return const Left("No Internet Connection");
     } on ServerException catch (e) {
       return Left(e.message);
-    } on DioException catch (e) {
-      return Left(
-        e.response?.data['error']?.toString() ??
-            "Error occurred. Please try again",
-      );
     } catch (e) {
       return Left(e.toString());
     }
@@ -74,7 +65,8 @@ class BookingRepoImpl implements BookingRepository {
 
   @override
   Future<Either<String, BookingDetailsModel>> getBookingDetailsRepo(
-      String bookingId) async {
+    String bookingId,
+  ) async {
     try {
       final response = await remoteDatasource.getBookingDetails(bookingId);
       final result = BookingDetailsModel.fromJson(response);
@@ -83,11 +75,6 @@ class BookingRepoImpl implements BookingRepository {
       return const Left("No Internet Connection");
     } on ServerException catch (e) {
       return Left(e.message);
-    } on DioException catch (e) {
-      return Left(
-        e.response?.data['error']?.toString() ??
-            "Error occurred. Please try again",
-      );
     } catch (e) {
       return Left(e.toString());
     }
@@ -108,11 +95,6 @@ class BookingRepoImpl implements BookingRepository {
       return const Left("No Internet Connection");
     } on ServerException catch (e) {
       return Left(e.message);
-    } on DioException catch (e) {
-      return Left(
-        e.response?.data['error']?.toString() ??
-            "Error occurred. Please try again",
-      );
     } catch (e) {
       return Left(e.toString());
     }

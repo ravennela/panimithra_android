@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget buildProgressStep({required bool isActive, required bool isCompleted}) {
   return Container(
-    width: 50,
+    width: 36,
     height: 8,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(4),
@@ -15,7 +15,14 @@ Widget buildProgressStep({required bool isActive, required bool isCompleted}) {
   );
 }
 
-Widget buildProgressLine({required bool isActive}) {
+Widget buildProgressLine({required bool isActive, double? width}) {
+  if (width != null) {
+    return Container(
+      width: width,
+      height: 2,
+      color: isActive ? const Color(0xFF64B5F6) : const Color(0xFFBBDEFB),
+    );
+  }
   return Expanded(
     child: Container(
       height: 2,
@@ -129,13 +136,17 @@ int convertTimeToMinutes(String duration) {
 }
 
 String timeToDuration(int time) {
-  Map<int, dynamic> duration = {
+  final Map<int, String> duration = {
     30: "30 min",
     60: "1 hour",
     120: "2 hours",
     72: "Half day",
-    144: "Full day"
+    144: "Full day",
   };
-  String value = duration[time];
-  return value;
+
+  if (!duration.containsKey(time)) {
+    return "Unknown duration";
+  }
+
+  return duration[time]!;
 }

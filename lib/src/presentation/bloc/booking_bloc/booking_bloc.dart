@@ -54,7 +54,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     emit(BookingLoadingState());
     final result = await getBookingsUseCase(event.page);
     result.fold(
-      (failure) => emit(BookingErrorState(failure)),
+      (failure) => emit(BookingErrorState(message: failure.toString())),
       (bookings) {
         final upadtedBookings = [...currentItem, ...bookings.data];
         emit(BookingLoadedState(

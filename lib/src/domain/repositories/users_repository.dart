@@ -4,6 +4,7 @@ import 'package:panimithra/src/data/models/employee_dashboard_model.dart';
 import 'package:panimithra/src/data/models/fetch_users_model.dart';
 import 'package:panimithra/src/data/models/success_model.dart';
 import 'package:panimithra/src/data/models/user_profile_model.dart';
+import 'package:panimithra/src/data/models/faq_model.dart';
 
 abstract class UserRepository {
   Future<Either<String, FetchUsersModel>> fetchUsers({
@@ -28,5 +29,6 @@ abstract class UserRepository {
     required String userId,
     required String status,
   });
-  
+
+  Future<Either<String, List<FaqModel>>> fetchFaq();
 }

@@ -20,6 +20,7 @@ abstract class UserRemoteDataSource {
     required String userId,
     required String status,
   });
+  Future<List<dynamic>> fetchFaq();
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -169,6 +170,24 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       final response = await dioClient.put(
         ApiConstants.changeUserStatusApi, // define this in ApiConstants
         queryParameters: queryParams,
+        options: Options(headers: headers),
+      );
+
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<dynamic>> fetchFaq() async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+      final headers = {"Authorization": "Bearer $token"};
+
+      final response = await dioClient.get(
+        ApiConstants.faqApi,
         options: Options(headers: headers),
       );
 
