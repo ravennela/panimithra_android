@@ -87,9 +87,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   }
 
   void _scrollListener() {
+    print("is loading test" + isLoading.toString());
     if (isLoading) {
       return;
     }
+    print("failing");
 
     if (!mounted) return;
     if (_debounce?.isActive ?? false) _debounce?.cancel();
@@ -148,15 +150,15 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   }
 
   Widget _buildHeader() {
+    final primaryColor = Theme.of(context).primaryColor;
     return Container(
-      padding: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 20,
+            color: primaryColor.withOpacity(0.06),
+            blurRadius: 30,
             offset: const Offset(0, 10),
           ),
         ],
@@ -165,9 +167,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
         bottom: false,
         child: Column(
           children: [
-            // Top Bar
+            // Top Bar: Greeting & Notification
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               child: Row(
                 children: [
                   Expanded(
@@ -175,87 +177,73 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Find Services',
+                          'Explore Services',
                           style: TextStyle(
-                            fontSize: 28, // Larger, display font
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1D1E),
-                            letterSpacing: -1,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                            color: const Color(0xFF0F172A),
+                            letterSpacing: -0.8,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          'Discover the best services near you',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[500],
-                            fontWeight: FontWeight.w500,
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on_rounded,
+                                size: 14, color: primaryColor),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Near your location',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.notifications_outlined,
-                          color: Color(0xFF1A1D1E)),
-                      onPressed: () {},
-                    ),
-                  ),
+                  _buildTopIconButton(Icons.notifications_none_rounded, () {}),
                 ],
               ),
             ),
 
-            // Search Bar
+            // Search Bar: Modern & Integrated
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
+                height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9FD),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: TextField(
                   controller: searchController,
-                  onChanged: (value) {
-                    _onSearchChanged(value);
-                  },
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  onChanged: _onSearchChanged,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 15),
                   decoration: InputDecoration(
-                    hintText: "Search for 'plumbing'...",
+                    hintText: "Search for services (e.g. Plumber)",
                     hintStyle: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500),
-                    prefixIcon: Icon(Icons.search_rounded,
-                        color: Colors.grey[400], size: 24),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
+                      color: Colors.grey[400],
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
+                    prefixIcon: Icon(Icons.search_rounded,
+                        color: primaryColor, size: 24),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18),
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Filter Chips
+            // Filter Chips: Elegant & Horizontal
             SizedBox(
-              height: 44,
+              height: 48,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -264,33 +252,44 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                   _buildFilterChip(
                     'Filters',
                     Icons.tune_rounded,
-                    true, // Keeping logic same, but visually improved
-                    () {
-                      setState(() {
-                        showFilters = !showFilters;
-                      });
-                    },
+                    showFilters,
+                    () => setState(() => showFilters = !showFilters),
                     isPrimary: true,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   _buildFilterChip(
                     'Sort: $sortBy',
-                    Icons.keyboard_arrow_down_rounded,
+                    Icons.sort_rounded,
                     false,
                     () => _showSortBottomSheet(),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   _buildFilterChip(
                     'Category',
-                    Icons.category_outlined,
+                    Icons.grid_view_rounded,
                     false,
                     () => _showCategoryBottomSheet(),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTopIconButton(IconData icon, VoidCallback onTap) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: const Color(0xFF1E293B), size: 24),
+        onPressed: onTap,
       ),
     );
   }
@@ -298,25 +297,26 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   Widget _buildFilterChip(
       String label, IconData icon, bool isActive, VoidCallback onTap,
       {bool isPrimary = false}) {
+    final primaryColor = Theme.of(context).primaryColor;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         decoration: BoxDecoration(
-          color: isPrimary ? const Color(0xFF1A1D1E) : Colors.white,
+          color: isPrimary && isActive ? primaryColor : Colors.white,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color:
-                isPrimary ? const Color(0xFF1A1D1E) : const Color(0xFFE5E7EB),
-            width: 1,
+                isPrimary && isActive ? primaryColor : const Color(0xFFE2E8F0),
+            width: 1.5,
           ),
-          borderRadius: BorderRadius.circular(30),
           boxShadow: [
-            if (!isPrimary)
+            if (isPrimary && isActive)
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                color: primaryColor.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
           ],
         ),
@@ -326,14 +326,18 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
             Icon(
               icon,
               size: 18,
-              color: isPrimary ? Colors.white : const Color(0xFF4B5563),
+              color: isPrimary && isActive
+                  ? Colors.white
+                  : const Color(0xFF64748B),
             ),
             const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
-                color: isPrimary ? Colors.white : const Color(0xFF4B5563),
-                fontWeight: FontWeight.w600,
+                color: isPrimary && isActive
+                    ? Colors.white
+                    : const Color(0xFF64748B),
+                fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
             ),
@@ -454,42 +458,44 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   }
 
   Widget _buildNoServicesFound() {
+    final primaryColor = Theme.of(context).primaryColor;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(40),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: primaryColor.withOpacity(0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.search_off_rounded,
-                size: 60, color: Colors.grey[400]),
+                size: 72, color: primaryColor.withOpacity(0.2)),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           const Text(
             'No Services Found',
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1D1E),
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF1E293B),
+              letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            'We couldn\'t find any services matching\nyour search. Try different filters.',
+            'We couldn\'t find anything matching your filters.\nTry broadening your search criteria.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey[500],
               fontSize: 15,
-              height: 1.5,
+              height: 1.6,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 32),
-          TextButton(
+          const SizedBox(height: 40),
+          ElevatedButton(
             onPressed: () {
               setState(() {
                 searchController.clear();
@@ -497,8 +503,16 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                 _callApi("");
               });
             },
-            child: const Text("Clear Filters",
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              elevation: 0,
+            ),
+            child: const Text("Clear All Filters",
+                style: TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -901,57 +915,62 @@ class ServiceCard extends StatefulWidget {
 }
 
 class _ServiceCardState extends State<ServiceCard> {
-  bool isHovered = false;
+  bool isPressed = false;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20, left: 24, right: 24),
+      padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
       child: GestureDetector(
-        onTapDown: (_) => setState(() => isHovered = true),
-        onTapUp: (_) => setState(() => isHovered = false),
-        onTapCancel: () => setState(() => isHovered = false),
+        onTapDown: (_) => setState(() => isPressed = true),
+        onTapUp: (_) => setState(() => isPressed = false),
+        onTapCancel: () => setState(() => isPressed = false),
         child: AnimatedScale(
-          scale: isHovered ? 0.98 : 1.0,
-          duration: const Duration(milliseconds: 100),
+          scale: isPressed ? 0.97 : 1.0,
+          duration: const Duration(milliseconds: 150),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1A1D1E).withOpacity(0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image Section
+                // Image Section with Badges
                 Stack(
                   children: [
                     ClipRRect(
                       borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(24)),
+                          const BorderRadius.vertical(top: Radius.circular(28)),
                       child: SizedBox(
-                        height: 180,
+                        height: 200,
                         width: double.infinity,
-                        child: Image.network(
-                          widget.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[100],
-                              child: Icon(Icons.broken_image_rounded,
-                                  color: Colors.grey[400], size: 40),
-                            );
-                          },
+                        child: Hero(
+                          tag: 'service_${widget.serviceId}',
+                          child: Image.network(
+                            widget.imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: const Color(0xFFF1F5F9),
+                              child: Icon(Icons.handyman_rounded,
+                                  color: Colors.grey[300], size: 48),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    // Rating Badge
+                    // Rating Badge (Top Right)
                     Positioned(
                       top: 16,
                       right: 16,
@@ -959,60 +978,47 @@ class _ServiceCardState extends State<ServiceCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withOpacity(0.95),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10)
                           ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(Icons.star_rounded,
-                                color: Color(0xFFF59E0B), size: 16),
+                                color: Color(0xFFF59E0B), size: 18),
                             const SizedBox(width: 4),
                             Text(
                               widget.rating.toString(),
                               style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF1A1D1E),
-                              ),
-                            ),
-                            Text(
-                              ' (${widget.reviewCount})',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.w500,
-                              ),
+                                  fontWeight: FontWeight.w800, fontSize: 13),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    // Category Badge
+                    // Category Badge (Top Left)
                     Positioned(
                       top: 16,
                       left: 16,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                            horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1A1D1E).withOpacity(0.8),
+                          color: const Color(0xFF0F172A).withOpacity(0.8),
                           borderRadius: BorderRadius.circular(12),
-                          // backdropFilter: null,
                         ),
                         child: Text(
-                          widget.category.trim(),
+                          widget.category.trim().toUpperCase(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
                           ),
                         ),
                       ),
@@ -1020,139 +1026,97 @@ class _ServiceCardState extends State<ServiceCard> {
                   ],
                 ),
 
-                // Content Section
+                // Details Content
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title
                       Text(
                         widget.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1A1D1E),
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF0F172A),
                           letterSpacing: -0.5,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
 
-                      // Info Rows
-                      Column(
+                      // Info Grid
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildIconText(
-                            Icons.location_on_rounded,
-                            widget.location,
-                            maxLines: 3,
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildIconText(
-                                  Icons.access_time_rounded,
-                                  widget.workingHours,
-                                ),
-                              ),
-                              if (widget.mobileNumber.isNotEmpty) ...[
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _buildIconText(
-                                    Icons.phone_rounded,
-                                    widget.mobileNumber,
-                                    maxLines: 1,
-                                  ),
-                                ),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                _buildDetailRow(
+                                    Icons.location_on_rounded, widget.location),
+                                const SizedBox(height: 12),
+                                _buildDetailRow(
+                                    Icons.access_time_filled_rounded,
+                                    widget.workingHours),
                               ],
-                            ],
+                            ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 20),
-                      const Divider(height: 1, color: Color(0xFFF3F4F6)),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
+                      Container(height: 1, color: const Color(0xFFF1F5F9)),
+                      const SizedBox(height: 24),
 
-                      // Footer
+                      // Footer with Price and CTA
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Starting from',
+                                  'FAIR ESTIMATE',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 10,
                                     color: Colors.grey[400],
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        '₹${widget.price}',
-                                        style: const TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w800,
-                                          color: Color(0xFF1A1D1E),
-                                          letterSpacing: -0.5,
-                                          height: 1,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.only(bottom: 2, left: 2),
-                                    //   child: Text(
-                                    //     '/${widget.priceUnit}',
-                                    //     style: TextStyle(
-                                    //       fontSize: 13,
-                                    //       fontWeight: FontWeight.w600,
-                                    //       color: Colors.grey[500],
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                  ],
+                                const SizedBox(height: 4),
+                                Text(
+                                  '₹${widget.price}',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w900,
+                                    color: primaryColor,
+                                    letterSpacing: -0.8,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           const SizedBox(width: 16),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                context.push(AppRoutes.PREBOOKING_SCREEN_PATH,
-                                    extra: {"serviceId": widget.serviceId});
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF1A1D1E),
-                                elevation: 0,
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 12),
-                              ),
-                              child: const Text(
-                                'Book Now',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.push(AppRoutes.PREBOOKING_SCREEN_PATH,
+                                  extra: {"serviceId": widget.serviceId});
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0F172A),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 14),
+                            ),
+                            child: const Text(
+                              'Book Now',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2),
                             ),
                           ),
                         ],
@@ -1168,25 +1132,22 @@ class _ServiceCardState extends State<ServiceCard> {
     );
   }
 
-  Widget _buildIconText(IconData icon, String text, {int maxLines = 1}) {
+  Widget _buildDetailRow(IconData icon, String text) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Icon(icon, size: 16, color: const Color(0xFF9CA3AF)),
-        ),
-        const SizedBox(width: 6),
-        Flexible(
+        Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
+        const SizedBox(width: 10),
+        Expanded(
           child: Text(
             text,
-            maxLines: maxLines,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 13,
-              color: Color(0xFF6B7280),
-              fontWeight: FontWeight.w500,
+              color: Color(0xFF475569),
+              fontWeight: FontWeight.w600,
+              height: 1.4,
             ),
           ),
         ),

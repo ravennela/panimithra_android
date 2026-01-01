@@ -49,6 +49,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     String? name,
     String? role,
   }) async {
+    print("api called");
     try {
       final queryParams = {
         'page': page ?? 0,
@@ -59,7 +60,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       };
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String token = preferences.getString(ApiConstants.token) ?? "";
-      var headers = {"Authorization": "Bearer $token"};
+      var headers = {"Authorization": null};
 
       final response = await dioClient.get(
         ApiConstants.fetchUsers, // define this in ApiConstants
@@ -280,4 +281,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       rethrow;
     }
   }
+}
+
+Future<Options> _publicOptions() async {
+  return Options(
+    headers: {
+      // Explicitly NO Authorization header
+      'Content-Type': 'application/json',
+    },
+  );
 }

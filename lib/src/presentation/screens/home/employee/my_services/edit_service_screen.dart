@@ -485,7 +485,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                           // ---------- Pricing & Duration ----------
                           _SectionHeader(
                               title: 'Pricing & Time',
-                              icon: Icons.monetization_on_rounded),
+                              icon: Icons.currency_rupee),
                           const SizedBox(height: 12),
                           _sectionCard(
                             child: Column(

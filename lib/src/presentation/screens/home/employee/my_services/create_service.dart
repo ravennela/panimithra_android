@@ -480,8 +480,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                       // ---------- Pricing & Duration ----------
                       _SectionHeader(
-                          title: 'Pricing & Time',
-                          icon: Icons.monetization_on_rounded),
+                          title: 'Pricing & Time', icon: Icons.currency_rupee),
                       const SizedBox(height: 12),
                       _sectionCard(
                         child: Column(

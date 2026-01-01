@@ -281,31 +281,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       ),
                       const SizedBox(height: 40),
 
-                      Center(
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF64748B),
-                            ),
-                            children: [
-                              const TextSpan(text: 'Already have an account? '),
-                              TextSpan(
-                                text: 'Log In',
-                                style: const TextStyle(
-                                  color: Color(0xFF2563EB),
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    // Navigate to Login if needed, usually Navigator.pop works if came from login
-                                    context.go(AppRoutes.LOGIN_ROUTE_PATH);
-                                  },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      
                     ],
                   ),
                 ),

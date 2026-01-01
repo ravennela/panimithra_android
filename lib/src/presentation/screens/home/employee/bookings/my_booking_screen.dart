@@ -60,6 +60,9 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
         if (totalLength >= totalRecords) {
           return;
         }
+        if (isLoading) {
+          return;
+        }
         if (totalLength <= totalRecords) {
           x = 2;
           page += 1;

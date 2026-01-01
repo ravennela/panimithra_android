@@ -427,7 +427,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                               ),
                             const SizedBox(height: 2),
                             Text(
-                              "\$$price",
+                              "\₹$price",
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,

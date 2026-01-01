@@ -88,7 +88,7 @@ class CustomBottomNavBar extends StatelessWidget {
           index: 3,
         ),
         _buildNavItem(
-          icon: Icons.settings,
+          icon: Icons.person_outline_outlined,
           label: 'Profile',
           index: 4,
         ),
@@ -132,7 +132,9 @@ class CustomBottomNavBar extends StatelessWidget {
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => onTap(index),
+        onTap: () {
+          onTap(index);
+        },
         child: Container(
           height: 63,
           decoration: isSelected

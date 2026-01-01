@@ -117,6 +117,7 @@ class BookingScreenWidget extends State<BookingsScreen> {
         listener: (context, state) {
           if (state is BookingLoadedState) {
             isLoading = false;
+
             totalRecords = state.totalRecords;
             totalLength = state.item.length;
           }

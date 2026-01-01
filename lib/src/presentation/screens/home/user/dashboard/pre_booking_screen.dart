@@ -146,7 +146,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                               Image.network(
                                 state.service.imageUrl != null
                                     ? state.service.imageUrl.toString()
-                                    : 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800',
+                                    : 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg',
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
