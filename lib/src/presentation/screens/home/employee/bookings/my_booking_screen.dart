@@ -549,8 +549,17 @@ class BookingCardUltraUC extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () {
-                  context.read<BookingBloc>().add(UpdateBookingStatusEvent(
-                      bookingId: bookingId, bookingStatus: "INPROGRESS"));
+                  _showConfirmationDialog(
+                    context: context,
+                    title: "Accept Booking",
+                    content: "Are you sure you want to accept this booking?",
+                    confirmText: "Accept",
+                    confirmColor: const Color(0xFF10B981),
+                    onConfirm: () {
+                      context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                          bookingId: bookingId, bookingStatus: "INPROGRESS"));
+                    },
+                  );
                 },
                 child: const Text("Accept",
                     style: TextStyle(fontWeight: FontWeight.w600)),
@@ -570,8 +579,17 @@ class BookingCardUltraUC extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () {
-                  context.read<BookingBloc>().add(UpdateBookingStatusEvent(
-                      bookingId: bookingId, bookingStatus: "REJECTED"));
+                  _showConfirmationDialog(
+                    context: context,
+                    title: "Reject Booking",
+                    content: "Are you sure you want to reject this booking?",
+                    confirmText: "Reject",
+                    confirmColor: const Color(0xFFEF4444),
+                    onConfirm: () {
+                      context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                          bookingId: bookingId, bookingStatus: "REJECTED"));
+                    },
+                  );
                 },
                 child: const Text("Reject",
                     style: TextStyle(fontWeight: FontWeight.w600)),
@@ -602,12 +620,22 @@ class BookingCardUltraUC extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
-                context.read<BookingBloc>().add(
-                      UpdateBookingStatusEvent(
-                        bookingId: bookingId,
-                        bookingStatus: "COMPLETED",
-                      ),
-                    );
+                _showConfirmationDialog(
+                  context: context,
+                  title: "Complete Booking",
+                  content:
+                      "Are you sure you want to mark this booking as completed?",
+                  confirmText: "Complete",
+                  confirmColor: const Color(0xFF0EA5E9),
+                  onConfirm: () {
+                    context.read<BookingBloc>().add(
+                          UpdateBookingStatusEvent(
+                            bookingId: bookingId,
+                            bookingStatus: "COMPLETED",
+                          ),
+                        );
+                  },
+                );
               },
               borderRadius: BorderRadius.circular(14),
               child: const Padding(
@@ -630,6 +658,53 @@ class BookingCardUltraUC extends StatelessWidget {
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  void _showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    required String confirmText,
+    required Color confirmColor,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text(content),
+          actions: [
+            TextButton(
+              child: const Text(
+                "Cancel",
+                style:
+                    TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                confirmText,
+                style:
+                    TextStyle(color: confirmColor, fontWeight: FontWeight.w700),
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                onConfirm();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

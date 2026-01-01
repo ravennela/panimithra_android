@@ -148,25 +148,6 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                                 ),
                               ),
                             ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00B8D4),
-                                  shape: BoxShape.circle,
-                                  border:
-                                      Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -233,14 +214,18 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                       children: [
                         _buildMenuItem(
                           icon: Icons.person_outline,
-                          title: 'Edit Profile',
-                          onTap: () {},
+                          title: 'About Us',
+                          onTap: () {
+                            context.push(AppRoutes.ABOUT_US_SCREEN_PATH);
+                          },
                         ),
                         const Divider(height: 1),
                         _buildMenuItem(
                           icon: Icons.lock_outline,
                           title: 'Change Password',
-                          onTap: () {},
+                          onTap: () {
+                            context.push(AppRoutes.RESET_PASSWORD_SCREEN);
+                          },
                         ),
                         const Divider(height: 1),
                         _buildMenuItem(
@@ -311,7 +296,12 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                         _buildMenuItem(
                           icon: Icons.description_outlined,
                           title: 'Terms & Conditions',
-                          onTap: () {},
+                          onTap: () async {
+                            UrlLauncherHelper.launchWebUrl(
+                              'https://dynamic-lolly-961756.netlify.app/',
+                              context: context,
+                            );
+                          },
                         ),
                         const Divider(height: 1),
                         _buildMenuItem(
@@ -319,7 +309,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                           title: 'Privacy Policy',
                           onTap: () async {
                             UrlLauncherHelper.launchWebUrl(
-                              'https://steady-puffpuff-d12fe7.netlify.app/',
+                              'https://694bb0de96fad848212f7f2b--sprightly-sunshine-aac8ce.netlify.app/',
                               context: context,
                             );
                           },

@@ -153,7 +153,7 @@ class UserRepositoryImpl implements UserRepository {
     } on SocketException {
       return const Left("No Internet connection. Please try again.");
     } on ServerException catch (e) {
-      return Left(e.message ?? "Something went wrong on the server.");
+      return Left(e.message);
     } on DioException catch (e) {
       return Left(e.message ?? "Request failed. Please try again.");
     } catch (e) {
@@ -175,6 +175,80 @@ class UserRepositoryImpl implements UserRepository {
       return Left(
         e.response?.data['error']?.toString() ??
             "Failed to fetch FAQs. Please try again.",
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, SuccessModel>> resetPassword({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response = await remoteDataSource.resetPassword(body: body);
+      return Right(SuccessModel.fromJson(response));
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['message'] ?? 'Password reset failed',
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, SuccessModel>> requestOtp({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response = await remoteDataSource.requestOtp(body: body);
+
+      return Right(SuccessModel.fromJson(response));
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['message'] ?? 'OTP request failed',
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, SuccessModel>> verifyOtp({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response = await remoteDataSource.verifyOtp(body: body);
+
+      return Right(SuccessModel.fromJson(response));
+    } on ServerException catch (e) {
+      return Left(e.message);
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['message'] ?? 'OTP verification failed',
+      );
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, SuccessModel>> resetPasswordBeforeAuth({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response =
+          await remoteDataSource.resetPasswordBeforeAuth(body: body);
+
+      return Right(SuccessModel.fromJson(response));
+    } on DioException catch (e) {
+      return Left(
+        e.response?.data['message'] ?? e.message ?? "Something went wrong",
       );
     } catch (e) {
       return Left(e.toString());

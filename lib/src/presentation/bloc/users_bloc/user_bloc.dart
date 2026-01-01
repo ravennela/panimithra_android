@@ -7,8 +7,13 @@ import 'package:panimithra/src/domain/usecase/change_user_status_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_employee_dashboard_usecase.dart';
 import 'package:panimithra/src/domain/usecase/fetch_users_usecase.dart';
 import 'package:panimithra/src/domain/usecase/register_fcm_usecase.dart';
+import 'package:panimithra/src/domain/usecase/request_otp_usecase.dart'
+    show RequestOtpUseCase;
+import 'package:panimithra/src/domain/usecase/reset_before_auth_usecase.dart';
+import 'package:panimithra/src/domain/usecase/reset_password_usecase.dart';
 import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
 import 'package:panimithra/src/domain/usecase/admin_dashboard_usecase.dart';
+import 'package:panimithra/src/domain/usecase/verify_otp_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
 import 'package:panimithra/src/domain/usecase/fetch_faq_usecase.dart';
@@ -22,15 +27,23 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
   final RegisterFcmTokenUseCase registerFcmTokenUseCase;
   final ChangeUserStatusUseCase changeUserStatusUseCase;
   final FetchFaqUseCase fetchFaqUseCase;
+  final ResetPasswordUseCase resetPasswordUseCase;
+  final RequestOtpUseCase requestOtpUseCase;
+  final VerifyOtpUseCase verifyOtpUseCase;
+  final ResetPasswordBeforeAuthUseCase resetPasswordBeforeAuthUseCase;
 
   FetchUsersBloc({
     required this.fetchUsersUseCase,
     required this.getUserProfileUsecase,
     required this.getAdminDashboardUsecase,
+    required this.resetPasswordBeforeAuthUseCase,
     required this.getEmployeeDashboardUsecase,
     required this.registerFcmTokenUseCase,
     required this.changeUserStatusUseCase,
+    required this.verifyOtpUseCase,
+    required this.resetPasswordUseCase,
     required this.fetchFaqUseCase,
+    required this.requestOtpUseCase,
   }) : super(FetchUsersInitial()) {
     on<GetUsersEvent>(_onFetchUsers);
     on<GetUserProfileEvent>(_onGetUserProfile);
@@ -39,6 +52,10 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
     on<RegisterFcmTokenEvent>(_onRegisterFcmToken);
     on<ChangeUserStatusEvent>(_onChangeUserStatus);
     on<FetchFaqEvent>(_onFetchFaq);
+    on<ResetPasswordEvent>(_onResetPassword);
+    on<RequestOtpEvent>(_onRequestOtp);
+    on<ResetPasswordBeforeAuthEvent>(_onResetPasswordBeforeAuth);
+    on<VerifyOtpEvent>(_onVerifyOtp);
   }
 
   /// 🧩 Fetch all users
@@ -171,6 +188,94 @@ class FetchUsersBloc extends Bloc<FetchUsersEvent, FetchUsersState> {
     result.fold(
       (failure) => emit(FaqError(failure)),
       (faqList) => emit(FaqLoaded(faqList: faqList)),
+    );
+  }
+
+  Future<void> _onResetPassword(
+    ResetPasswordEvent event,
+    Emitter<FetchUsersState> emit,
+  ) async {
+    emit(ResetPasswordLoading());
+
+    final result = await resetPasswordUseCase.call(
+      body: event.body,
+    );
+
+    result.fold(
+      (failure) => emit(ResetPasswordError(failure.toString())),
+      (success) {
+        emit(
+          ResetPasswordSuccess(
+            message: success.message.toString(),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onRequestOtp(
+    RequestOtpEvent event,
+    Emitter<FetchUsersState> emit,
+  ) async {
+    emit(RequestOtpLoading());
+
+    final result = await requestOtpUseCase.call(
+      body: event.body,
+    );
+
+    result.fold(
+      (failure) => emit(RequestOtpError(failure.toString())),
+      (success) {
+        emit(
+          RequestOtpSuccess(
+            message: success.message.toString(),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onVerifyOtp(
+    VerifyOtpEvent event,
+    Emitter<FetchUsersState> emit,
+  ) async {
+    emit(VerifyOtpLoading());
+
+    final result = await verifyOtpUseCase.call(
+      body: event.body,
+    );
+
+    result.fold(
+      (failure) => emit(VerifyOtpError(failure.toString())),
+      (success) {
+        emit(
+          VerifyOtpSuccess(
+            message: success.message.toString(),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onResetPasswordBeforeAuth(
+    ResetPasswordBeforeAuthEvent event,
+    Emitter<FetchUsersState> emit,
+  ) async {
+    emit(ResetPasswordBeforeAuthLoading());
+
+    final result = await resetPasswordBeforeAuthUseCase.call(
+      body: event.body,
+    );
+
+    result.fold(
+      (failure) => emit(ResetPasswordBeforeAuthError(failure.toString())),
+      (success) {
+        emit(
+          ResetPasswordBeforeAuthSuccess(
+            message: success.message.toString(),
+          ),
+        );
+      },
     );
   }
 }

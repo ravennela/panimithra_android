@@ -77,3 +77,42 @@ class FetchFaqEvent extends FetchUsersEvent {
   @override
   List<Object?> get props => [];
 }
+
+class ResetPasswordEvent extends FetchUsersEvent {
+  final Map<String, dynamic> body;
+
+  const ResetPasswordEvent({required this.body});
+
+  @override
+  List<Object?> get props => [body];
+}
+
+class RequestOtpEvent extends FetchUsersEvent {
+  final Map<String, dynamic> body;
+
+  const RequestOtpEvent({required this.body});
+
+  @override
+  List<Object?> get props => [body];
+}
+
+class VerifyOtpEvent extends FetchUsersEvent {
+  final Map<String, dynamic> body;
+
+  const VerifyOtpEvent({required this.body});
+
+  @override
+  List<Object?> get props => [body];
+}
+
+class ResetPasswordBeforeAuthEvent extends FetchUsersEvent {
+  final Map<String, dynamic> body;
+
+  const ResetPasswordBeforeAuthEvent({
+    required this.body,
+  });
+
+  @override
+  List<Object?> get props => [body];
+}
+

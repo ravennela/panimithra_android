@@ -236,7 +236,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                                   context,
                                   state.employeeDashboardModel.revenue
                                       .toString(),
-                                  'Total Earnings',
+                                  'Current Month Earnings',
                                   Icons.account_balance_wallet_rounded,
                                   const Color(0xFFFFF7ED),
                                   const Color(0xFFF97316),
@@ -468,7 +468,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      interval: 1000,
+                      interval: 5000,
                       getTitlesWidget: (double value, TitleMeta meta) {
                         return Text(
                           '${(value / 1000).toStringAsFixed(0)}k',
@@ -487,7 +487,15 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                 minX: 0,
                 maxX: (data.length - 1).toDouble(),
                 minY: 0,
-                maxY: 4000,
+                maxY: (data
+                            .map((e) => e.totalAmount!.toDouble())
+                            .fold(0.0, (a, b) => a > b ? a : b) ==
+                        0
+                    ? 4000
+                    : data
+                            .map((e) => e.totalAmount!.toDouble())
+                            .fold(0.0, (a, b) => a > b ? a : b) *
+                        1.2),
                 lineTouchData: LineTouchData(
                   touchTooltipData: LineTouchTooltipData(
                     getTooltipItems: (List<LineBarSpot> touchedBarSpots) {

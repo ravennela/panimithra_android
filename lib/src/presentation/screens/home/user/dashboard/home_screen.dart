@@ -1041,20 +1041,35 @@ class _ServiceCardState extends State<ServiceCard> {
                       const SizedBox(height: 12),
 
                       // Info Rows
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildIconText(
-                              Icons.location_on_rounded, widget.location,
-                              maxLines: 2),
-                          const SizedBox(width: 16),
-                          if (widget.mobileNumber.isNotEmpty) ...[
-                            _buildIconText(
-                                Icons.phone_rounded, widget.mobileNumber,
-                                maxLines: 1),
-                            const SizedBox(width: 16),
-                          ],
-                          _buildIconText(
-                              Icons.access_time_rounded, widget.workingHours),
+                            Icons.location_on_rounded,
+                            widget.location,
+                            maxLines: 3,
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildIconText(
+                                  Icons.access_time_rounded,
+                                  widget.workingHours,
+                                ),
+                              ),
+                              if (widget.mobileNumber.isNotEmpty) ...[
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildIconText(
+                                    Icons.phone_rounded,
+                                    widget.mobileNumber,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ],
                       ),
 
@@ -1154,26 +1169,28 @@ class _ServiceCardState extends State<ServiceCard> {
   }
 
   Widget _buildIconText(IconData icon, String text, {int maxLines = 1}) {
-    return Expanded(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: const Color(0xFF9CA3AF)),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              text,
-              maxLines: maxLines,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6B7280),
-                fontWeight: FontWeight.w500,
-              ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(icon, size: 16, color: const Color(0xFF9CA3AF)),
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            text,
+            maxLines: maxLines,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF6B7280),
+              fontWeight: FontWeight.w500,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

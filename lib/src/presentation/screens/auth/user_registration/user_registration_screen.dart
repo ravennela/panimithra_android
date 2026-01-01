@@ -8,8 +8,7 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/registration_bloc/registration_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/registration_bloc/registration_event.dart';
 import 'package:panimithra/src/presentation/bloc/registration_bloc/registration_state.dart';
-import 'package:panimithra/src/presentation/cubit/provider_registration/prover_registration_state.dart';
-import 'package:panimithra/src/presentation/cubit/provider_registration/provider_registration_cubit.dart';
+import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
 
 class CreateAccountScreen extends StatefulWidget {
@@ -370,7 +369,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                             color: Color(0xFF2563EB),
                             fontWeight: FontWeight.w600,
                           ),
-                          recognizer: TapGestureRecognizer()..onTap = () {},
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              UrlLauncherHelper.launchWebUrl(
+                                  "https://dynamic-lolly-961756.netlify.app/",
+                                  context: context);
+                            },
                         ),
                         const TextSpan(text: ' and '),
                         TextSpan(
@@ -379,7 +383,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                             color: Color(0xFF2563EB),
                             fontWeight: FontWeight.w600,
                           ),
-                          recognizer: TapGestureRecognizer()..onTap = () {},
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              UrlLauncherHelper.launchWebUrl(
+                                  "https://694bb0de96fad848212f7f2b--sprightly-sunshine-aac8ce.netlify.app/",
+                                  context: context);
+                            },
                         ),
                         const TextSpan(text: '.'),
                       ],
@@ -389,96 +398,103 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 const SizedBox(height: 24),
 
                 // Create Account Button
-                BlocConsumer<ProviderRegistrationCubit,
-                    ProverRegistrationState>(
-                  listener:
-                      (BuildContext context, ProverRegistrationState state) {},
-                  builder:
-                      (BuildContext context, ProverRegistrationState state) {
-                    return BlocListener<ProviderRegistrationBloc,
-                        ProviderRegistrationState>(
-                      listener: (context, regState) {
-                        if (regState is ProviderRegistrationLoaded) {
-                          context.go(AppRoutes.LOGIN_ROUTE_PATH);
-                          ToastHelper.showToast(
-                              context: context,
-                              type: "success",
-                              title: "Registration Successful");
-                        }
-                        if (regState is ProviderRegistrationError) {
-                          ToastHelper.showToast(
-                              context: context,
-                              type: "error",
-                              title: regState.error);
-                        }
-                      },
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (!formKey.currentState!.validate()) {
-                              return;
-                            }
-                            if (_confirmPasswordController.text !=
-                                _passwordController.text) {
-                              ToastHelper.showToast(
-                                  context: context,
-                                  type: "error",
-                                  title:
-                                      "Password and Confirm Password not matched");
-                              return;
-                            }
-                            double latitude = 0.0;
-                            double longitude = 0.0;
-                            try {
-                              Map<String, double>? location =
-                                  await getCurrentLocation();
-                              if (location != null) {
-                                latitude = location['lat'] ?? 0.0;
-                                longitude = location['lng'] ?? 0.0;
-                              }
-                            } catch (e) {
-                              print(e.toString());
-                            }
-                            Map<String, dynamic> request = {
-                              "name": _fullNameController.text,
-                              "contactNumber": _phoneController.text,
-                              "emailId": _emailController.text,
-                              "password": _passwordController.text,
-                              "address": _addressLine1Controller.text,
-                              "latitude": latitude,
-                              "longitude": longitude,
-                              "profileImageUrl": "",
-                              "city": _cityController.text,
-                              "state": _selectedState,
-                              "pincode": _zipCodeController.text,
-                              "role": "USER",
-                              "status": "ACTIVE",
-                              "deviceToken": ""
-                            };
-                            context.read<ProviderRegistrationBloc>().add(
-                                ProviderRegistrationSubmitted(
-                                    registrationData: request));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            shadowColor:
-                                const Color(0xFF2563EB).withOpacity(0.4),
+                BlocConsumer<ProviderRegistrationBloc,
+                    ProviderRegistrationState>(
+                  listener: (context, regState) {
+                    if (regState is ProviderRegistrationLoaded) {
+                      context.go(AppRoutes.LOGIN_ROUTE_PATH);
+                      ToastHelper.showToast(
+                          context: context,
+                          type: "success",
+                          title: "Registration Successful");
+                    }
+                    if (regState is ProviderRegistrationError) {
+                      ToastHelper.showToast(
+                          context: context,
+                          type: "error",
+                          title: regState.error);
+                    }
+                  },
+                  builder: (context, regState) {
+                    bool isLoading = regState is ProviderRegistrationLoading;
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () async {
+                                if (!formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                if (_confirmPasswordController.text !=
+                                    _passwordController.text) {
+                                  ToastHelper.showToast(
+                                      context: context,
+                                      type: "error",
+                                      title:
+                                          "Password and Confirm Password not matched");
+                                  return;
+                                }
+                                double latitude = 0.0;
+                                double longitude = 0.0;
+                                try {
+                                  Map<String, double>? location =
+                                      await getCurrentLocation();
+                                  if (location != null) {
+                                    latitude = location['lat'] ?? 0.0;
+                                    longitude = location['lng'] ?? 0.0;
+                                  }
+                                } catch (e) {
+                                  print(e.toString());
+                                }
+                                Map<String, dynamic> request = {
+                                  "name": _fullNameController.text,
+                                  "contactNumber": _phoneController.text,
+                                  "emailId": _emailController.text,
+                                  "password": _passwordController.text,
+                                  "address": _addressLine1Controller.text,
+                                  "latitude": latitude,
+                                  "longitude": longitude,
+                                  "profileImageUrl": "",
+                                  "city": _cityController.text,
+                                  "state": _selectedState,
+                                  "pincode": _zipCodeController.text,
+                                  "role": "USER",
+                                  "status": "ACTIVE",
+                                  "deviceToken": ""
+                                };
+                                context.read<ProviderRegistrationBloc>().add(
+                                    ProviderRegistrationSubmitted(
+                                        registrationData: request));
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563EB),
+                          disabledBackgroundColor:
+                              const Color(0xFF2563EB).withOpacity(0.6),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
-                            'Create Account',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          shadowColor: const Color(0xFF2563EB).withOpacity(0.4),
                         ),
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : const Text(
+                                'Create Account',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                       ),
                     );
                   },

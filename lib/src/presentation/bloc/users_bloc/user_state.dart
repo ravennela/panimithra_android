@@ -165,3 +165,95 @@ class FaqError extends FetchUsersState {
   @override
   List<Object?> get props => [message];
 }
+
+/// 🔐 Reset / Change Password Loading
+class ResetPasswordLoading extends FetchUsersState {}
+
+/// 🔐 Reset / Change Password Success
+class ResetPasswordSuccess extends FetchUsersState {
+  final String message; // from SuccessModel.message
+
+  const ResetPasswordSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔐 Reset / Change Password Error
+class ResetPasswordError extends FetchUsersState {
+  final String message;
+
+  const ResetPasswordError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔐 Request OTP Loading
+class RequestOtpLoading extends FetchUsersState {}
+
+/// 🔐 Request OTP Success
+class RequestOtpSuccess extends FetchUsersState {
+  final String message; // from SuccessModel.message
+
+  const RequestOtpSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔐 Request OTP Error
+class RequestOtpError extends FetchUsersState {
+  final String message;
+
+  const RequestOtpError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔐 Verify OTP Loading
+class VerifyOtpLoading extends FetchUsersState {}
+
+/// 🔐 Verify OTP Success
+class VerifyOtpSuccess extends FetchUsersState {
+  final String message; // from SuccessModel.message
+
+  const VerifyOtpSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔐 Verify OTP Error
+class VerifyOtpError extends FetchUsersState {
+  final String message;
+
+  const VerifyOtpError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔐 Reset Password Before Authentication - Loading
+class ResetPasswordBeforeAuthLoading extends FetchUsersState {}
+
+/// 🔐 Reset Password Before Authentication - Success
+class ResetPasswordBeforeAuthSuccess extends FetchUsersState {
+  final String message; // from SuccessModel.message
+
+  const ResetPasswordBeforeAuthSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// 🔐 Reset Password Before Authentication - Error
+class ResetPasswordBeforeAuthError extends FetchUsersState {
+  final String message;
+
+  const ResetPasswordBeforeAuthError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

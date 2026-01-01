@@ -51,4 +51,10 @@ class AppRoutes {
   static const String EDIT_PLAN_SCREEN_PATH = "/edit_plan_screen";
   static const String HELP_SUPPORT_SCREEN_PATH = "/help_support_screen";
   static const String FAQ_SCREEN_PATH = "/faq_screen_path";
+  static const String RESET_PASSWORD_SCREEN = "/reset_password";
+
+  static const String ABOUT_US_SCREEN_PATH = "/about_us_screen";
+  static const String FORGOT_PASSWORD_EMAIL = "/forgot_password_email";
+  static const String VERIFY_OTP_SCREEN = "/verify_otp";
+  static const String RESET_BEFORE_AUTH = "/reset_before_auth";
 }

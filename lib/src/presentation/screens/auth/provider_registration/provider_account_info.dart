@@ -11,6 +11,7 @@ import 'package:panimithra/src/presentation/bloc/registration_bloc/registration_
 import 'package:panimithra/src/presentation/cubit/provider_registration/prover_registration_state.dart';
 import 'package:panimithra/src/presentation/cubit/provider_registration/provider_registration_cubit.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
+import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -263,7 +264,11 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                                               fontWeight: FontWeight.w600,
                                             ),
                                             recognizer: TapGestureRecognizer()
-                                              ..onTap = () {}),
+                                              ..onTap = () {
+                                                UrlLauncherHelper.launchWebUrl(
+                                                    "https://dynamic-lolly-961756.netlify.app/",
+                                                    context: context);
+                                              }),
                                         const TextSpan(text: '.'),
                                       ],
                                     ),
@@ -275,6 +280,32 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
+
+                      Center(
+                        child: RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF64748B),
+                            ),
+                            children: [
+                              const TextSpan(text: 'Already have an account? '),
+                              TextSpan(
+                                text: 'Log In',
+                                style: const TextStyle(
+                                  color: Color(0xFF2563EB),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    // Navigate to Login if needed, usually Navigator.pop works if came from login
+                                    context.go(AppRoutes.LOGIN_ROUTE_PATH);
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -299,7 +330,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                 listener:
                     (BuildContext context, ProverRegistrationState state) {},
                 builder: (context, state) {
-                  return BlocListener<ProviderRegistrationBloc,
+                  return BlocConsumer<ProviderRegistrationBloc,
                       ProviderRegistrationState>(
                     listener: (context, regState) {
                       if (regState is ProviderRegistrationLoaded) {
@@ -316,87 +347,93 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                             title: regState.error);
                       }
                     },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _agreedToTerms
-                            ? () async {
-                                if (!_formKey.currentState!.validate()) return;
+                    builder: (context, regState) {
+                      bool isLoading = regState is ProviderRegistrationLoading;
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: (_agreedToTerms && !isLoading)
+                              ? () async {
+                                  if (!_formKey.currentState!.validate())
+                                    return;
 
-                                double latitude = 0.0;
-                                double longitude = 0.0;
-                                SharedPreferences preferences =
-                                    await SharedPreferences.getInstance();
-                                latitude = preferences
-                                        .getDouble(ApiConstants.latitude) ??
-                                    0.0;
-                                longitude = preferences
-                                        .getDouble(ApiConstants.longitude) ??
-                                    0.0;
-                                try {
-                                  if (latitude == 0.0 && longitude == 0.0) {
-                                    Map<String, double>? location =
-                                        await getCurrentLocation();
-                                    latitude = location!['lat'] ?? 0.0;
-                                    longitude = location['lng'] ?? 0.0;
+                                  double latitude = 0.0;
+                                  double longitude = 0.0;
+                                  SharedPreferences preferences =
+                                      await SharedPreferences.getInstance();
+                                  latitude = preferences
+                                          .getDouble(ApiConstants.latitude) ??
+                                      0.0;
+                                  longitude = preferences
+                                          .getDouble(ApiConstants.longitude) ??
+                                      0.0;
+                                  try {
+                                    if (latitude == 0.0 && longitude == 0.0) {
+                                      Map<String, double>? location =
+                                          await getCurrentLocation();
+                                      latitude = location!['lat'] ?? 0.0;
+                                      longitude = location['lng'] ?? 0.0;
+                                    }
+                                  } catch (e) {
+                                    print(e.toString());
                                   }
-                                } catch (e) {
-                                  print(e.toString());
+                                  Map<String, dynamic> request = {
+                                    "name": state.name,
+                                    "contactNumber": state.mobileNumber,
+                                    "emailId": state.emailId,
+                                    "password": _passwordController.text,
+                                    "address": state.address,
+                                    "latitude": latitude,
+                                    "longitude": longitude,
+                                    "profileImageUrl": "",
+                                    "gender": state.gender,
+                                    "dateOfBirth":
+                                        state.dateobBirth.toIso8601String(),
+                                    "city": state.city,
+                                    "state": state.state,
+                                    "pincode": state.pincode,
+                                    "role": "EMPLOYEE",
+                                    "status": "ACTIVE",
+                                    "deviceToken": "",
+                                    "alternateMobileNumber":
+                                        state.alternateNumber,
+                                    "primaryService":
+                                        state.primaryServiceCategory,
+                                    "experiance": state.experience,
+                                    "shortBio": state.shortDescription
+                                  };
+                                  context.read<ProviderRegistrationBloc>().add(
+                                      ProviderRegistrationSubmitted(
+                                          registrationData: request));
                                 }
-                                Map<String, dynamic> request = {
-                                  "name": state.name,
-                                  "contactNumber": state.mobileNumber,
-                                  "emailId": state.emailId,
-                                  "password": _passwordController.text,
-                                  "address": state.address,
-                                  "latitude": latitude,
-                                  "longitude": longitude,
-                                  "profileImageUrl": "",
-                                  "gender": state.gender,
-                                  "dateOfBirth":
-                                      state.dateobBirth.toIso8601String(),
-                                  "city": state.city,
-                                  "state": state.state,
-                                  "pincode": state.pincode,
-                                  "role": "EMPLOYEE",
-                                  "status": "ACTIVE",
-                                  "deviceToken": "",
-                                  "alternateMobileNumber":
-                                      state.alternateNumber,
-                                  "primaryService":
-                                      state.primaryServiceCategory,
-                                  "experiance": state.experience,
-                                  "shortBio": state.shortDescription
-                                };
-                                context.read<ProviderRegistrationBloc>().add(
-                                    ProviderRegistrationSubmitted(
-                                        registrationData: request));
-                              }
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563EB),
-                          disabledBackgroundColor: const Color(0xFF93C5FD),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2563EB),
+                            disabledBackgroundColor: const Color(0xFF93C5FD),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            shadowColor:
+                                const Color(0xFF2563EB).withOpacity(0.4),
                           ),
-                          shadowColor: const Color(0xFF2563EB).withOpacity(0.4),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2.5))
+                              : const Text(
+                                  'Complete Registration',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700),
+                                ),
                         ),
-                        child: state is ProviderRegistrationLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2.5))
-                            : const Text(
-                                'Complete Registration',
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700),
-                              ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 },
               ),

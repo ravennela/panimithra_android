@@ -55,10 +55,13 @@ class ApiConstants {
   static const String updateSubCategoryApi =
       "$baseUrl/subcategory/update-subcategory";
   static const String changeUserStatusApi = "$baseUrl/auth/change-user-status";
+  static const String resetBeforeAuthApi = "$baseUrl/auth/reset-before-auth";
 
   static const String updatePaymentStatusApi =
       "$baseUrl/bookings/update-payment-status";
-
+  static const String restPasswordApi = "$baseUrl/auth/reset-password";
+  static const String requestOtpApi = "$baseUrl/auth/email/generate-otp";
+  static const String verifyOtpApi = "$baseUrl/auth/email/validate-otp";
   static const String claudinaryBaseUrl = "https://api.cloudinary.com/v1_1";
   static const String fetchPlanById = "$baseUrl/auth/get-plan";
   static const String updatePlan = "$baseUrl/auth/update-plan";

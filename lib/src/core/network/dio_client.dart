@@ -216,19 +216,24 @@ class DioClient {
         final statusCode = e.response?.statusCode;
         final responseData = e.response?.data;
 
-        // Extract error message - check both 'error' and 'message' fields
+        // Extract error message - check multiple possible fields
         String? errorMessage;
         if (responseData is Map<String, dynamic>) {
-          errorMessage = responseData['error'] ??
-              responseData['message'] ??
-              responseData['errorMessage'];
+          errorMessage = responseData['error']?.toString() ??
+              responseData['message']?.toString() ??
+              responseData['errorMessage']?.toString() ??
+              responseData['msg']?.toString() ??
+              responseData['detail']?.toString() ??
+              responseData['data']?.toString();
+        } else if (responseData is String && responseData.isNotEmpty) {
+          errorMessage = responseData;
         }
 
         // Return just the error message if available, otherwise include status code
         if (errorMessage != null && errorMessage.isNotEmpty) {
           return ServerException(errorMessage);
         }
-        return ServerException('Server error: $statusCode - ${e.message}');
+        return ServerException('Server error: $statusCode');
       case DioExceptionType.cancel:
         return ServerException('Request cancelled');
       case DioExceptionType.connectionError:

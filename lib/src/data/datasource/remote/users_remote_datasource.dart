@@ -10,6 +10,9 @@ abstract class UserRemoteDataSource {
     String? name,
     String? role,
   });
+  Future<Map<String, dynamic>> requestOtp({
+    required Map<String, dynamic> body,
+  });
   Future<Map<String, dynamic>> fetchAdminDashboard();
   Future<Map<String, dynamic>> getUserProfile({required String userId});
   Future<Map<String, dynamic>> fetchEmployeeDashboard({required String userId});
@@ -21,6 +24,17 @@ abstract class UserRemoteDataSource {
     required String status,
   });
   Future<List<dynamic>> fetchFaq();
+
+  Future<Map<String, dynamic>> resetPassword({
+    required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> verifyOtp({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> resetPasswordBeforeAuth({
+    required Map<String, dynamic> body,
+  });
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -189,6 +203,76 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       final response = await dioClient.get(
         ApiConstants.faqApi,
         options: Options(headers: headers),
+      );
+
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> resetPassword({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String token = preferences.getString(ApiConstants.token) ?? "";
+
+      final headers = {
+        "Authorization": "Bearer $token",
+      };
+      final response = await dioClient.post(
+        ApiConstants.restPasswordApi, // 🔥 define this
+        data: body, // ✅ REQUEST BODY
+        options: Options(headers: headers),
+      );
+
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> requestOtp({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response = await dioClient.post(
+        ApiConstants.requestOtpApi, // 🔥 define this constant
+        data: body, // ✅ BODY from UI
+      );
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> verifyOtp({
+    required Map<String, dynamic> body,
+  }) async {
+    print(body);
+    try {
+      final response = await dioClient.post(
+        ApiConstants.verifyOtpApi, // 🔥 define this constant
+        data: body, // ✅ BODY from UI
+      );
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> resetPasswordBeforeAuth({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response = await dioClient.post(
+        ApiConstants.resetBeforeAuthApi, // 🔥 define this
+        data: body, // ✅ emailId, currentPassword, newPassword
       );
 
       return response.data;

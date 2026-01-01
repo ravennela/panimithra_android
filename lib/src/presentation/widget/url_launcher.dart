@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -32,6 +31,46 @@ class UrlLauncherHelper {
 
     if (!await canLaunchUrl(uri)) {
       _showError(context, 'Could not open dialer');
+      return;
+    }
+
+    await launchUrl(uri);
+  }
+
+  /// ✅ Launch SMS app (Messages)
+  static Future<void> launchSms(
+    String phoneNumber, {
+    required BuildContext context,
+  }) async {
+    final Uri uri = Uri(
+      scheme: 'sms',
+      path: phoneNumber,
+    );
+
+    if (!await canLaunchUrl(uri)) {
+      _showError(context, 'Could not open messages app');
+      return;
+    }
+
+    await launchUrl(uri);
+  }
+
+  /// ✅ Launch SMS app with pre-filled message
+  static Future<void> launchSmsWithMessage(
+    String phoneNumber,
+    String message, {
+    required BuildContext context,
+  }) async {
+    final Uri uri = Uri(
+      scheme: 'sms',
+      path: phoneNumber,
+      queryParameters: {
+        'body': message,
+      },
+    );
+
+    if (!await canLaunchUrl(uri)) {
+      _showError(context, 'Could not open messages app');
       return;
     }
 

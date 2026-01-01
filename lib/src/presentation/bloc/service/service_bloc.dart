@@ -99,12 +99,20 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
   }
 
   FutureOr<void> _onSearchserviceEvent(
-      SearchServiceEvent event, Emitter<ServiceState> emit) async {
+    SearchServiceEvent event,
+    Emitter<ServiceState> emit,
+  ) async {
     List<SearchServiceItem> newData = [];
-    if (event.page != 0) {
-      newData = List.from((state as SearchServiceLoadedState).items);
+
+    // ✅ SAFE STATE CHECK
+    if (event.page != 0 && state is SearchServiceLoadedState) {
+      newData = List.from(
+        (state as SearchServiceLoadedState).items,
+      );
     }
+
     emit(SearchServiceLoadingState());
+
     final result = await searchServiSeceUsecase.fetchSearchServiceusecase(
       page: event.page,
       categoryName: event.categoryName,
@@ -118,18 +126,24 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
       subCategoryName: event.subCategoryName,
     );
 
-    result.fold((f) {
-      emit(SearchServiceErrorState(error: f.toString()));
-    }, (fetchServiceModel) {
-      int totalRecords = fetchServiceModel.totalItems ?? 0;
-      final updatedList = [...newData, ...fetchServiceModel.data!];
-      emit(SearchServiceLoadedState(
-        hasMoreRecords: false,
-        items: updatedList,
-        model: fetchServiceModel,
-        totalRecords: totalRecords,
-      ));
-    });
+    result.fold(
+      (f) => emit(SearchServiceErrorState(error: f.toString())),
+      (fetchServiceModel) {
+        final updatedList = [
+          ...newData,
+          ...fetchServiceModel.data!,
+        ];
+
+        emit(
+          SearchServiceLoadedState(
+            hasMoreRecords: false,
+            items: updatedList,
+            model: fetchServiceModel,
+            totalRecords: fetchServiceModel.totalItems ?? 0,
+          ),
+        );
+      },
+    );
   }
 
   FutureOr<void> _onGetServiceByEvent(

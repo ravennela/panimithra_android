@@ -24,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
+  bool _isPasswordVisible = false;
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -108,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       // Username
                       Text(
-                        "Username",
+                        "Email Id",
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -117,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 8),
                       _buildInputField(
                         controller: _usernameController,
-                        hint: "Enter your username",
+                        hint: "Enter your email id",
                       ),
 
                       const SizedBox(height: 20),
@@ -132,22 +134,39 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       _buildInputField(
-                        controller: _passwordController,
-                        hint: "Enter your password",
-                        obscure: true,
-                      ),
+                          controller: _passwordController,
+                          hint: "Enter your password",
+                          obscure: !_isPasswordVisible,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          )),
 
                       const SizedBox(height: 12),
 
                       // Forgot password
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          "Forgot Password?",
-                          style: GoogleFonts.inter(
-                            color: Color(0xFF0D6EFD),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                      GestureDetector(
+                        onTap: () {
+                          context.push(AppRoutes.FORGOT_PASSWORD_EMAIL);
+                        },
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            "Forgot Password?",
+                            style: GoogleFonts.inter(
+                              color: Color(0xFF0D6EFD),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -155,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 28),
 
                       // Login Button
-                      BlocListener<LoginBloc, LoginState>(
+                      BlocConsumer<LoginBloc, LoginState>(
                         listener: (context, state) {
                           if (state is LoginSuccess) {
                             ToastHelper.showToast(
@@ -165,8 +184,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                             getToken();
                             context.go(AppRoutes.HOME_SCREEN_PATH);
-
-
                           } else if (state is LoginError) {
                             ToastHelper.showToast(
                               context: context,
@@ -175,36 +192,56 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                           }
                         },
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async{
-                              if (!formKey.currentState!.validate()) return;
-                              context.read<LoginBloc>().add(
-                                    CreateloginLoginEvent({
-                                      "username": _usernameController.text,
-                                      "password": _passwordController.text
-                                    }),
-                                  );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: const Color(0xFF0D6EFD),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                        builder: (context, state) {
+                          bool isLoading = state is LoginLoading;
+                          return SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () async {
+                                      if (!formKey.currentState!.validate())
+                                        return;
+                                      context.read<LoginBloc>().add(
+                                            CreateloginLoginEvent({
+                                              "username":
+                                                  _usernameController.text,
+                                              "password":
+                                                  _passwordController.text
+                                            }),
+                                          );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: const Color(0xFF0D6EFD),
+                                disabledBackgroundColor:
+                                    const Color(0xFF0D6EFD).withOpacity(0.6),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                elevation: 3,
                               ),
-                              elevation: 3,
+                              child: isLoading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : Text(
+                                      "Login",
+                                      style: GoogleFonts.inter(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
-                            child: Text(
-                              "Login",
-                              style: GoogleFonts.inter(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -245,6 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
   getToken() async {
     String? token = await FirebaseMessaging.instance.getToken();
     context
@@ -256,6 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required TextEditingController controller,
     required String hint,
     bool obscure = false,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
@@ -274,6 +313,7 @@ class _LoginScreenState extends State<LoginScreen> {
           vertical: 16,
           horizontal: 14,
         ),
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

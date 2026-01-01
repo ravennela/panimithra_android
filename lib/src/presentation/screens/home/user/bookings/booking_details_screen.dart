@@ -6,6 +6,7 @@ import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
+import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
   final String bookingId;
@@ -57,9 +58,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening chat...')),
-                  );
+                  UrlLauncherHelper.launchPhone("9347573451", context: context);
                 },
               ),
               ListTile(
@@ -74,10 +73,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 title: const Text('Call Provider'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
+                  UrlLauncherHelper.launchPhone("9347573451", context: context);
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Calling provider...')),
-                  );
                 },
               ),
             ],
@@ -336,9 +333,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               ),
               InkWell(
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening chat...')),
-                  );
+                  UrlLauncherHelper.launchSms(contactNumber, context: context);
                 },
                 child: Container(
                   width: 44,
@@ -357,9 +352,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               const SizedBox(width: 12),
               InkWell(
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Calling provider...')),
-                  );
+                  UrlLauncherHelper.launchPhone(contactNumber,
+                      context: context);
                 },
                 child: Container(
                   width: 44,
@@ -608,9 +602,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.read<BookingBloc>().add(UpdateBookingStatusEvent(
-                        bookingId: widget.bookingId,
-                        bookingStatus: "CANCELLED"));
+                    _showCancelConfirmationDialog(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFEBEE),
@@ -654,6 +646,52 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showCancelConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Prevent dismissing by tapping outside to ensure explicit choice
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            "Cancel Booking",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text("Are you sure want to cancel booking?"),
+          actions: [
+            TextButton(
+              child: const Text(
+                "No",
+                style:
+                    TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                "Yes",
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
+              ),
+              onPressed: () {
+                // Determine if we need to prevent double execution here.
+                // Popping immediately prevents multiple taps on "Yes" from firing multiple events easily.
+                Navigator.of(dialogContext).pop();
+                context.pop();
+                context.read<BookingBloc>().add(UpdateBookingStatusEvent(
+                    bookingId: widget.bookingId, bookingStatus: "CANCELLED"));
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

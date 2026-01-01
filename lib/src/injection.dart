@@ -60,6 +60,9 @@ import 'package:panimithra/src/domain/usecase/fetch_users_usecase.dart';
 import 'package:panimithra/src/domain/usecase/login/createlogin_login_usecase.dart';
 import 'package:panimithra/src/domain/usecase/provider_registration_usecase.dart';
 import 'package:panimithra/src/domain/usecase/register_fcm_usecase.dart';
+import 'package:panimithra/src/domain/usecase/request_otp_usecase.dart';
+import 'package:panimithra/src/domain/usecase/reset_before_auth_usecase.dart';
+import 'package:panimithra/src/domain/usecase/reset_password_usecase.dart';
 import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/top_five_review_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_booking_status_usecase.dart';
@@ -69,6 +72,7 @@ import 'package:panimithra/src/domain/usecase/update_plan_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_subcategory_usecase.dart';
 import 'package:panimithra/src/domain/usecase/user_profile_usecase.dart';
+import 'package:panimithra/src/domain/usecase/verify_otp_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/category_bloc/category_bloc.dart';
@@ -126,11 +130,15 @@ Future<void> init() async {
   );
   sl.registerFactory(() => FetchUsersBloc(
       fetchUsersUseCase: sl(),
+      requestOtpUseCase: sl(),
+      resetPasswordBeforeAuthUseCase: sl(),
       getUserProfileUsecase: sl(),
       getAdminDashboardUsecase: sl(),
+      resetPasswordUseCase: sl(),
       getEmployeeDashboardUsecase: sl(),
       changeUserStatusUseCase: sl(),
       registerFcmTokenUseCase: sl(),
+      verifyOtpUseCase: sl(),
       fetchFaqUseCase: sl()));
   sl.registerFactory(() => EmployeePaymentBloc(
       fetchEmployeePaymentsUseCase: sl(), createOrderUseCase: sl()));
@@ -199,6 +207,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ChangeUserStatusUseCase(sl()));
   sl.registerLazySingleton(() => UpdatePlanUseCase(repository: sl()));
   sl.registerLazySingleton(() => FetchFaqUseCase(sl()));
+  sl.registerLazySingleton(() => ResetPasswordUseCase(repository: sl()));
+  sl.registerLazySingleton(() => RequestOtpUseCase(repository: sl()));
+  sl.registerLazySingleton(() => VerifyOtpUseCase(repository: sl()));
+  sl.registerLazySingleton(
+      () => ResetPasswordBeforeAuthUseCase(repository: sl()));
 
   // Repository
   sl.registerLazySingleton<LoginRepository>(

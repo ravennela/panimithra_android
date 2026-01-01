@@ -52,61 +52,88 @@ class _RatingDialogState extends State<RatingDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      insetPadding: EdgeInsets.all(20),
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
       ),
+      elevation: 0,
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(5),
+        constraints: const BoxConstraints(maxWidth: 400),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Header with Icon
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFC107).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.star_rounded,
+                    color: Color(0xFFFFC107), size: 32),
+              ),
+              const SizedBox(height: 20),
+
               // Title
               const Text(
                 'Rate Your Experience',
                 style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1D1E),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // Subtitle
               Text(
                 'How was your service with ${widget.providerName}?',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: Colors.grey[600],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
               // Star Rating
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedRating = index + 1;
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Icon(
-                        Icons.star,
-                        size: 24,
-                        color: index < selectedRating
-                            ? const Color(0xFFFFC107)
-                            : Colors.grey.shade300,
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50], // Subtle background
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(5, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedRating = index + 1;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Icon(
+                          Icons.star_rounded, // Rounded stars look more modern
+                          size: 36,
+                          color: index < selectedRating
+                              ? const Color(0xFFFFC107)
+                              : Colors.grey[300],
+                        ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
               // Review Label
               const Align(
@@ -116,7 +143,7 @@ class _RatingDialogState extends State<RatingDialog> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Color(0xFF1A1D1E),
                   ),
                 ),
               ),
@@ -125,37 +152,38 @@ class _RatingDialogState extends State<RatingDialog> {
               // Review TextField
               TextField(
                 controller: reviewController,
-                maxLines: 5,
+                maxLines: 4,
+                style: const TextStyle(fontSize: 15),
                 decoration: InputDecoration(
                   hintText: 'Tell us more about your experience (optional)',
                   hintStyle: TextStyle(
-                    color: Colors.grey.shade400,
+                    color: Colors.grey[400],
                     fontSize: 14,
                   ),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: const Color(0xFFF8F9FD),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     borderSide:
-                        const BorderSide(color: Color(0xFFFFC107), width: 2),
+                        const BorderSide(color: Color(0xFFFFC107), width: 1.5),
                   ),
-                  contentPadding: const EdgeInsets.all(16),
+                  contentPadding: const EdgeInsets.all(20),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
-              // Submit Button
+              // Submit Button with Loading State
               SizedBox(
                 width: double.infinity,
-                child: BlocListener<ReviewBloc, ReviewState>(
+                child: BlocConsumer<ReviewBloc, ReviewState>(
                   listener: (context, state) {
                     if (state is ReviewError) {
                       ToastHelper.showToast(
@@ -171,46 +199,78 @@ class _RatingDialogState extends State<RatingDialog> {
                       context.pop();
                     }
                   },
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.read<ReviewBloc>().add(AddReviewEvent(
-                          bookingId: widget.bookingId,
-                          employeeId: widget.employeeId,
-                          rating: selectedRating.toDouble(),
-                          serviceId: widget.serviceId,
-                          review: reviewController.text));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFC107),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  builder: (context, state) {
+                    bool isLoading = state is ReviewLoading;
+                    return ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              if (selectedRating == 0) {
+                                ToastHelper.showToast(
+                                    context: context,
+                                    type: "error",
+                                    title: "Please select a star rating");
+                                return;
+                              }
+                              context.read<ReviewBloc>().add(AddReviewEvent(
+                                  bookingId: widget.bookingId,
+                                  employeeId: widget.employeeId,
+                                  rating: selectedRating.toDouble(),
+                                  serviceId: widget.serviceId,
+                                  review: reviewController.text));
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFC107),
+                        disabledBackgroundColor:
+                            const Color(0xFFFFC107).withOpacity(0.6),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                      child: isLoading
+                          ? SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Color(0xFF1A1D1E),
+                              ),
+                            )
+                          : const Text(
+                              'Submit Review',
+                              style: TextStyle(
+                                color: Color(0xFF1A1D1E),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                    );
+                  },
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
               // Cancel Button
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey[600],
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 child: const Text(
                   'Cancel',
                   style: TextStyle(
-                    color: Colors.black87,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

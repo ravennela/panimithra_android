@@ -31,4 +31,16 @@ abstract class UserRepository {
   });
 
   Future<Either<String, List<FaqModel>>> fetchFaq();
+  Future<Either<String, SuccessModel>> resetPassword({
+    required Map<String, dynamic> body,
+  });
+  Future<Either<String, SuccessModel>> requestOtp({
+    required Map<String, dynamic> body,
+  });
+  Future<Either<String, SuccessModel>> verifyOtp({
+    required Map<String, dynamic> body,
+  });
+   Future<Either<String, SuccessModel>> resetPasswordBeforeAuth({
+    required Map<String, dynamic> body,
+  });
 }

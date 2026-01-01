@@ -1,5 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/routes.dart';
+import 'package:panimithra/src/presentation/screens/auth/forgot_password/forgot_password_email_screen.dart';
+import 'package:panimithra/src/presentation/screens/auth/forgot_password/otp_verification_screen.dart';
+import 'package:panimithra/src/presentation/screens/auth/forgot_password/reset_password_screen.dart';
 import 'package:panimithra/src/presentation/screens/auth/login_screen.dart';
 import 'package:panimithra/src/presentation/screens/auth/provider_registration/provider_account_info.dart';
 import 'package:panimithra/src/presentation/screens/auth/provider_registration/provider_address_info.dart';
@@ -25,8 +28,10 @@ import 'package:panimithra/src/presentation/screens/home/employee/payments/plans
 import 'package:panimithra/src/presentation/screens/home/user/bookings/booking_details_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/pre_booking_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/reviews_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/profile/about_us_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/profile/faq_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/profile/help_and_support.dart';
+import 'package:panimithra/src/presentation/screens/home/user/profile/reset_password_screen.dart';
 import 'package:panimithra/src/presentation/screens/home_screen.dart';
 import 'package:panimithra/src/presentation/screens/splash/splash_screen.dart';
 
@@ -238,7 +243,47 @@ final router = GoRouter(
       builder: (context, state) {
         return FaqScreen();
       },
-    )
+    ),
+    GoRoute(
+      path: AppRoutes.RESET_PASSWORD_SCREEN,
+      builder: (context, state) {
+        return ChangePasswordScreen();
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.ABOUT_US_SCREEN_PATH,
+      builder: (context, state) {
+        return AboutUsScreen();
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.FORGOT_PASSWORD_EMAIL,
+      builder: (context, state) {
+        return ForgotPasswordEmailScreen();
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.RESET_BEFORE_AUTH,
+      builder: (context, state) {
+        final emailId = state.extra is Map
+            ? (state.extra as Map)['emailId'] as String? ?? ''
+            : '';
+        return ResetPasswordScreen(
+          emailId: emailId,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.VERIFY_OTP_SCREEN,
+      builder: (context, state) {
+        final emailId = state.extra is Map
+            ? (state.extra as Map)['emailId'] as String? ?? ''
+            : '';
+        return OtpVerificationScreen(
+          email: emailId,
+        );
+      },
+    ),
   ],
   redirect: (context, state) {
     return null;
