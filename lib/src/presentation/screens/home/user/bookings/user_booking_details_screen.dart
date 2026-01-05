@@ -7,16 +7,17 @@ import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart'
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
 import 'package:panimithra/src/presentation/widget/url_launcher.dart';
+import 'package:shimmer/shimmer.dart';
 
-class BookingDetailsScreen extends StatefulWidget {
+class UserBookingDetailsScreen extends StatefulWidget {
   final String bookingId;
-  const BookingDetailsScreen({super.key, required this.bookingId});
+  const UserBookingDetailsScreen({super.key, required this.bookingId});
 
   @override
-  State<BookingDetailsScreen> createState() => _BookingDetailsScreenState();
+  State<UserBookingDetailsScreen> createState() => _BookingDetailsScreenState();
 }
 
-class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
+class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
   bool isLoading = false;
 
   @override
@@ -134,7 +135,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     return const Text("Retry");
                   }
                   if (state is BookingDetailsLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return _buildShimmerLoading();
                   }
                   if (state is BookingDetailsLoaded) {
                     return Column(
@@ -692,6 +693,35 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Column(
+      children: [
+        _buildShimmerCard(200), // Booking Summary
+        const SizedBox(height: 16),
+        _buildShimmerCard(120), // Provider Info
+        const SizedBox(height: 16),
+        _buildShimmerCard(250), // Service Details
+        const SizedBox(height: 16),
+        _buildShimmerCard(180), // Payment Details
+      ],
+    );
+  }
+
+  Widget _buildShimmerCard(double height) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[200]!,
+      highlightColor: Colors.white,
+      child: Container(
+        height: height,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:panimithra/src/presentation/screens/home/employee/bookings/my_bo
 import 'package:panimithra/src/presentation/screens/home/employee/home/employee_dashboard_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/my_services_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/payments/payments_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/employee/profile/profile_screen.dart';
 
 import 'package:panimithra/src/presentation/screens/home/test_screen.dart'
     hide BookingCard;
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const SubscriptionScreen(),
 
     const MyServicesScreen(),
-    const UserProfileScreen()
+    const ProfileScreen()
 
 // Index 2
   ];

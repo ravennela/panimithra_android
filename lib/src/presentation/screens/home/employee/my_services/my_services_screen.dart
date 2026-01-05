@@ -11,6 +11,7 @@ import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MyServicesScreen extends StatefulWidget {
   const MyServicesScreen({super.key});
@@ -167,11 +168,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
         },
         builder: (context, state) {
           if (state is ServiceLoading && _currentPage == 0) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF2563EB),
-              ),
-            );
+            return _buildShimmerLoading();
           }
 
           if (state is ServiceError && _currentPage == 0) {
@@ -353,6 +350,29 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.white,
+            child: Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

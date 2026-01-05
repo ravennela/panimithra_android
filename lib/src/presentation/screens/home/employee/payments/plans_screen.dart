@@ -5,7 +5,9 @@ import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_event.dart';
 import 'package:panimithra/src/presentation/bloc/plan_bloc/plan_state.dart';
-import 'package:panimithra/src/presentation/widget/helper.dart';
+import 'package:panimithra/src/common/toast.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyPlansScreen extends StatefulWidget {
   const MyPlansScreen({super.key});
@@ -27,216 +29,246 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FD),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: GestureDetector(
-            onTap: () => context.pop(),
-            child: Container(
-              margin: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
+      ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Center(
+              child: GestureDetector(
+                onTap: () => context.pop(),
+                child: Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.close_rounded,
+                      size: 20, color: Color(0xFF1A1D1E)),
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            'Pricing Plans',
+            style: GoogleFonts.inter(
+              color: const Color(0xFF1A1D1E),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Upgrade Your Experience',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1A1D1E),
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Choose the best plan to unlock advanced features and boost your professional profile.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: const Color(0xFF64748B),
+                      height: 1.5,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
-              child: const Icon(Icons.close_rounded,
-                  size: 20, color: Color(0xFF1A1D1E)),
             ),
-          ),
-        ),
-        title: const Text(
-          'Choose Plan',
-          style: TextStyle(
-            color: Color(0xFF1A1D1E),
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.5,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'Unlock Premium Features',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1A1D1E),
-                    letterSpacing: -1,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Get exclusive access to premium tools and maximize your earnings potential.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Color(0xFF6B7280),
-                    height: 1.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+            BlocConsumer<PlanBloc, PlanState>(
+              listener: (context, state) {},
+              builder: (context, state) {
+                if (state is FetchPlansError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          state.message,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context
+                                .read<PlanBloc>()
+                                .add(const FetchPlansEvent());
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                if (state is FetchPlansLoading) {
+                  return Expanded(child: _buildShimmerLoading());
+                }
+                if (state is FetchPlansLoaded) {
+                  return Expanded(
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: state.fetchPlanModel.data.length,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: buildPlanCard(
+                            planId: state.fetchPlanModel.data[index].planId,
+                            priceSend: state.fetchPlanModel.data[index].price,
+                            planType: state.fetchPlanModel.data[index].planName,
+                            title: state.fetchPlanModel.data[index].planName,
+                            subtitle: state
+                                .fetchPlanModel.data[index].planDescription,
+                            price: state.fetchPlanModel.data[index].price
+                                .toString(),
+                            period:
+                                '${state.fetchPlanModel.data[index].duration} days',
+                            discount: state.fetchPlanModel.data[index].discount,
+                            originalPrice:
+                                "\₹${state.fetchPlanModel.data[index].originalPrice}",
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+                return Container();
+              },
             ),
-          ),
-          BlocConsumer<PlanBloc, PlanState>(
-            listener: (context, state) {},
-            builder: (context, state) {
-              if (state is FetchPlansError) {
-                return Center(
-                  child: Column(
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                  24, 20, 24, MediaQuery.of(context).padding.bottom + 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(30)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 58,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF4F46E5).withOpacity(0.35),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (selectedPlanId.isEmpty) {
+                          ToastHelper.showToast(
+                              context: context,
+                              type: "error",
+                              title: "Please select a plan first");
+                          return;
+                        }
+                        context.push(
+                          AppRoutes.CHECKOUT_SCREEN_PATH,
+                          extra: {
+                            'planId': selectedPlanId,
+                            'price': selectedPrice,
+                            'planName': selectedPlanName
+                          },
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: Text(
+                        'Subscribe Now',
+                        style: GoogleFonts.inter(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
+                      const Icon(Icons.security,
+                          size: 14, color: Color(0xFF94A3B8)),
+                      const SizedBox(width: 6),
                       Text(
-                        state.message,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
+                        'Secure checkout. Cancel anytime.',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: const Color(0xFF64748B),
+                          fontWeight: FontWeight.w500,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          context.read<PlanBloc>().add(const FetchPlansEvent());
-                        },
-                        child: const Text('Retry'),
                       ),
                     ],
                   ),
-                );
-              }
-              if (state is FetchPlansLoading) {
-                return const CircularProgressIndicator();
-              }
-              if (state is FetchPlansLoaded) {
-                return Expanded(
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: state.fetchPlanModel.data.length,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: buildPlanCard(
-                          planId: state.fetchPlanModel.data[index].planId,
-                          priceSend: state.fetchPlanModel.data[index].price,
-                          planType: state.fetchPlanModel.data[index].planName,
-                          title: state.fetchPlanModel.data[index].planName,
-                          subtitle:
-                              state.fetchPlanModel.data[index].planDescription,
-                          price:
-                              state.fetchPlanModel.data[index].price.toString(),
-                          period:
-                              '${state.fetchPlanModel.data[index].duration} days',
-                          discount: state.fetchPlanModel.data[index].discount,
-                          originalPrice:
-                              "\₹${state.fetchPlanModel.data[index].originalPrice}",
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }
-              return Container();
-            },
-          ),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
+                ],
+              ),
             ),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF6366F1).withOpacity(0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      print("selected plan price" + selectedPrice.toString());
-                      context.push(
-                        AppRoutes.CHECKOUT_SCREEN_PATH,
-                        extra: {
-                          'planId': selectedPlanId,
-                          'price': selectedPrice,
-                          'planName': selectedPlanName
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Text(
-                      'Subscribe Now',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Cancel anytime. Terms apply.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -264,21 +296,22 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6366F1) : Colors.transparent,
+            color: isSelected ? const Color(0xFF4F46E5) : Colors.transparent,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? const Color(0xFF6366F1).withOpacity(0.15)
-                  : Colors.grey.withOpacity(0.08),
-              blurRadius: isSelected ? 24 : 16,
-              offset: const Offset(0, 8),
+                  ? const Color(0xFF4F46E5).withOpacity(0.12)
+                  : Colors.grey.withOpacity(0.05),
+              blurRadius: isSelected ? 30 : 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -388,26 +421,27 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               "Duration",
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[400],
-                                fontWeight: FontWeight.w600,
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: const Color(0xFF94A3B8),
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              period,
-                              style: const TextStyle(
+                              period.toUpperCase(),
+                              style: GoogleFonts.inter(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF4B5563),
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF1E293B),
                               ),
                             ),
                           ],
@@ -415,24 +449,39 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            if (originalPrice != null)
+                            if (originalPrice != null &&
+                                originalPrice != "₹0.0")
                               Text(
-                                originalPrice,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[400],
+                                "Original Price: $originalPrice",
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: const Color(0xFF94A3B8),
                                   decoration: TextDecoration.lineThrough,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             const SizedBox(height: 2),
-                            Text(
-                              "\₹$price",
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1A1D1E),
-                                letterSpacing: -1,
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "\₹",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1A1D1E),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: price,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w900,
+                                      color: const Color(0xFF1A1D1E),
+                                      letterSpacing: -1,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -446,6 +495,29 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      itemCount: 3,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.white,
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

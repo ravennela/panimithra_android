@@ -11,6 +11,7 @@ import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart'
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
@@ -199,10 +200,10 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                   },
                   builder: (context, state) {
                     if (state is BookingLoadingState && page == 0) {
-                      return const Center(child: CircularProgressIndicator());
+                      return _buildBookingShimmer();
                     }
                     if (state is BookingInitalState && page == 0) {
-                      return const Center(child: CircularProgressIndicator());
+                      return _buildBookingShimmer();
                     }
                     if (state is BookingErrorState) {
                       return Center(
@@ -249,45 +250,27 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                                               state.item.length
                                           ? false
                                           : true,
-                                      child: const Center(
-                                          child: CircularProgressIndicator()));
+                                      child:
+                                          _buildBookingShimmer(itemCount: 1));
                                 }
 
-                                return BookingCardUltraUC(
-                                  item: state.item[index],
-                                  onTap: () {
-                                    context.push(
-                                        AppRoutes
-                                            .EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH,
-                                        extra: {
-                                          "bookingId":
-                                              state.item[index].bookingId
-                                        });
-                                  },
+                                return _buildAnimatedListItem(
+                                  index: index,
+                                  child: BookingCardUltraUC(
+                                    item: state.item[index],
+                                    onTap: () {
+                                      context.push(
+                                          AppRoutes
+                                              .EMPLOYEE_BOOKING_DETAILS_SCREEN_PATH,
+                                          extra: {
+                                            "bookingId":
+                                                state.item[index].bookingId
+                                          });
+                                    },
+                                  ),
                                 );
                               })
-                          : Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.2),
-                                  Icon(Icons.calendar_today_rounded,
-                                      size: 64, color: Colors.grey[300]),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    "No Bookings Available",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF9CA3AF),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                          : _buildEmptyState(context);
                     }
                     return Container();
                   },
@@ -302,6 +285,147 @@ class MyBookingsScreenWidget extends State<MyBookingsScreen> {
                 child: CircularProgressIndicator(),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBookingShimmer({int itemCount = 6}) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.withOpacity(0.05)),
+          ),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                              width: 120, height: 16, color: Colors.white),
+                          const SizedBox(height: 8),
+                          Container(width: 80, height: 12, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    Container(width: 60, height: 20, color: Colors.white),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Container(width: 200, height: 14, color: Colors.white),
+                const SizedBox(height: 12),
+                Container(width: 180, height: 14, color: Colors.white),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Container(
+                        width: 100,
+                        height: 28,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20))),
+                    const Spacer(),
+                    Container(width: 20, height: 20, color: Colors.white),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAnimatedListItem({required int index, required Widget child}) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 150 + (index % 5 * 50)),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.calendar_today_rounded,
+                size: 64, color: const Color(0xFF9CA3AF)),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "No Bookings Yet",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1A1D1E),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Your assigned service bookings will appear here.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              color: Color(0xFF6B7280),
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () {
+              context.read<BookingBloc>().add(FetchBookingsEvent(0));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1A1D1E),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text("Refresh List"),
+          ),
         ],
       ),
     );
@@ -330,115 +454,121 @@ class BookingCardUltraUC extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF64748B).withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF64748B).withOpacity(0.08),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.withOpacity(0.05)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Header: Service Icon, Name & Price
-            Row(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0F9FF),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(Icons.cleaning_services_rounded,
-                      color: Color(0xFF0EA5E9), size: 24),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        capitalize(item.serviceName) ?? "Service",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1A1D1E),
-                          letterSpacing: -0.5,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                /// Header: Service Icon, Name & Price
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Booking ID: #${item.bookingId.substring(0, 8)}...',
-                        style: const TextStyle(
-                          color: Color(0xFF9CA3AF),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: const Icon(Icons.cleaning_services_rounded,
+                          color: Color(0xFF1A1D1E), size: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            capitalize(item.serviceName) ?? "Service",
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1A1D1E),
+                              letterSpacing: -0.4,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Booking ID: #${item.bookingId.substring(0, 8)}',
+                            style: const TextStyle(
+                              color: Color(0xFF6B7280),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      "\₹${item.amount}",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1A1D1E),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  "\₹${item.amount}",
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1A1D1E),
-                    letterSpacing: -0.5,
-                  ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(height: 1, color: Color(0xFFF3F4F6)),
                 ),
+
+                /// Info Rows
+                _buildInfoRow(
+                    Icons.calendar_today_rounded,
+                    DateFormat("EEE, dd MMM yyyy, hh:mm a")
+                        .format(item.bookingDate ?? DateTime.now())),
+                const SizedBox(height: 12),
+                if (item.location.isNotEmpty || item.city.isNotEmpty) ...[
+                  _buildInfoRow(Icons.location_on_outlined,
+                      "${item.location}, ${item.city}"),
+                  const SizedBox(height: 12),
+                ],
+                _buildInfoRow(Icons.person_outline_rounded,
+                    capitalize(item.userName) ?? "Customer"),
+
+                const SizedBox(height: 20),
+
+                /// Footer: Status & Actions
+                Row(
+                  children: [
+                    _statusChip(item.bookingStatus),
+                    const Spacer(),
+                    if (_shouldShowActions(item.bookingStatus))
+                      const Icon(Icons.arrow_forward_ios_rounded,
+                          color: Color(0xFF9CA3AF), size: 14),
+                  ],
+                ),
+                if (_shouldShowActions(item.bookingStatus)) ...[
+                  const SizedBox(height: 16),
+                  _buildActionButtons(
+                      item.bookingId, item.bookingStatus, context),
+                ],
               ],
             ),
-
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Divider(height: 1, color: Color(0xFFF1F5F9)),
-            ),
-
-            /// Info Rows
-            _buildInfoRow(
-                Icons.calendar_today_rounded,
-                DateFormat("EEE, dd MMM yyyy, hh:mm a")
-                    .format(item.bookingDate ?? DateTime.now())),
-            const SizedBox(height: 12),
-            if (item.location.isNotEmpty || item.city.isNotEmpty) ...[
-              _buildInfoRow(
-                  Icons.location_on_outlined, "${item.location}, ${item.city}"),
-              const SizedBox(height: 12),
-            ],
-            _buildInfoRow(Icons.person_outline_rounded,
-                capitalize(item.userName) ?? "Customer"),
-
-            const SizedBox(height: 20),
-
-            /// Footer: Status & Actions
-            Row(
-              children: [
-                _statusChip(item.bookingStatus),
-                const Spacer(),
-                if (_shouldShowActions(item.bookingStatus))
-                  Icon(Icons.arrow_forward_rounded,
-                      color: Colors.grey[400], size: 20),
-              ],
-            ),
-            if (_shouldShowActions(item.bookingStatus)) ...[
-              const SizedBox(height: 16),
-              _buildActionButtons(item.bookingId, item.bookingStatus, context),
-            ],
-          ],
+          ),
         ),
       ),
     );

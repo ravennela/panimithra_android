@@ -13,6 +13,7 @@ import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
+import 'package:shimmer/shimmer.dart';
 
 class FindServicesScreen extends StatefulWidget {
   const FindServicesScreen({super.key});
@@ -372,7 +373,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
       },
       builder: (context, state) {
         if (state is SearchServiceLoadingState && page == 0) {
-          return const CircularProgressIndicator();
+          return _buildShimmerLoading();
         }
         if (state is SearchServiceErrorState) {
           return Center(
@@ -416,8 +417,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                           visible: state.totalRecords <= state.items.length
                               ? false
                               : true,
-                          child:
-                              const Center(child: CircularProgressIndicator()));
+                          child: _buildPaginationShimmer());
                     }
                     return ServiceCard(
                       imageUrl: state.items[index].iconUrl != null
@@ -870,6 +870,113 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(24),
+      itemCount: 3,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 200,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(28)),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 24,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 14,
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 14,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          Container(
+                            height: 48,
+                            width: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPaginationShimmer() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[200]!,
+        highlightColor: Colors.white,
+        child: Container(
+          height: 100,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
     );
   }
 }

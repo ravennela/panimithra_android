@@ -15,6 +15,7 @@ import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PreBookingScreen extends StatefulWidget {
   final String serviceId;
@@ -61,11 +62,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
             builder: (context, state) {
               if (state is ServiceByIdLoading) {
                 return Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: const Color(0xFF1A1D1E),
-                    ),
-                  ),
+                  child: _buildShimmerLoading(),
                 );
               }
               if (state is ServiceByIdError) {
@@ -461,13 +458,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                               current is TopFiveRatingsError),
                                       builder: (context, state) {
                                         if (state is TopFiveRatingsLoading) {
-                                          return const Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(20.0),
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          );
+                                          return _buildReviewShimmer();
                                         }
                                         if (state is TopFiveRatingsLoaded) {
                                           final ratings =
@@ -643,6 +634,91 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                 },
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[200]!,
+      highlightColor: Colors.white,
+      child: Column(
+        children: [
+          Container(height: 280, color: Colors.white),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                    height: 24,
+                    width: 150,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12))),
+                const SizedBox(height: 16),
+                Container(
+                    height: 32,
+                    width: 250,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12))),
+                const SizedBox(height: 12),
+                Container(
+                    height: 24,
+                    width: 100,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12))),
+                const SizedBox(height: 24),
+                Container(
+                  height: 80,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+                const SizedBox(height: 32),
+                Container(
+                    height: 20,
+                    width: 120,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12))),
+                const SizedBox(height: 12),
+                Container(
+                    height: 60,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewShimmer() {
+    return Column(
+      children: List.generate(
+        3,
+        (index) => Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.white,
+            child: Container(
+              height: 100,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
           ),
         ),
       ),

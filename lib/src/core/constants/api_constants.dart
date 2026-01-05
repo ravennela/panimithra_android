@@ -1,7 +1,8 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.1.120:8080';
+  //static const String baseUrl = 'http://192.168.1.120:8080';
   //static const String baseUrl = 'https://cf377302fb18.ngrok-free.app';
-  //static const String baseUrl ='https://panimithra-564205773146.us-central1.run.app';
+  static const String baseUrl =
+      'https://panimithra-564205773146.us-central1.run.app';
 
   // static const String baseUrl = "https://panimithra.onrender.com";
   static const String login = '$baseUrl/auth/login';

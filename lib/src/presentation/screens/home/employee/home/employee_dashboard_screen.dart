@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:panimithra/src/common/toast.dart';
 import 'package:panimithra/src/data/models/employee_dashboard_model.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
@@ -15,38 +16,9 @@ class EmployeeDashboard extends StatefulWidget {
 }
 
 class _EmployeeDashboardState extends State<EmployeeDashboard> {
-  bool isLoading = false;
-  int touchedIndex = -1;
-
-  // Static data - Replace with API calls
-  final employeeStats = EmployeeStats(
-    totalAssigned: 124,
-    inProgress: 5,
-    completed: 78,
-    monthlyEarnings: 3450,
-  );
-
-  final monthlyEarningsData = [
-    MonthlyData(month: 'Jan', earnings: 2800),
-    MonthlyData(month: 'Feb', earnings: 3200),
-    MonthlyData(month: 'Mar', earnings: 2900),
-    MonthlyData(month: 'Apr', earnings: 3600),
-    MonthlyData(month: 'May', earnings: 3100),
-    MonthlyData(month: 'Jun', earnings: 3450),
-  ];
-
-  final bookingStatus = EmployeeBookingStatus(
-    total: 124,
-    completed: 78,
-    assigned: 25,
-    inProgress: 21,
-  );
-
   @override
   void initState() {
     super.initState();
-    // Call your API here
-    // fetchEmployeeDashboard();
     context
         .read<FetchUsersBloc>()
         .add(const GetEmployeeDashboardEvent(userId: ""));
@@ -106,173 +78,300 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
           ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: BlocConsumer<FetchUsersBloc, FetchUsersState>(
-                listener: (context, state) {
-                  if (state is EmployeeDashboardError) {
-                    ToastHelper.showToast(
-                        context: context, type: "error", title: state.message);
-                  }
-                  if (state is EmployeeDashboardLoaded) {
-                    ToastHelper.showToast(
-                        context: context,
-                        type: "success",
-                        title: "Dashboard Loaded Successfully");
-                  }
-                },
-                builder: (context, state) {
-                  if (state is EmployeeDashboardLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state is EmployeeDashboardError) {
-                    return Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline,
-                              size: 48, color: Colors.red),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Error in loading ',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            state.message,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              context.read<FetchUsersBloc>().add(
-                                  const GetEmployeeDashboardEvent(userId: ""));
-                            },
-                            child: const Text('Retry'),
-                          ),
-                        ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: BlocConsumer<FetchUsersBloc, FetchUsersState>(
+          listener: (context, state) {
+            if (state is EmployeeDashboardError) {
+              ToastHelper.showToast(
+                  context: context, type: "error", title: state.message);
+            }
+            if (state is EmployeeDashboardLoaded) {
+              ToastHelper.showToast(
+                  context: context,
+                  type: "success",
+                  title: "Dashboard Loaded Successfully");
+            }
+          },
+          builder: (context, state) {
+            if (state is EmployeeDashboardLoading) {
+              return _buildDashboardShimmer();
+            }
+            if (state is EmployeeDashboardError) {
+              return Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 48, color: Colors.red),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Error in loading ',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context
+                            .read<FetchUsersBloc>()
+                            .add(const GetEmployeeDashboardEvent(userId: ""));
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            if (state is EmployeeDashboardLoaded) {
+              return _DashboardContentView(
+                model: state.employeeDashboardModel,
+              );
+            }
+            return Container();
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashboardShimmer() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 24),
+            Container(
+                width: 200,
+                height: 32,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8))),
+            const SizedBox(height: 8),
+            Container(
+                width: 250,
+                height: 16,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 32),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                return GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: crossAxisCount,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: constraints.maxWidth > 600 ? 1.5 : 1.1,
+                  children: List.generate(
+                    3,
+                    (index) => Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    );
-                  }
-                  if (state is EmployeeDashboardLoaded) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Greeting
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hi, ${state.employeeDashboardModel.employeeName ?? ""}',
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF1A1D1E),
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                "Here's what's happening with your bookings today.",
-                                style: TextStyle(
-                                  color: Color(0xFF6B7280),
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Stats Grid
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            return GridView.count(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              crossAxisCount: constraints.maxWidth > 600
-                                  ? 4
-                                  : 2, // Responsive grid
-                              mainAxisSpacing: 16,
-                              crossAxisSpacing: 16,
-                              childAspectRatio:
-                                  constraints.maxWidth > 600 ? 1.5 : 1.1,
-                              children: [
-                                _buildStatCard(
-                                  context,
-                                  state.employeeDashboardModel.totalBookings
-                                      .toString(),
-                                  'Total Assigned',
-                                  Icons.calendar_today_rounded,
-                                  const Color(0xFFEEF2FF),
-                                  const Color(0xFF6366F1),
-                                ),
-                                _buildStatCard(
-                                  context,
-                                  state
-                                      .employeeDashboardModel.bookingsInprogress
-                                      .toString(),
-                                  "In Progress",
-                                  Icons.sync_rounded,
-                                  const Color(0xFFF0F9FF),
-                                  const Color(0xFF0EA5E9),
-                                ),
-                                _buildStatCard(
-                                  context,
-                                  state.employeeDashboardModel.bookingsCompleted
-                                      .toString(),
-                                  'Completed',
-                                  Icons.check_circle_rounded,
-                                  const Color(0xFFECFDF5),
-                                  const Color(0xFF10B981),
-                                ),
-                                _buildStatCard(
-                                  context,
-                                  state.employeeDashboardModel.revenue
-                                      .toString(),
-                                  'Current Month Earnings',
-                                  Icons.account_balance_wallet_rounded,
-                                  const Color(0xFFFFF7ED),
-                                  const Color(0xFFF97316),
-                                  isCurrency: true,
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Monthly Earnings Line Chart
-                        _buildMonthlyEarningsChart(
-                            state.employeeDashboardModel.monthWiseRevenue!),
-                        const SizedBox(height: 32),
-
-                        // Booking Status Donut Chart
-                        _buildBookingStatusChart(
-                            state.employeeDashboardModel.totalBookings!
-                                .toDouble(),
-                            state.employeeDashboardModel.bookingsInprogress!
-                                .toDouble(),
-                            state.employeeDashboardModel.bookingsCancelled!
-                                .toDouble(),
-                            state.employeeDashboardModel.bookingsCompleted!
-                                .toDouble(),
-                            state.employeeDashboardModel.bookingsRejected!
-                                .toDouble()),
-                        const SizedBox(height: 32),
-                      ],
-                    );
-                  }
-                  return Container();
-                },
-              ),
+                    ),
+                  ),
+                );
+              },
             ),
+            const SizedBox(height: 32),
+            Container(
+                height: 240,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(32))),
+            const SizedBox(height: 32),
+            Container(
+                height: 280,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(32))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardContentView extends StatelessWidget {
+  final EmployeeDashboardModel model;
+
+  const _DashboardContentView({required this.model});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAnimatedSection(
+          delay: 0,
+          child: _buildGreeting(),
+        ),
+        _buildAnimatedSection(
+          delay: 50,
+          child: _buildSection(
+            title: 'Today Summary',
+            child: _buildStatsGrid(context),
+          ),
+        ),
+        _buildAnimatedSection(
+          delay: 100,
+          child: _buildSection(
+            title: 'Active Bookings',
+            child: _buildBookingStatusChart(
+              model.totalBookings!.toDouble(),
+              model.bookingsInprogress!.toDouble(),
+              model.bookingsCancelled!.toDouble(),
+              model.bookingsCompleted!.toDouble(),
+              model.bookingsRejected!.toDouble(),
+            ),
+          ),
+        ),
+        _buildAnimatedSection(
+          delay: 150,
+          child: _buildSection(
+            title: 'Earnings Snapshot',
+            child: Column(
+              children: [
+                _buildStatCard(
+                  context,
+                  model.revenue.toString(),
+                  'Current Month Earnings',
+                  Icons.account_balance_wallet_rounded,
+                  const Color(0xFFFFF7ED),
+                  const Color(0xFFF97316),
+                  isCurrency: true,
+                ),
+                const SizedBox(height: 16),
+                _buildMonthlyEarningsChart(model.monthWiseRevenue!),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedSection({required Widget child, required int delay}) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+
+  Widget _buildGreeting() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hi, ${model.employeeName ?? ""}',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1A1D1E),
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Here's what's happening with your bookings today.",
+            style: TextStyle(
+              color: Color(0xFF6B7280),
+              fontSize: 15,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({required String title, required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1A1D1E),
+            ),
+          ),
+        ),
+        child,
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildStatsGrid(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: constraints.maxWidth > 600 ? 3 : 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: constraints.maxWidth > 600 ? 1.5 : 1.1,
+          children: [
+            _buildStatCard(
+              context,
+              model.totalBookings.toString(),
+              'Total Assigned',
+              Icons.calendar_today_rounded,
+              const Color(0xFFEEF2FF),
+              const Color(0xFF6366F1),
+            ),
+            _buildStatCard(
+              context,
+              model.bookingsInprogress.toString(),
+              "In Progress",
+              Icons.sync_rounded,
+              const Color(0xFFF0F9FF),
+              const Color(0xFF0EA5E9),
+            ),
+            _buildStatCard(
+              context,
+              model.bookingsCompleted.toString(),
+              'Completed',
+              Icons.check_circle_rounded,
+              const Color(0xFFECFDF5),
+              const Color(0xFF10B981),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -286,69 +385,57 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
     bool isCurrency = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(
-          16), // Sligthly reduced padding for smaller screens
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: iconColor.withOpacity(0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-            spreadRadius: 0,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey.withOpacity(0.05)),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: bgColor.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(height: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    isCurrency ? '\₹$value' : value,
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -1,
-                      color: Color(0xFF1A1D1E),
-                    ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  isCurrency ? '₹$value' : value,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1A1D1E),
+                    letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -357,17 +444,18 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
 
   Widget _buildMonthlyEarningsChart(List<MonthWiseRevenue> data) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 32,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,93 +463,73 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Monthly Earnings',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1A1D1E),
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Revenue Overview',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                  ],
+              const Text(
+                'Revenue Trend',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1D1E),
                 ),
               ),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0F9FF),
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Year ${DateTime.now().year}',
-                  style: TextStyle(
-                    color: Color(0xFF0EA5E9),
-                    fontSize: 12,
+                  '${DateTime.now().year}',
+                  style: const TextStyle(
+                    color: Color(0xFF4B5563),
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 24),
           SizedBox(
-            height: 240,
+            height: 200,
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
                   horizontalInterval: 1000,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: Colors.grey[100]!,
-                      strokeWidth: 1,
-                      dashArray: [4, 4],
-                    );
-                  },
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: const Color(0xFFF3F4F6),
+                    strokeWidth: 1,
+                  ),
                 ),
                 titlesData: FlTitlesData(
                   show: true,
                   rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
+                      sideTitles: SideTitles(showTitles: false)),
                   topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
+                      sideTitles: SideTitles(showTitles: false)),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 32,
+                      reservedSize: 30,
                       interval: 1,
                       getTitlesWidget: (double value, TitleMeta meta) {
                         if (value.toInt() >= 0 && value.toInt() < data.length) {
                           return Padding(
-                            padding: const EdgeInsets.only(top: 12.0),
+                            padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
-                              data[value.toInt()].monthName ?? '',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 12,
+                              data[value.toInt()].monthName?.substring(0, 3) ??
+                                  '',
+                              style: const TextStyle(
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           );
                         }
-                        return const Text('');
+                        return const SizedBox();
                       },
                     ),
                   ),
@@ -472,14 +540,14 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                       getTitlesWidget: (double value, TitleMeta meta) {
                         return Text(
                           '${(value / 1000).toStringAsFixed(0)}k',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 12,
+                          style: const TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
                         );
                       },
-                      reservedSize: 30,
+                      reservedSize: 28,
                     ),
                   ),
                 ),
@@ -489,57 +557,26 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                 minY: 0,
                 maxY: (data
                             .map((e) => e.totalAmount!.toDouble())
-                            .fold(0.0, (a, b) => a > b ? a : b) ==
-                        0
-                    ? 4000
-                    : data
-                            .map((e) => e.totalAmount!.toDouble())
                             .fold(0.0, (a, b) => a > b ? a : b) *
-                        1.2),
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-                      return touchedBarSpots.map((barSpot) {
-                        return LineTooltipItem(
-                          '\$${barSpot.y.toStringAsFixed(0)}',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }).toList();
-                    },
-                    tooltipPadding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                ),
+                        1.2)
+                    .clamp(1000, 1000000),
                 lineBarsData: [
                   LineChartBarData(
                     spots: data.asMap().entries.map((entry) {
                       return FlSpot(entry.key.toDouble(),
-                          entry.value.totalAmount!.toDouble() ?? 0.0);
+                          entry.value.totalAmount!.toDouble());
                     }).toList(),
                     isCurved: true,
                     curveSmoothness: 0.35,
                     color: const Color(0xFF0EA5E9),
-                    barWidth: 3,
+                    barWidth: 4,
                     isStrokeCapRound: true,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) {
-                        return FlDotCirclePainter(
-                          radius: 6,
-                          color: Colors.white,
-                          strokeWidth: 3,
-                          strokeColor: const Color(0xFF0EA5E9),
-                        );
-                      },
-                    ),
+                    dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          const Color(0xFF0EA5E9).withOpacity(0.2),
+                          const Color(0xFF0EA5E9).withOpacity(0.15),
                           const Color(0xFF0EA5E9).withOpacity(0.0),
                         ],
                         begin: Alignment.topCenter,
@@ -562,109 +599,94 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 32,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Booking Status',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1A1D1E),
-            ),
-          ),
-          const SizedBox(height: 40),
-          Center(
-            child: SizedBox(
-              height: 280,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  PieChart(
-                    PieChartData(
-                      pieTouchData: PieTouchData(
-                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                          setState(() {
-                            if (!event.isInterestedForInteractions ||
-                                pieTouchResponse == null ||
-                                pieTouchResponse.touchedSection == null) {
-                              touchedIndex = -1;
-                              return;
-                            }
-                            touchedIndex = pieTouchResponse
-                                .touchedSection!.touchedSectionIndex;
-                          });
-                        },
+          SizedBox(
+            height: 200,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 4,
+                    centerSpaceRadius: 60,
+                    startDegreeOffset: -90,
+                    sections: [
+                      PieChartSectionData(
+                        color: const Color(0xFF10B981),
+                        value: completed,
+                        title: '',
+                        radius: 25,
                       ),
-                      borderData: FlBorderData(show: false),
-                      sectionsSpace: 4,
-                      centerSpaceRadius: 65,
-                      sections: _getPieChartSections(
-                          inprogress, completed, cancelled, rejected, total),
-                    ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            total.toInt().toString(),
-                            style: const TextStyle(
-                              fontSize: 42,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1A1D1E),
-                              letterSpacing: -1,
-                            ),
-                          ),
-                        ),
+                      PieChartSectionData(
+                        color: const Color(0xFF0EA5E9),
+                        value: inprogress,
+                        title: '',
+                        radius: 25,
                       ),
-                      const Text(
-                        'Total Bookings',
-                        style: TextStyle(
-                          color: Color(0xFF9CA3AF),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      PieChartSectionData(
+                        color: const Color(0xFFEF4444),
+                        value: cancelled,
+                        title: '',
+                        radius: 25,
+                      ),
+                      PieChartSectionData(
+                        color: const Color(0xFFF59E0B),
+                        value: rejected,
+                        title: '',
+                        radius: 25,
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      total.toInt().toString(),
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1A1D1E),
+                      ),
+                    ),
+                    const Text(
+                      'Total',
+                      style: TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           Wrap(
             spacing: 16,
             runSpacing: 12,
+            alignment: WrapAlignment.center,
             children: [
               _buildLegendItem(
-                '${completed.toInt().toString()} Completed',
-                const Color(0xFF10B981),
-              ),
+                  'Completed', const Color(0xFF10B981), completed.toInt()),
               _buildLegendItem(
-                '${inprogress.toInt().toString()} In Progress',
-                const Color(0xFF0EA5E9),
-              ),
+                  'In Progress', const Color(0xFF0EA5E9), inprogress.toInt()),
               _buildLegendItem(
-                '${cancelled.toInt().toString()} Cancelled',
-                const Color(0xFFEF4444),
-              ),
+                  'Cancelled', const Color(0xFFEF4444), cancelled.toInt()),
               _buildLegendItem(
-                '${rejected.toInt().toString()} Rejected',
-                const Color(0xFFF59E0B),
-              ),
+                  'Rejected', const Color(0xFFF59E0B), rejected.toInt()),
             ],
           ),
         ],
@@ -672,94 +694,21 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
     );
   }
 
-  List<PieChartSectionData> _getPieChartSections(
-      double inprogress,
-      double completed,
-      double cancalled,
-      double rejected,
-      double totalBookings) {
-    return [
-      PieChartSectionData(
-        color: const Color(0xFF10B981),
-        value: completed.toDouble(),
-        title: '',
-        radius: touchedIndex == 0 ? 55 : 45,
-        badgeWidget: touchedIndex == 0
-            ? _buildBadge(Icons.check, const Color(0xFF10B981))
-            : null,
-        badgePositionPercentageOffset: 1.3,
-      ),
-      PieChartSectionData(
-        color: const Color(0xFFEF4444),
-        value: cancalled.toDouble(),
-        title: '',
-        radius: touchedIndex == 1 ? 55 : 45,
-        badgeWidget: touchedIndex == 1
-            ? _buildBadge(Icons.close, const Color(0xFFEF4444))
-            : null,
-        badgePositionPercentageOffset: 1.3,
-      ),
-      PieChartSectionData(
-        color: const Color(0xFFF59E0B),
-        value: rejected.toDouble(),
-        title: '',
-        radius: touchedIndex == 2 ? 55 : 45,
-        badgeWidget: touchedIndex == 2
-            ? _buildBadge(Icons.block, const Color(0xFFF59E0B))
-            : null,
-        badgePositionPercentageOffset: 1.3,
-      ),
-      PieChartSectionData(
-        color: const Color(0xFF0EA5E9),
-        value: inprogress.toDouble(),
-        title: '',
-        radius: touchedIndex == 3 ? 55 : 45,
-        badgeWidget: touchedIndex == 3
-            ? _buildBadge(Icons.sync, const Color(0xFF0EA5E9))
-            : null,
-        badgePositionPercentageOffset: 1.3,
-      ),
-    ];
-  }
-
-  // Helper for Pie Chart Badges
-  Widget _buildBadge(IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: color, width: 2),
-      ),
-      padding: const EdgeInsets.all(6),
-      child: Icon(icon, size: 16, color: color),
-    );
-  }
-
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(String label, Color color, int value) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
         Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 13,
+          '$label ($value)',
+          style: const TextStyle(
+            color: Color(0xFF4B5563),
+            fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -769,62 +718,3 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
 }
 
 // Model Classes
-class EmployeeStats {
-  final int totalAssigned;
-  final int inProgress;
-  final int completed;
-  final int monthlyEarnings;
-
-  EmployeeStats({
-    required this.totalAssigned,
-    required this.inProgress,
-    required this.completed,
-    required this.monthlyEarnings,
-  });
-
-  factory EmployeeStats.fromJson(Map<String, dynamic> json) {
-    return EmployeeStats(
-      totalAssigned: json['totalAssigned'] ?? 0,
-      inProgress: json['inProgress'] ?? 0,
-      completed: json['completed'] ?? 0,
-      monthlyEarnings: json['monthlyEarnings'] ?? 0,
-    );
-  }
-}
-
-class MonthlyData {
-  final String month;
-  final double earnings;
-
-  MonthlyData({required this.month, required this.earnings});
-
-  factory MonthlyData.fromJson(Map<String, dynamic> json) {
-    return MonthlyData(
-      month: json['month'] ?? '',
-      earnings: (json['earnings'] ?? 0).toDouble(),
-    );
-  }
-}
-
-class EmployeeBookingStatus {
-  final int total;
-  final int completed;
-  final int assigned;
-  final int inProgress;
-
-  EmployeeBookingStatus({
-    required this.total,
-    required this.completed,
-    required this.assigned,
-    required this.inProgress,
-  });
-
-  factory EmployeeBookingStatus.fromJson(Map<String, dynamic> json) {
-    return EmployeeBookingStatus(
-      total: json['total'] ?? 0,
-      completed: json['completed'] ?? 0,
-      assigned: json['assigned'] ?? 0,
-      inProgress: json['inProgress'] ?? 0,
-    );
-  }
-}

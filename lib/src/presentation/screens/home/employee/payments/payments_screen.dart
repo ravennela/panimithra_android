@@ -7,6 +7,7 @@ import 'package:panimithra/src/data/models/employee_active_plan_model.dart';
 import 'package:panimithra/src/presentation/bloc/payments_bloc/payments_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/payments_bloc/payments_event.dart';
 import 'package:panimithra/src/presentation/bloc/payments_bloc/payments_state.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -75,7 +76,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         listener: (context, state) {},
         builder: (context, state) {
           if (state is EmployeePaymentLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildShimmerLoading();
           }
           if (state is EmployeePaymentError) {
             return Center(
@@ -312,6 +313,27 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           return Container();
         },
       ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 3,
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[200]!,
+          highlightColor: Colors.white,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            height: 220,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+          ),
+        );
+      },
     );
   }
 }

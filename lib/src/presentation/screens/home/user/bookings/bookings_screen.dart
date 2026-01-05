@@ -11,6 +11,7 @@ import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
 import 'package:panimithra/src/presentation/widget/rating_dialog.dart';
+import 'package:shimmer/shimmer.dart';
 
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
@@ -135,11 +136,7 @@ class BookingScreenWidget extends State<BookingsScreen> {
         },
         builder: (context, state) {
           if (state is BookingLoadingState && page == 0) {
-            return Center(
-              child: CircularProgressIndicator(
-                color: const Color(0xFF1A1D1E),
-              ),
-            );
+            return _buildShimmerLoading();
           }
           if (state is BookingErrorState) {
             return Center(
@@ -194,18 +191,14 @@ class BookingScreenWidget extends State<BookingsScreen> {
                             visible: state.totalRecords <= state.item.length
                                 ? false
                                 : true,
-                            child: const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: CircularProgressIndicator(),
-                              ),
-                            ));
+                            child: _buildPaginationShimmer());
                       }
                       return GestureDetector(
                         onTap: () {
-                          context.push(AppRoutes.BookingDetailsScreen, extra: {
-                            "bookingId": state.item[index].bookingId
-                          });
+                          context.push(AppRoutes.UserBookingDetailsScreen,
+                              extra: {
+                                "bookingId": state.item[index].bookingId
+                              });
                         },
                         child: BookingTile(
                           amount: state.item[index].amount.toString(),
@@ -256,6 +249,97 @@ class BookingScreenWidget extends State<BookingsScreen> {
           }
           return Container();
         },
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          height: 160,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.white,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 20,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              height: 14,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: 20,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  height: 48,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(bottom: Radius.circular(24)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPaginationShimmer() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[200]!,
+        highlightColor: Colors.white,
+        child: Container(
+          height: 80,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
 import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -41,7 +42,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
         },
         builder: (context, state) {
           if (state is UserProfileLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildShimmerLoading(primaryColor);
           }
 
           if (state is UserProfileError) {
@@ -404,6 +405,78 @@ class _ProfileScreenState extends State<UserProfileScreen> {
             child: const Text("Sign Out",
                 style:
                     TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading(Color primaryColor) {
+    return CustomScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 280.0,
+          backgroundColor: primaryColor.withOpacity(0.1),
+          flexibleSpace: FlexibleSpaceBar(
+            background: Shimmer.fromColors(
+              baseColor: primaryColor.withOpacity(0.2),
+              highlightColor: primaryColor.withOpacity(0.1),
+              child: Container(color: Colors.white),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Transform.translate(
+            offset: const Offset(0, -28),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
+              child: Column(
+                children: List.generate(3, (index) => _buildMenuItemShimmer()),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuItemShimmer() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.white,
+            child: Container(
+              height: 18,
+              width: 140,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.white,
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
           ),
         ],
       ),

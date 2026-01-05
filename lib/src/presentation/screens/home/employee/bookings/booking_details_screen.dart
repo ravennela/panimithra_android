@@ -7,6 +7,7 @@ import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_bloc.dart'
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart';
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
+import 'package:shimmer/shimmer.dart';
 
 class EmployeeBookingDetailsScreen extends StatefulWidget {
   final String bookingId;
@@ -42,18 +43,14 @@ class BookingDetailsWidget extends State<EmployeeBookingDetailsScreen> {
                   title: "Status Changed Successfully");
               context.pop();
             }
-            if(state is UpdatePaymentStatusError){
+            if (state is UpdatePaymentStatusError) {
               ToastHelper.showToast(
-                  context: context,
-                  type: "error",
-                  title: state.message);
+                  context: context, type: "error", title: state.message);
             }
           },
           builder: (context, state) {
             if (state is BookingDetailsLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return _buildShimmerLoading();
             }
             if (state is BookingDetailsError) {
               return Center(
@@ -356,5 +353,42 @@ class BookingDetailsWidget extends State<EmployeeBookingDetailsScreen> {
       default:
         return Colors.orange;
     }
+  }
+
+  Widget _buildShimmerLoading() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Column(
+          children: [
+            Container(
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 250,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

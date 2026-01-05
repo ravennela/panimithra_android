@@ -25,7 +25,7 @@ import 'package:panimithra/src/presentation/screens/home/employee/my_services/cr
 import 'package:panimithra/src/presentation/screens/home/employee/my_services/edit_service_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/payments/checkout_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/employee/payments/plans_screen.dart';
-import 'package:panimithra/src/presentation/screens/home/user/bookings/booking_details_screen.dart';
+import 'package:panimithra/src/presentation/screens/home/user/bookings/user_booking_details_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/pre_booking_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/dashboard/reviews_screen.dart';
 import 'package:panimithra/src/presentation/screens/home/user/profile/about_us_screen.dart';
@@ -119,12 +119,12 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      path: AppRoutes.BookingDetailsScreen,
+      path: AppRoutes.UserBookingDetailsScreen,
       builder: (context, state) {
         final bookingId = state.extra is Map
             ? (state.extra as Map)['bookingId'] as String? ?? ''
             : '';
-        return BookingDetailsScreen(
+        return UserBookingDetailsScreen(
           bookingId: bookingId,
         );
       },
