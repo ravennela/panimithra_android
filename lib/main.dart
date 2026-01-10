@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 import 'package:panimithra/src/injection.dart' as di;
 
 import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
@@ -21,7 +22,10 @@ import 'package:panimithra/src/utilities/notification_service/firebase_backgroun
 import 'package:panimithra/src/utilities/notification_service/firebase_options.dart';
 import 'package:panimithra/src/utilities/notification_service/firebase_service.dart';
 import 'package:panimithra/src/utilities/notification_service/notification_service.dart';
-import 'src/presentation/bloc/login/login_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:panimithra/src/presentation/bloc/login/login_bloc.dart';
+import 'package:panimithra/src/presentation/cubit/locale/locale_cubit.dart';
+
 
 Future<void> setupFirebaseMessaging() async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -38,6 +42,9 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
+        BlocProvider<LocaleCubit>(
+          create: (_) => di.sl<LocaleCubit>(),
+        ),
         BlocProvider<LoginBloc>(
           create: (_) => di.sl<LoginBloc>(),
         ),
@@ -66,15 +73,31 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Marble Tech',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData.dark(useMaterial3: true),
-      routerConfig: router,
+    return BlocBuilder<LocaleCubit, Locale>(
+      builder: (context, locale) {
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'PaniMithra',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData.dark(useMaterial3: true),
+          routerConfig: router,
+          locale: locale,
+          supportedLocales: const [
+            Locale('en'),
+            Locale('hi'),
+            Locale('te'),
+          ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+        );
+      },
     );
   }
 }

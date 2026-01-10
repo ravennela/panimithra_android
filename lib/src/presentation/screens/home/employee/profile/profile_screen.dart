@@ -9,6 +9,9 @@ import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
 import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
+import 'package:panimithra/src/presentation/widget/error_ui_builder.dart';
+import 'package:panimithra/src/presentation/cubit/locale/locale_cubit.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: BlocConsumer<FetchUsersBloc, FetchUsersState>(
@@ -124,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              user.fullName ?? "Employee Name",
+                              user.fullName ?? l10n.employeeNameDefault,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -163,12 +167,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             _buildSection(
                               context,
-                              title: "Account Settings",
+                              title: l10n.accountSettings,
                               items: [
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.person_rounded,
-                                  title: "About Us",
+                                  title: l10n.aboutUs,
                                   color: Colors.blue,
                                   onTap: () => context
                                       .push(AppRoutes.ABOUT_US_SCREEN_PATH),
@@ -176,22 +180,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.lock_rounded,
-                                  title: "Change Password",
+                                  title: l10n.changePassword,
                                   color: Colors.orange,
                                   onTap: () => context
                                       .push(AppRoutes.RESET_PASSWORD_SCREEN),
+                                ),
+                                _buildProfileMenuItem(
+                                  context,
+                                  icon: Icons.language_rounded,
+                                  title: l10n.changeLanguage,
+                                  color: Colors.green,
+                                  onTap: () => _showLanguageDialog(context),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 24),
                             _buildSection(
                               context,
-                              title: "Support & Legal",
+                              title: l10n.supportLegal,
                               items: [
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.help_center_rounded,
-                                  title: "Help & Support",
+                                  title: l10n.helpSupport,
                                   color: Colors.teal,
                                   onTap: () => context
                                       .push(AppRoutes.HELP_SUPPORT_SCREEN_PATH),
@@ -199,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.description_rounded,
-                                  title: "Terms & Conditions",
+                                  title: l10n.termsConditions,
                                   color: Colors.purple,
                                   onTap: () => UrlLauncherHelper.launchWebUrl(
                                       'https://dynamic-lolly-961756.netlify.app/',
@@ -208,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.shield_rounded,
-                                  title: "Privacy Policy",
+                                  title: l10n.privacyPolicy,
                                   color: Colors.indigo,
                                   onTap: () => UrlLauncherHelper.launchWebUrl(
                                       'https://694bb0de96fad848212f7f2b--sprightly-sunshine-aac8ce.netlify.app/',
@@ -219,12 +230,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(height: 24),
                             _buildSection(
                               context,
-                              title: "Login",
+                              title: l10n.login,
                               items: [
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.logout_rounded,
-                                  title: "Sign Out",
+                                  title: l10n.signOut,
                                   color: Colors.red,
                                   isLast: true,
                                   onTap: () => _showLogoutDialog(context),
@@ -236,7 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "App Version 1.0.0",
+                                    "${l10n.appVersion} 1.0.0",
                                     style: TextStyle(
                                       color: Colors.grey[400],
                                       fontSize: 12,
@@ -341,73 +352,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildErrorState(String message, Color primaryColor) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline_rounded, size: 60, color: Colors.red[300]),
-            const SizedBox(height: 16),
-            const Text(
-              "Oops! Something went wrong",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => context
-                  .read<FetchUsersBloc>()
-                  .add(const GetUserProfileEvent(userId: "")),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text("Try Again",
-                  style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
+    return ErrorUIBuilder.buildErrorUI(
+      context: context,
+      error: message,
+      onRetry: () {
+        context.read<FetchUsersBloc>().add(const GetUserProfileEvent(userId: ""));
+      },
     );
   }
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Sign Out"),
-        content:
-            const Text("Are you sure you want to sign out from your account?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-          ),
-          TextButton(
-            onPressed: () async {
-              SharedPreferences preferences =
-                  await SharedPreferences.getInstance();
-              await preferences.clear();
-              if (context.mounted) {
-                context.go(AppRoutes.LOGIN_ROUTE_PATH);
-              }
-            },
-            child: const Text("Sign Out",
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(l10n.signOut),
+          content: Text(l10n.signOutConfirmation),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel, style: const TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () async {
+                SharedPreferences preferences =
+                    await SharedPreferences.getInstance();
+                await preferences.clear();
+                if (context.mounted) {
+                  context.go(AppRoutes.LOGIN_ROUTE_PATH);
+                }
+              },
+              child: Text(l10n.signOut,
+                  style: const TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -479,6 +463,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                l10n.selectLanguage,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              _buildLanguageOption(context, "English", "en", "🇺🇸"),
+              const SizedBox(height: 12),
+              _buildLanguageOption(context, "हिन्दी", "hi", "🇮🇳"),
+              const SizedBox(height: 12),
+              _buildLanguageOption(context, "తెలుగు", "te", "🇮🇳"),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLanguageOption(
+      BuildContext context, String name, String code, String flag) {
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    final isSelected = currentLocale == code;
+
+    return InkWell(
+      onTap: () {
+        context.read<LocaleCubit>().setLocale(code);
+        Navigator.pop(context);
+        ToastHelper.showToast(
+          context: context,
+          type: "success",
+          title: AppLocalizations.of(context)!.languageChanged,
+        );
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withOpacity(0.05) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? Colors.blue.withOpacity(0.5) : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 16),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? Colors.blue[700] : Colors.black87,
+              ),
+            ),
+            const Spacer(),
+            if (isSelected)
+              Icon(Icons.check_circle_rounded, color: Colors.blue[700]),
+          ],
+        ),
       ),
     );
   }

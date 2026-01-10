@@ -11,3 +11,7 @@ class AuthenticatorWatcherAuthCheckRequest extends AuthenticatorWatcherEvent {
 class AuthenticatorWatcherSignOut extends AuthenticatorWatcherEvent {
   const AuthenticatorWatcherSignOut();
 }
+
+class AuthenticatorWatcherSessionExpiredEvent extends AuthenticatorWatcherEvent {
+  const AuthenticatorWatcherSessionExpiredEvent();
+}

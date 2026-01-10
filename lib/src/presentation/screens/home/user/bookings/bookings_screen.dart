@@ -12,6 +12,8 @@ import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart
 import 'package:panimithra/src/presentation/widget/helper.dart';
 import 'package:panimithra/src/presentation/widget/rating_dialog.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
+import 'package:panimithra/src/presentation/widget/error_ui_builder.dart';
 
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
@@ -23,15 +25,11 @@ class BookingsScreen extends StatefulWidget {
 }
 
 class BookingScreenWidget extends State<BookingsScreen> {
-  final _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   int totalRecords = 0;
   int totalLength = 0;
   int page = 0;
-  int x = 0;
-  String searchString = "";
   Timer? _debounce;
-  Timer? _searchDebounce;
   bool isLoading = false;
   @override
   void initState() {
@@ -42,10 +40,8 @@ class BookingScreenWidget extends State<BookingsScreen> {
 
   @override
   void dispose() {
-    _searchController.dispose();
     _scrollController.dispose();
     _debounce?.cancel();
-    _searchDebounce?.cancel();
     _scrollController.removeListener(_scrollListener);
     super.dispose();
   }
@@ -63,7 +59,6 @@ class BookingScreenWidget extends State<BookingsScreen> {
           return;
         }
         if (totalLength <= totalRecords) {
-          x = 2;
           page += 1;
           context.read<BookingBloc>().add(FetchBookingsEvent(page));
         }
@@ -71,19 +66,6 @@ class BookingScreenWidget extends State<BookingsScreen> {
     });
   }
 
-  void _onSearchChanged(String query) {
-    if (_searchDebounce?.isActive ?? false) _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
-      _callApi(query); // Trigger the API
-    });
-  }
-
-  _callApi(String query) {
-    if (query.isEmpty) {
-      page = 0;
-    }
-    context.read<BookingBloc>().add(FetchBookingsEvent(page));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +74,9 @@ class BookingScreenWidget extends State<BookingsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'My Bookings',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.myBookings,
+          style: const TextStyle(
             color: Color(0xFF1A1D1E),
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -139,43 +121,13 @@ class BookingScreenWidget extends State<BookingsScreen> {
             return _buildShimmerLoading();
           }
           if (state is BookingErrorState) {
-            return Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline_rounded,
-                      size: 48, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Error loading Bookings',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1D1E)),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    state.message,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<BookingBloc>().add(FetchBookingsEvent(0));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A1D1E),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Retry',
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
+            return ErrorUIBuilder.buildErrorUI(
+              context: context,
+              error: state.message,
+              onRetry: () {
+                page = 0;
+                context.read<BookingBloc>().add(FetchBookingsEvent(0));
+              },
             );
           }
           if (state is BookingLoadedState) {
@@ -216,35 +168,13 @@ class BookingScreenWidget extends State<BookingsScreen> {
                         ),
                       );
                     })
-                : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.calendar_today_rounded,
-                              size: 48, color: Colors.grey[400]),
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          "No Bookings Found",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1D1E),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Your bookings will appear here",
-                          style: TextStyle(color: Colors.grey[500]),
-                        ),
-                      ],
-                    ),
+                : ErrorUIBuilder.buildEmptyState(
+                    context: context,
+                    message: AppLocalizations.of(context)!.yourBookingsWillAppearHere,
+                    onRefresh: () {
+                      page = 0;
+                      context.read<BookingBloc>().add(FetchBookingsEvent(0));
+                    },
                   );
           }
           return Container();
@@ -427,7 +357,7 @@ class BookingTile extends StatelessWidget {
                     ),
                   ],
                 ),
-                _statusTag(status),
+                _statusTag(context, status),
               ],
             ),
           ),
@@ -504,11 +434,11 @@ class BookingTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
-                    children: const [
-                      Icon(Icons.star_rounded, color: Colors.orange, size: 14),
-                      SizedBox(width: 4),
-                      Text("Rate",
-                          style: TextStyle(
+                    children: [
+                      const Icon(Icons.star_rounded, color: Colors.orange, size: 14),
+                      const SizedBox(width: 4),
+                      Text(AppLocalizations.of(context)!.rate,
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Colors.orange,
@@ -523,27 +453,32 @@ class BookingTile extends StatelessWidget {
     );
   }
 
-  Widget _statusTag(String status) {
+  Widget _statusTag(BuildContext context, String status) {
     Color bg;
     Color fg;
+    final l10n = AppLocalizations.of(context)!;
     String text = status;
 
     switch (status.toLowerCase()) {
       case "confirmed":
         bg = Colors.green.withOpacity(0.1);
         fg = Colors.green;
+        text = l10n.confirmed;
         break;
       case "completed":
         bg = Colors.blue.withOpacity(0.1);
         fg = Colors.blue;
+        text = l10n.completed;
         break;
       case "cancelled":
         bg = Colors.red.withOpacity(0.1);
         fg = Colors.red;
+        text = l10n.cancelled;
         break;
       case "pending":
         bg = Colors.orange.withOpacity(0.1);
         fg = Colors.orange;
+        text = l10n.pending;
         break;
       default:
         bg = Colors.grey.withOpacity(0.1);

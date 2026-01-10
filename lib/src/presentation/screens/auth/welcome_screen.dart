@@ -1,10 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
+import 'package:panimithra/src/presentation/cubit/locale/locale_cubit.dart';
 import '../../../common/images.dart';
 import '../../../common/routes.dart';
+
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -78,6 +82,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final l10n = AppLocalizations.of(context)!;
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: ConstrainedBox(
@@ -99,7 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               Column(
                                 children: [
                                   Text(
-                                    "PaniMithra",
+                                    l10n.appName,
                                     style: GoogleFonts.outfit(
                                       fontSize: 40,
                                       fontWeight: FontWeight.w800,
@@ -123,7 +128,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                       ],
                                     ),
                                     child: Text(
-                                      "Your Trusted Service Partner",
+                                      l10n.trustedServicePartner,
                                       style: GoogleFonts.outfit(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -188,7 +193,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                             CrossAxisAlignment.stretch,
                                         children: [
                                           Text(
-                                            "Get Started",
+                                            l10n.getStarted,
                                             textAlign: TextAlign.center,
                                             style: GoogleFonts.outfit(
                                               fontSize: 24,
@@ -227,7 +232,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                                     size: 20),
                                                 const SizedBox(width: 12),
                                                 Text(
-                                                  "I am a Service Provider",
+                                                  l10n.iAmServiceProvider,
                                                   style: GoogleFonts.outfit(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.w600,
@@ -269,7 +274,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                                     size: 20),
                                                 const SizedBox(width: 12),
                                                 Text(
-                                                  "I am a User",
+                                                  l10n.iAmUser,
                                                   style: GoogleFonts.outfit(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.w600,
@@ -292,7 +297,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "Already have an account?",
+                                    l10n.alreadyHaveAccount,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF64748B),
                                       fontSize: 15,
@@ -309,7 +314,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                           MaterialTapTargetSize.shrinkWrap,
                                     ),
                                     child: Text(
-                                      "Login",
+                                      l10n.login,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF2563EB),
                                         fontWeight: FontWeight.bold,
@@ -330,8 +335,75 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               },
             ),
           ),
+          Positioned(
+            top: 40,
+            right: 20,
+            child: SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.language, color: Color(0xFF2563EB)),
+                  onPressed: () => _showLanguageSelector(context),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  void _showLanguageSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.selectLanguage,
+                style: GoogleFonts.outfit(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 15),
+              _buildLanguageItem(context, 'English', 'en'),
+              _buildLanguageItem(context, 'हिंदी', 'hi'),
+              _buildLanguageItem(context, 'తెలుగు', 'te'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLanguageItem(BuildContext context, String name, String code) {
+    return ListTile(
+      title: Text(name, style: GoogleFonts.outfit(fontSize: 16)),
+      trailing: context.watch<LocaleCubit>().state.languageCode == code
+          ? const Icon(Icons.check_circle, color: Color(0xFF2563EB))
+          : null,
+      onTap: () {
+        context.read<LocaleCubit>().setLocale(code);
+        Navigator.pop(context);
+      },
     );
   }
 }

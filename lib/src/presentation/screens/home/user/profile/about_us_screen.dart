@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});
@@ -8,6 +9,7 @@ class AboutUsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(
@@ -27,9 +29,9 @@ class AboutUsScreen extends StatelessWidget {
             ),
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
-              title: const Text(
-                'About Us',
-                style: TextStyle(
+              title: Text(
+                l10n.aboutUs,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -85,8 +87,8 @@ class AboutUsScreen extends StatelessWidget {
                             letterSpacing: 1.2,
                           ),
                         ),
-                        const Text(
-                          "Empowering Service Excellence",
+                         Text(
+                          l10n.empoweringExcellence,
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -118,27 +120,27 @@ class AboutUsScreen extends StatelessWidget {
                     children: [
                       _buildInfoSection(
                         context,
-                        title: "Who We Are",
+                        title: l10n.whoWeAre,
                         content:
-                            "Panimithra is a next-generation workforce and service management platform designed to bridge the gap between administrators and field professionals. We leverage technology to create seamless operational workflows.",
+                            l10n.whoWeAreContent,
                         icon: Icons.info_outline_rounded,
                         color: Colors.blue,
                       ),
                       const SizedBox(height: 24),
                       _buildInfoSection(
                         context,
-                        title: "What We Do",
+                        title: l10n.whatWeDo,
                         content:
-                            "We provide a comprehensive ecosystem for managing service requests, tracking real-time activities, and empowering service providers with data-driven insights and secure communication tools.",
+                            l10n.whatWeDoContent,
                         icon: Icons.settings_suggest_rounded,
                         color: Colors.orange,
                       ),
                       const SizedBox(height: 24),
                       _buildInfoSection(
                         context,
-                        title: "Our Vision",
+                        title: l10n.ourVision,
                         content:
-                            "To redefine the service industry by delivering a platform where efficiency meets quality, enabling professionals to focus on what they do best while we handle the operational complexity.",
+                            l10n.ourVisionContent,
                         icon: Icons.lightbulb_outline_rounded,
                         color: Colors.green,
                       ),
@@ -161,19 +163,19 @@ class AboutUsScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            const Text(
-                              "App Information",
-                              style: TextStyle(
+                            Text(
+                              l10n.appInformation,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 16),
-                            _buildInfoRow("Version", "1.0.0"),
+                            _buildInfoRow(l10n.version, "1.0.0"),
                             const Divider(height: 24),
-                            _buildInfoRow("Platform", "Panimithra Mobile"),
+                            _buildInfoRow(l10n.platform, l10n.panimithraMobile),
                             const Divider(height: 24),
-                            _buildInfoRow("Support", "Admin Managed"),
+                            _buildInfoRow(l10n.support, l10n.adminManaged),
                           ],
                         ),
                       ),
@@ -182,7 +184,7 @@ class AboutUsScreen extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              "© 2026 Panimithra",
+                              l10n.copyright,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 13,
@@ -191,7 +193,7 @@ class AboutUsScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "All rights reserved.",
+                              l10n.allRightsReserved,
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 11,

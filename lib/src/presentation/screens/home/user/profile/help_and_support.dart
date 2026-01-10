@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/presentation/widget/url_launcher.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
@@ -10,6 +11,7 @@ class HelpSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(
@@ -29,9 +31,9 @@ class HelpSupportScreen extends StatelessWidget {
             ),
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
-              title: const Text(
-                'Help & Support',
-                style: TextStyle(
+              title: Text(
+                l10n.helpSupport,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -68,7 +70,7 @@ class HelpSupportScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'How can we help you?',
+                          l10n.howCanWeHelp,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: 14,
@@ -98,18 +100,18 @@ class HelpSupportScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionTitle(context, 'Frequently Asked Questions'),
+                      _buildSectionTitle(context, l10n.frequentlyAskedQuestions),
                       const SizedBox(height: 16),
                       _supportTile(
                         context,
                         icon: Icons.help_center_rounded,
-                        title: 'Browse FAQs',
-                        subtitle: 'Quick answers to common questions',
+                        title: l10n.browseFaqs,
+                        subtitle: l10n.quickAnswers,
                         color: Colors.blue,
                         onTap: () => context.push(AppRoutes.FAQ_SCREEN_PATH),
                       ),
                       const SizedBox(height: 24),
-                      _buildSectionTitle(context, 'Get in Touch'),
+                      _buildSectionTitle(context, l10n.getInTouch),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -117,8 +119,8 @@ class HelpSupportScreen extends StatelessWidget {
                             child: _buildContactCard(
                               context,
                               icon: Icons.email_rounded,
-                              title: 'Email Us',
-                              subtitle: 'Support team',
+                              title: l10n.emailUs,
+                              subtitle: l10n.supportTeam,
                               color: Colors.orange,
                               onTap: () => UrlLauncherHelper.launchEmail(
                                   "kullaraki@gmail.com",
@@ -130,8 +132,8 @@ class HelpSupportScreen extends StatelessWidget {
                             child: _buildContactCard(
                               context,
                               icon: Icons.call_rounded,
-                              title: 'Call Us',
-                              subtitle: 'Toll-free',
+                              title: l10n.callUs,
+                              subtitle: l10n.tollFree,
                               color: Colors.green,
                               onTap: () => UrlLauncherHelper.launchPhone(
                                   "9347573451",
@@ -155,16 +157,16 @@ class HelpSupportScreen extends StatelessWidget {
                             Icon(Icons.support_agent_rounded,
                                 size: 40, color: primaryColor),
                             const SizedBox(height: 12),
-                            const Text(
-                              'Still need assistance?',
-                              style: TextStyle(
+                            Text(
+                              l10n.stillNeedAssistance,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Our team is usually available 24/7 to help you with any issues.',
+                              l10n.teamAvailable247,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.grey[600],
@@ -177,7 +179,7 @@ class HelpSupportScreen extends StatelessWidget {
                       const SizedBox(height: 40),
                       Center(
                         child: Text(
-                          'Version 1.0.0',
+                          l10n.versionWithVal("1.0.0"),
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 12,

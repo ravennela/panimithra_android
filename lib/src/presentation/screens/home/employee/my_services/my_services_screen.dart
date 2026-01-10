@@ -12,6 +12,8 @@ import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
+import 'package:panimithra/src/presentation/widget/error_ui_builder.dart';
 
 class MyServicesScreen extends StatefulWidget {
   const MyServicesScreen({super.key});
@@ -88,9 +90,9 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'My Services',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.myService,
+              style: const TextStyle(
                 color: Color(0xFF1A1D1E),
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -99,7 +101,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              'Manage your offerings',
+              AppLocalizations.of(context)!.manageYourOfferings,
               style: TextStyle(
                 color: Colors.grey[500],
                 fontSize: 13,
@@ -118,9 +120,9 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
         elevation: 4,
         highlightElevation: 8,
         icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'Add Service',
-          style: TextStyle(fontWeight: FontWeight.w600),
+        label: Text(
+          AppLocalizations.of(context)!.addService,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
       body: BlocConsumer<ServiceBloc, ServiceState>(
@@ -172,7 +174,11 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
           }
 
           if (state is ServiceError && _currentPage == 0) {
-            return _buildErrorState(state.message);
+            return ErrorUIBuilder.buildErrorUI(
+              context: context,
+              error: state.message,
+              onRetry: _onRefresh,
+            );
           }
 
           if (state is ServiceLoaded) {
@@ -222,67 +228,6 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
     );
   }
 
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.cloud_off_rounded,
-                size: 48,
-                color: Colors.red.shade400,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Oops! Something went wrong',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: 140,
-              height: 44,
-              child: ElevatedButton.icon(
-                onPressed: _onRefresh,
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Try Again'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -304,7 +249,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'No services offered yet',
+              AppLocalizations.of(context)!.noServicesOffered,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20,
@@ -314,7 +259,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Create your first service to start reaching customers and growing your business.',
+              AppLocalizations.of(context)!.createFirstServiceMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -338,9 +283,9 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                 ),
-                child: const Text(
-                  'Create Service',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.createService,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

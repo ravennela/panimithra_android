@@ -10,7 +10,11 @@ import 'package:panimithra/src/presentation/bloc/login/login_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/login/login_event.dart';
 import 'package:panimithra/src/presentation/bloc/login/login_state.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
+import 'package:panimithra/src/presentation/widget/error_ui_builder.dart';
+
+import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,6 +31,22 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Handle session expired message
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = GoRouterState.of(context);
+      if (state.uri.queryParameters['reason'] == 'sessionExpired') {
+        ToastHelper.showToast(
+          context: context,
+          type: 'error',
+          title: AppLocalizations.of(context)!.sessionExpired,
+        );
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
@@ -35,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
@@ -70,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      "Welcome Back 👋",
+                      l10n.welcomeBack,
                       style: GoogleFonts.inter(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -79,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      "Login to continue",
+                      l10n.loginToContinue,
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         color: Colors.black54,
@@ -110,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       // Username
                       Text(
-                        "Email Id",
+                        l10n.emailId,
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -119,14 +140,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 8),
                       _buildInputField(
                         controller: _usernameController,
-                        hint: "Enter your email id",
+                        hint: l10n.enterEmailId,
+                        l10n: l10n,
                       ),
 
                       const SizedBox(height: 20),
 
                       // Password
                       Text(
-                        "Password",
+                        l10n.password,
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -135,7 +157,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 8),
                       _buildInputField(
                           controller: _passwordController,
-                          hint: "Enter your password",
+                          hint: l10n.enterPassword,
+                          l10n: l10n,
                           obscure: !_isPasswordVisible,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -161,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Align(
                           alignment: Alignment.centerRight,
                           child: Text(
-                            "Forgot Password?",
+                            l10n.forgotPassword,
                             style: GoogleFonts.inter(
                               color: Color(0xFF0D6EFD),
                               fontSize: 14,
@@ -180,19 +203,38 @@ class _LoginScreenState extends State<LoginScreen> {
                             ToastHelper.showToast(
                               context: context,
                               type: 'success',
-                              title: "Login Successful",
+                              title: l10n.loginSuccessful,
                             );
                             getToken();
+                            // Update global auth state before navigating
+                            context.read<AuthenticatorWatcherBloc>().add(
+                                  const AuthenticatorWatcherAuthCheckRequest(),
+                                );
                             context.go(AppRoutes.HOME_SCREEN_PATH);
-                          } else if (state is LoginError) {
-                            ToastHelper.showToast(
-                              context: context,
-                              type: 'error',
-                              title: state.message,
-                            );
                           }
                         },
                         builder: (context, state) {
+                          // Show error UI if login failed
+                          if (state is LoginError) {
+                            return Column(
+                              children: [
+                                ErrorUIBuilder.buildErrorUI(
+                                  context: context,
+                                  error: state.message,
+                                  onRetry: () {
+                                    if (!formKey.currentState!.validate()) return;
+                                    context.read<LoginBloc>().add(
+                                          CreateloginLoginEvent({
+                                            "username": _usernameController.text,
+                                            "password": _passwordController.text
+                                          }),
+                                        );
+                                  },
+                                ),
+                              ],
+                            );
+                          }
+                          
                           bool isLoading = state is LoginLoading;
                           return SizedBox(
                             width: double.infinity,
@@ -232,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     )
                                   : Text(
-                                      "Login",
+                                      l10n.login,
                                       style: GoogleFonts.inter(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w700,
@@ -254,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account? ",
+                      l10n.dontHaveAccount + " ",
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         color: Colors.black54,
@@ -263,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     GestureDetector(
                       onTap: () => context.push(AppRoutes.WELCOME_ROUTE_PATH),
                       child: Text(
-                        "Sign Up",
+                        l10n.signUp,
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -293,6 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildInputField({
     required TextEditingController controller,
     required String hint,
+    required AppLocalizations l10n,
     bool obscure = false,
     Widget? suffixIcon,
   }) {
@@ -300,7 +343,7 @@ class _LoginScreenState extends State<LoginScreen> {
       controller: controller,
       obscureText: obscure,
       validator: (value) =>
-          value == null || value.isEmpty ? "This field cannot be empty" : null,
+          value == null || value.isEmpty ? l10n.fieldCannotBeEmpty : null,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,

@@ -19,6 +19,7 @@ import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_e
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class EditServiceScreen extends StatefulWidget {
   final String serviceId;
@@ -131,7 +132,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
   }
 
   String formatTime(TimeOfDay? time) {
-    if (time == null) return "Select time";
+    if (time == null) return AppLocalizations.of(context)!.selectTime;
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
     return DateFormat('hh:mm a').format(dt);
@@ -167,9 +168,9 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               color: Color(0xFF1A1D1E), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Edit Service',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.editService,
+          style: const TextStyle(
             color: Color(0xFF1A1D1E),
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -235,7 +236,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               ToastHelper.showToast(
                   context: context,
                   type: 'success',
-                  title: "Service Updated Successfully");
+                  title: AppLocalizations.of(context)!.serviceUpdatedSuccessfully);
               context.read<ServiceBloc>().add(FetchServicesEvent(page: 0));
               context.pop();
             }
@@ -262,7 +263,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                         children: [
                           // ---------- Service Category ----------
                           _SectionHeader(
-                              title: 'Category', icon: Icons.category_rounded),
+                              title: AppLocalizations.of(context)!.category, icon: Icons.category_rounded),
                           const SizedBox(height: 12),
                           _sectionCard(
                             child: Column(
@@ -278,7 +279,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                     children: [
                                       _buildSelectField(
                                         controller: categoryController,
-                                        hint: 'Select Category',
+                                        hint: AppLocalizations.of(context)!.selectCategory,
                                         icon: Icons.grid_view_rounded,
                                         isExpanded: showManagerDropdown,
                                         onTap: () {
@@ -325,7 +326,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                               },
                                             );
                                           },
-                                          emptyMessage: "No Category Available",
+                                          emptyMessage: AppLocalizations.of(context)!.noCategoryAvailable,
                                           isEmpty: state.totalRecords == 0,
                                         ),
                                       ]
@@ -347,7 +348,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                     children: [
                                       _buildSelectField(
                                         controller: subCategoryController,
-                                        hint: 'Select SubCategory',
+                                        hint: AppLocalizations.of(context)!.selectSubCategory,
                                         icon: Icons.widgets_outlined,
                                         isExpanded: subShowManagerDropdown,
                                         onTap: () {
@@ -389,7 +390,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                             );
                                           },
                                           emptyMessage:
-                                              "No SubCategories Available",
+                                              AppLocalizations.of(context)!.noSubCategoriesAvailable,
                                           isEmpty: state.totalRecords == 0,
                                         ),
                                       ]
@@ -404,7 +405,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
 
                           // ---------- Service Details ----------
                           _SectionHeader(
-                              title: 'Service Details',
+                              title: AppLocalizations.of(context)!.serviceDetails,
                               icon: Icons.description_rounded),
                           const SizedBox(height: 12),
                           _sectionCard(
@@ -413,26 +414,26 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                 _buildTextField(
                                   isMandatory: true,
                                   controller: _serviceNameController,
-                                  label: 'Service Name',
+                                  label: AppLocalizations.of(context)!.serviceName,
                                   maxLength: 100,
-                                  hint: 'Service Name',
+                                  hint: AppLocalizations.of(context)!.serviceName,
                                 ),
                                 const SizedBox(height: 20),
                                 _buildTextField(
                                   controller: _descriptionController,
                                   isMandatory: true,
                                   maxLength: 500,
-                                  label: 'Description',
-                                  hint: 'Service Description',
+                                  label: AppLocalizations.of(context)!.description,
+                                  hint: AppLocalizations.of(context)!.description,
                                   maxLines: 4,
                                 ),
                                 const SizedBox(height: 20),
                                 _buildTextField(
                                   controller: addressController,
                                   isMandatory: true,
-                                  label: 'Service Location',
+                                  label: AppLocalizations.of(context)!.serviceLocation,
                                   maxLength: 200,
-                                  hint: 'Service Address',
+                                  hint: AppLocalizations.of(context)!.serviceLocation,
                                   maxLines: 2,
                                   icon: Icons.location_on_outlined,
                                 ),
@@ -444,7 +445,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
 
                           // ---------- Additional Info ----------
                           _SectionHeader(
-                              title: 'Included Items',
+                              title: AppLocalizations.of(context)!.includedItems,
                               icon: Icons.check_circle_rounded),
                           const SizedBox(height: 12),
                           _sectionCard(
@@ -453,27 +454,27 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                 _buildTextField(
                                   controller: addInfoLine1Controller,
                                   isMandatory: false,
-                                  label: 'Additional Info 1',
+                                  label: AppLocalizations.of(context)!.additionalInfo1,
                                   maxLength: 100,
-                                  hint: 'e.g., Tools included',
+                                  hint: AppLocalizations.of(context)!.additionalInfo1Hint,
                                   icon: Icons.done_all_rounded,
                                 ),
                                 const SizedBox(height: 16),
                                 _buildTextField(
                                   isMandatory: false,
                                   controller: addInfoLine2Controller,
-                                  label: 'Additional Info 2',
+                                  label: AppLocalizations.of(context)!.additionalInfo2,
                                   maxLength: 100,
-                                  hint: 'e.g., 30 days warranty',
+                                  hint: AppLocalizations.of(context)!.additionalInfo2Hint,
                                   icon: Icons.done_all_rounded,
                                 ),
                                 const SizedBox(height: 16),
                                 _buildTextField(
                                   isMandatory: false,
                                   controller: addInfoLine3Controller,
-                                  label: 'Additional Info 3',
+                                  label: AppLocalizations.of(context)!.additionalInfo3,
                                   maxLength: 100,
-                                  hint: 'e.g., Free consultation',
+                                  hint: AppLocalizations.of(context)!.additionalInfo3Hint,
                                   icon: Icons.done_all_rounded,
                                 ),
                               ],
@@ -484,7 +485,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
 
                           // ---------- Pricing & Duration ----------
                           _SectionHeader(
-                              title: 'Pricing & Time',
+                              title: AppLocalizations.of(context)!.pricingAndTime,
                               icon: Icons.currency_rupee),
                           const SizedBox(height: 12),
                           _sectionCard(
@@ -497,8 +498,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                       child: _buildTextField(
                                         isMandatory: true,
                                         controller: _priceController,
-                                        label: 'Price (₹)',
-                                        hint: '500',
+                                        label: AppLocalizations.of(context)!.price,
+                                        hint: AppLocalizations.of(context)!.priceHint,
                                         keyboardType: TextInputType.number,
                                         prefixIcon: const Icon(
                                             Icons.currency_rupee,
@@ -525,9 +526,9 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 20),
-                                const Text(
-                                  'Availability Window',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!.availabilityWindow,
+                                  style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF64748B),
@@ -538,7 +539,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                   children: [
                                     Expanded(
                                       child: _buildTimePicker(
-                                        label: 'Start Time',
+                                        label: AppLocalizations.of(context)!.startTime,
                                         time: startTime,
                                         onTap: () => _selectTime(context, true),
                                       ),
@@ -546,7 +547,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                     const SizedBox(width: 16),
                                     Expanded(
                                       child: _buildTimePicker(
-                                        label: 'End Time',
+                                        label: AppLocalizations.of(context)!.endTime,
                                         time: endTime,
                                         onTap: () =>
                                             _selectTime(context, false),
@@ -562,7 +563,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
 
                           // ---------- Available Days ----------
                           _SectionHeader(
-                              title: 'Available Days',
+                              title: AppLocalizations.of(context)!.availableDays,
                               icon: Icons.calendar_month_rounded),
                           const SizedBox(height: 12),
                           _sectionCard(
@@ -570,13 +571,13 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                               spacing: 10,
                               runSpacing: 10,
                               children: [
-                                'Mon',
-                                'Tue',
-                                'Wed',
-                                'Thu',
-                                'Fri',
-                                'Sat',
-                                'Sun'
+                                AppLocalizations.of(context)!.monday,
+                                AppLocalizations.of(context)!.tuesday,
+                                AppLocalizations.of(context)!.wednesday,
+                                AppLocalizations.of(context)!.thursday,
+                                AppLocalizations.of(context)!.friday,
+                                AppLocalizations.of(context)!.saturday,
+                                AppLocalizations.of(context)!.sunday
                               ].map((day) => _buildDayChip(day)).toList(),
                             ),
                           ),
@@ -585,7 +586,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
 
                           // ---------- Service Images ----------
                           _SectionHeader(
-                              title: 'Gallery',
+                              title: AppLocalizations.of(context)!.gallery,
                               icon: Icons.photo_library_rounded),
                           const SizedBox(height: 12),
                           _sectionCard(
@@ -676,28 +677,28 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Category');
+                                      title: AppLocalizations.of(context)!.pleaseSelectCategory);
                                   return;
                                 }
                                 if (_selectedSubcategory == null) {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Sub Category');
+                                      title: AppLocalizations.of(context)!.pleaseSelectSubCategory);
                                   return;
                                 }
                                 if (_selectedDuration == null) {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Duration');
+                                      title: AppLocalizations.of(context)!.pleaseSelectDuration);
                                   return;
                                 }
                                 if (startTime == null || endTime == null) {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Timings');
+                                      title: AppLocalizations.of(context)!.pleaseSelectTimings);
                                   return;
                                 }
                                 if (startTime!.isAfter(endTime!)) {
@@ -705,7 +706,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                       context: context,
                                       type: 'error',
                                       title:
-                                          'Start Time must be before End Time');
+                                          AppLocalizations.of(context)!.startTimeBeforeEndTime);
                                   return;
                                 }
 
@@ -775,8 +776,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                                 width: 24,
                                 child: CircularProgressIndicator(
                                     color: Colors.white, strokeWidth: 2.5))
-                            : const Text('Update Service',
-                                style: TextStyle(
+                            : Text(AppLocalizations.of(context)!.updateService,
+                                style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w700)),
                       ),
                     ),
@@ -1183,14 +1184,17 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  formatTime(time),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: time != null
-                        ? const Color(0xFF1F2937)
-                        : Colors.grey.shade400,
+                Expanded(
+                  child: Text(
+                    formatTime(time),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: time != null
+                          ? const Color(0xFF1F2937)
+                          : Colors.grey.shade400,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Icon(Icons.access_time_rounded,

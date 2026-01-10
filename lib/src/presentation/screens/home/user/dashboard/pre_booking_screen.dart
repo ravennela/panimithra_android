@@ -16,6 +16,7 @@ import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class PreBookingScreen extends StatefulWidget {
   final String serviceId;
@@ -42,6 +43,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FD),
       body: Column(
@@ -75,9 +77,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                         Icon(Icons.error_outline_rounded,
                             size: 48, color: Colors.grey[400]),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Something went wrong',
-                          style: TextStyle(
+                        Text(
+                          l10n.somethingWentWrong,
+                          style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1A1D1E)),
@@ -101,8 +103,8 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Retry',
-                              style: TextStyle(color: Colors.white)),
+                          child: Text(l10n.retry,
+                              style: const TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
@@ -230,7 +232,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          'starts from',
+                                          l10n.startsFrom,
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey[500],
@@ -324,7 +326,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                                 ),
                                                 const SizedBox(height: 2),
                                                 Text(
-                                                  '${state.service.employeeExperiance}+ years exp',
+                                                  l10n.yearsExp(state.service.employeeExperiance.toString()),
                                                   style: TextStyle(
                                                     fontSize: 13,
                                                     color: Colors.grey[500],
@@ -344,14 +346,14 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                                   BorderRadius.circular(20),
                                             ),
                                             child: Row(
-                                              children: const [
+                                              children:  [
                                                 Icon(Icons.verified_rounded,
                                                     size: 14,
                                                     color: Colors.green),
                                                 SizedBox(width: 4),
                                                 Text(
-                                                  'Verified',
-                                                  style: TextStyle(
+                                                  l10n.verified,
+                                                  style: const TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                     color: Colors.green,
@@ -366,9 +368,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                     const SizedBox(height: 32),
 
                                     // About Section
-                                    const Text(
-                                      'About Service',
-                                      style: TextStyle(
+                                    Text(
+                                      l10n.aboutService,
+                                      style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
                                         color: Color(0xFF1A1D1E),
@@ -394,9 +396,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                         (state.service.addInfoThree != null &&
                                             state.service.addInfoThree!
                                                 .isNotEmpty)) ...[
-                                      const Text(
-                                        'What\'s Included',
-                                        style: TextStyle(
+                                      Text(
+                                        l10n.whatsIncluded,
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w700,
                                           color: Color(0xFF1A1D1E),
@@ -424,9 +426,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Text(
-                                          'Reviews',
-                                          style: TextStyle(
+                                        Text(
+                                          l10n.reviews,
+                                          style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700,
                                             color: Color(0xFF1A1D1E),
@@ -441,10 +443,10 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                                 });
                                           },
                                           child: Text(
-                                            'See all',
-                                            style: TextStyle(
+                                            l10n.seeAll,
+                                            style: const TextStyle(
                                               fontWeight: FontWeight.w600,
-                                              color: const Color(0xFF1A1D1E),
+                                              color: Color(0xFF1A1D1E),
                                             ),
                                           ),
                                         ),
@@ -485,7 +487,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                                       color: Colors.grey[300]),
                                                   const SizedBox(height: 8),
                                                   Text(
-                                                    'No reviews yet',
+                                                    l10n.noReviewsYet,
                                                     style: TextStyle(
                                                         color: Colors.grey[500],
                                                         fontWeight:
@@ -559,7 +561,7 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                     ToastHelper.showToast(
                         context: context,
                         type: 'success',
-                        title: "Booking Created Successfully");
+                        title: l10n.bookingCreatedSuccessfully);
                     context.pop();
                   }
                   if (state is CreateBookingErrorState) {
@@ -620,9 +622,9 @@ class _PreBookingScreenState extends State<PreBookingScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              'Book Service Now',
-                              style: TextStyle(
+                          : Text(
+                              l10n.bookServiceNow,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,

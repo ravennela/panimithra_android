@@ -25,3 +25,19 @@ class DatabaseFailure extends Failure {
 class CacheFailure extends Failure {
   const CacheFailure(String message) : super(message);
 }
+
+class NetworkFailure extends Failure {
+  const NetworkFailure(String message) : super(message);
+}
+
+class TimeoutFailure extends Failure {
+  const TimeoutFailure(String message) : super(message);
+}
+
+class UnauthorizedFailure extends Failure {
+  const UnauthorizedFailure(String message) : super(message);
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure(String message) : super(message);
+}

@@ -7,6 +7,7 @@ import 'package:panimithra/src/common/toast.dart' show ToastHelper;
 import 'package:panimithra/src/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/review_bloc/review_event.dart';
 import 'package:panimithra/src/presentation/bloc/review_bloc/review_state.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class Review {
   final String name;
@@ -107,6 +108,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
         backgroundColor: const Color(0xFFF5F5F5),
         appBar: AppBar(
@@ -118,9 +120,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               context.pop();
             },
           ),
-          title: const Text(
-            'All Reviews',
-            style: TextStyle(
+          title: Text(
+            l10n.allReviews,
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -132,6 +134,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   }
 
   Widget _buildReviewsList() {
+    final l10n = AppLocalizations.of(context)!;
     return BlocConsumer<ReviewBloc, ReviewState>(
       listener: (context, state) {
         if (state is FetchAllReviewsLoaded) {
@@ -163,9 +166,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               children: [
                 const Icon(Icons.error_outline, size: 48, color: Colors.red),
                 const SizedBox(height: 16),
-                const Text(
-                  'Error loading Reviews',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.errorLoadingReviews,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -179,7 +182,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                     context.read<ReviewBloc>().add(FetchAllReviewsEvent(
                         serviceId: widget.serviceId, pageNo: 0));
                   },
-                  child: Text('Retry'),
+                  child: Text(l10n.retry),
                 ),
               ],
             ),
@@ -264,7 +267,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Service by ${review.employeeName} • ID: ${review.employeeId}',
+                      l10n.serviceByWithId(review.employeeName, review.employeeId),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[500],
@@ -382,6 +385,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -400,9 +404,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'No reviews yet!',
-            style: TextStyle(
+          Text(
+            l10n.noReviewsYetExclamation,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -410,7 +414,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Be the first to share your experience.',
+            l10n.beFirstToShare,
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[600],
@@ -422,6 +426,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   }
 
   Widget _buildErrorState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -440,9 +445,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Something went wrong',
-            style: TextStyle(
+          Text(
+            l10n.somethingWentWrong,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -450,7 +455,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Please check your connection and try again.',
+            l10n.checkConnectionTryAgain,
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[600],
@@ -466,14 +471,14 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            child: const Row(
+            child:  Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.refresh, size: 20),
                 SizedBox(width: 8),
                 Text(
-                  'Retry',
-                  style: TextStyle(
+                  l10n.retry,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

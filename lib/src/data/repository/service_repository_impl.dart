@@ -26,6 +26,8 @@ class ServiceRepositoryImpl implements ServiceRepository {
       return const Left(
         "No Internet Connection",
       );
+    } on UnauthorizedException {
+      rethrow;
     } on ServerException catch (e) {
       return Left(e.message);
     } on DioException catch (e) {
@@ -53,6 +55,8 @@ class ServiceRepositoryImpl implements ServiceRepository {
       return Right(model);
     } on SocketException {
       return const Left("No Internet Connection");
+    } on UnauthorizedException {
+      rethrow;
     } on ServerException catch (e) {
       return Left(e.message);
     } on DioException catch (e) {

@@ -5,6 +5,7 @@ import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -49,6 +50,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Container(
         child: SafeArea(
@@ -67,10 +69,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
-                          "Change Password",
+                        Text(
+                          l10n.changePassword,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
@@ -80,7 +82,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         /// Current Password
                         _passwordField(
                           controller: _currentPasswordController,
-                          label: "Current Password",
+                          label: l10n.currentPassword,
                           obscure: _currentObscure,
                           toggle: () {
                             setState(() {
@@ -89,10 +91,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Enter current password";
+                              return l10n.enterCurrentPassword;
                             }
                             if (value.length < 6) {
-                              return "Password must be at least 6 characters";
+                              return l10n.passwordLengthError;
                             }
                             return null;
                           },
@@ -103,7 +105,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         /// New Password
                         _passwordField(
                           controller: _newPasswordController,
-                          label: "New Password",
+                          label: l10n.newPassword,
                           obscure: _newObscure,
                           toggle: () {
                             setState(() {
@@ -112,13 +114,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Enter new password";
+                              return l10n.enterNewPassword;
                             }
                             if (value.length < 8) {
-                              return "Minimum 8 characters required";
+                              return l10n.min8Chars;
                             }
                             if (!RegExp(r'[0-9]').hasMatch(value)) {
-                              return "Must contain at least one number";
+                              return l10n.atLeastOneNumber;
                             }
                             return null;
                           },
@@ -129,7 +131,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         /// Confirm Password
                         _passwordField(
                           controller: _confirmPasswordController,
-                          label: "Confirm Password",
+                          label: l10n.confirmPassword,
                           obscure: _confirmObscure,
                           toggle: () {
                             setState(() {
@@ -138,10 +140,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Confirm your password";
+                              return l10n.confirmYourPassword;
                             }
                             if (value != _newPasswordController.text) {
-                              return "Passwords do not match";
+                              return l10n.passwordsDoNotMatch;
                             }
                             return null;
                           },
@@ -186,9 +188,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               ),
                               child: Text(
                                 state is ResetPasswordLoading
-                                    ? "Updating ..."
-                                    : "Update Password",
-                                style: TextStyle(
+                                    ? l10n.updating
+                                    : l10n.updatePassword,
+                                style: const TextStyle(
                                     fontSize: 16, color: Colors.white),
                               ),
                             );

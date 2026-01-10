@@ -15,3 +15,8 @@ class NetworkException implements Exception {
   final String message;
   NetworkException(this.message);
 }
+
+class UnauthorizedException implements Exception {
+  final String message;
+  UnauthorizedException([this.message = 'Unauthorized']);
+}

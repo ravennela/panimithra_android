@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/routes.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
@@ -33,15 +34,16 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Profile & Settings',
-          style: TextStyle(
+        title: Text(
+          l10n.profileSettings,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -138,26 +140,26 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             const SizedBox(height: 24),
 
             // Account Settings Section
-            _buildSectionHeader('Account Settings'),
+            _buildSectionHeader(l10n.accountSettings),
             const SizedBox(height: 8),
             _buildMenuItem(
               icon: Icons.person_outline,
-              title: 'Edit Profile',
+              title: l10n.editProfile,
               onTap: () {},
             ),
             _buildMenuItem(
               icon: Icons.lock_outline,
-              title: 'Change Password',
+              title: l10n.changePassword,
               onTap: () {},
             ),
             const SizedBox(height: 24),
-
+ 
             // App Preferences Section
-            _buildSectionHeader('App Preferences'),
+            _buildSectionHeader(l10n.appPreferences),
             const SizedBox(height: 8),
             _buildToggleMenuItem(
               icon: Icons.notifications_outlined,
-              title: 'Notifications',
+              title: l10n.notifications,
               value: notificationsEnabled,
               onChanged: (value) {
                 setState(() {
@@ -166,42 +168,42 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               },
             ),
             const SizedBox(height: 24),
-
+ 
             // Management Section
-            _buildSectionHeader('Management'),
+            _buildSectionHeader(l10n.management),
             const SizedBox(height: 8),
             _buildMenuItem(
               icon: Icons.category_outlined,
-              title: 'Manage Service Categories',
+              title: l10n.manageServiceCategories,
               onTap: () {
                 context.push(AppRoutes.CATEGORIES_PATH);
               },
             ),
             _buildMenuItem(
               icon: Icons.card_membership_outlined,
-              title: 'Manage Subscription Plans',
+              title: l10n.manageSubscriptionPlans,
               onTap: () {
                 context.push(AppRoutes.SUBSCRIPTION_PLAN_SCREEN_PATH);
               },
             ),
             const SizedBox(height: 24),
-
+ 
             // About Section
-            _buildSectionHeader('About'),
+            _buildSectionHeader(l10n.about),
             const SizedBox(height: 8),
             _buildMenuItem(
               icon: Icons.help_outline,
-              title: 'Help & Support',
+              title: l10n.helpSupport,
               onTap: () {},
             ),
             _buildMenuItem(
               icon: Icons.info_outline,
-              title: 'About App',
+              title: l10n.aboutApp,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'v1.0.0',
+                    '${l10n.version} 1.0.0',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -232,9 +234,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                   Icons.logout,
                   color: Colors.red,
                 ),
-                label: const Text(
-                  'Logout',
-                  style: TextStyle(
+                label: Text(
+                  l10n.logout,
+                  style: const TextStyle(
                     color: Colors.red,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

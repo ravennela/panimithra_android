@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:panimithra/src/common/toast.dart';
@@ -7,6 +8,7 @@ import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
 import 'package:panimithra/src/presentation/widget/helper.dart';
+import 'package:panimithra/src/presentation/widget/error_ui_builder.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -62,6 +64,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -79,20 +82,20 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                   const Icon(Icons.construction, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 12),
-            const Column(
+             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'FixMate',
-                  style: TextStyle(
+                  Text(
+                    l10n.appName,
+                    style: const TextStyle(
                     color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  'Admin',
-                  style: TextStyle(
+                  Text(
+                    l10n.admin,
+                    style: const TextStyle(
                     color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.normal,
@@ -140,36 +143,14 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (state is AdminDashboardError) {
-                    return Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline,
-                              size: 48, color: Colors.red),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Error in loading ',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            state.message,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              context
-                                  .read<FetchUsersBloc>()
-                                  .add(const GetAdminDashboardEvent());
-                            },
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
+                    return ErrorUIBuilder.buildErrorUI(
+                      context: context,
+                      error: state.message,
+                      onRetry: () {
+                        context
+                            .read<FetchUsersBloc>()
+                            .add(const GetAdminDashboardEvent());
+                      },
                     );
                   }
                   if (state is AdminDashboardLoaded) {
@@ -186,7 +167,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                           childAspectRatio: 1.2,
                           children: [
                             _buildStatCard(
-                              'New Users',
+                              l10n.newUsers,
                               state.dashboardModel.currentMonthUsers.toString(),
                               differeceCalculator(
                                   state.dashboardModel.currentMonthUsers ?? 0,
@@ -196,7 +177,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                               Colors.blue,
                             ),
                             _buildStatCard(
-                              'Employees',
+                              l10n.employees,
                               state.dashboardModel.currentMonthEmployees
                                   .toString(),
                               differeceCalculator(
@@ -209,7 +190,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                               Colors.blue,
                             ),
                             _buildStatCard(
-                              'Completed',
+                              l10n.completed,
                               state.dashboardModel.completedBookings.toString(),
                               differeceCalculator(
                                   state.dashboardModel.completedBookings ?? 0,
@@ -221,7 +202,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                               Colors.grey,
                             ),
                             _buildStatCard(
-                              'Pending',
+                              l10n.pending,
                               state.dashboardModel.pendingBookings.toString(),
                               differeceCalculator(
                                   state.dashboardModel.pendingBookings ?? 0,
@@ -237,13 +218,13 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                         const SizedBox(height: 16),
 
                         // Revenue Card
-                        _buildRevenueCard(state.dashboardModel.revenue!),
+                        _buildRevenueCard(state.dashboardModel.revenue!, l10n),
                         const SizedBox(height: 24),
 
                         // City Analytics
-                        const Text(
-                          'City Analytics',
-                          style: TextStyle(
+                        Text(
+                          l10n.cityAnalytics,
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
@@ -252,12 +233,12 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
 
                         // Employee Registrations Bar Chart
                         _buildEmployeeRegistrationsChart(
-                            state.dashboardModel.cityEmployee!),
+                            state.dashboardModel.cityEmployee!, l10n),
                         const SizedBox(height: 16),
 
                         // Bookings by City
                         _buildBookingsByCityChart(
-                            state.dashboardModel.cityBookings!),
+                            state.dashboardModel.cityBookings!, l10n),
                         const SizedBox(height: 24),
 
                         // Booking Status Overview with Pie Chart
@@ -268,7 +249,8 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                             state.dashboardModel.rejectedBookings!.toDouble(),
                             state.dashboardModel.inporgressBookings!.toDouble(),
                             state.dashboardModel.completedBookings!.toDouble(),
-                            state.dashboardModel.cancelledBookings!.toDouble()),
+                            state.dashboardModel.cancelledBookings!.toDouble(),
+                            l10n),
                       ],
                     );
                   }
@@ -354,7 +336,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildRevenueCard(double revenue) {
+  Widget _buildRevenueCard(double revenue, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -376,7 +358,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Revenue',
+                l10n.revenue,
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 14,
@@ -420,8 +402,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildEmployeeRegistrationsChart(
-    List<City> city,
-  ) {
+      List<City> city, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -438,9 +419,9 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Employee Registrations by City',
-            style: TextStyle(
+          Text(
+            l10n.employeeRegistrationsByCity,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -546,7 +527,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildBookingsByCityChart(List<City> city) {
+  Widget _buildBookingsByCityChart(List<City> city, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -563,9 +544,9 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Bookings by City',
-            style: TextStyle(
+          Text(
+            l10n.bookingsByCityTitle,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -659,8 +640,14 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildBookingStatusCard(double totalBookings, double pendingBookins,
-      double rejected, double inprogress, double completed, double cancelled) {
+  Widget _buildBookingStatusCard(
+      double totalBookings,
+      double pendingBookins,
+      double rejected,
+      double inprogress,
+      double completed,
+      double cancelled,
+      AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -677,9 +664,9 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Booking Status Overview',
-            style: TextStyle(
+          Text(
+            l10n.bookingStatusOverview,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -730,7 +717,7 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
                         ),
                       ),
                       Text(
-                        'Total Bookings',
+                        l10n.totalBookings,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
@@ -743,22 +730,22 @@ class _DashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          _buildLegendItem('Completed',
+          _buildLegendItem(l10n.completed,
               calculatePercentage(completed, totalBookings), Colors.green),
           const SizedBox(height: 12),
           _buildLegendItem(
-              'Pending',
+              l10n.pending,
               calculatePercentage(pendingBookins, totalBookings),
               Colors.orange),
           const SizedBox(height: 12),
-          _buildLegendItem('Cancelled',
+          _buildLegendItem(l10n.cancelled,
               calculatePercentage(cancelled, totalBookings), Colors.red),
           const SizedBox(height: 12),
-          _buildLegendItem('Rejected',
+          _buildLegendItem(l10n.rejected,
               calculatePercentage(rejected, totalBookings), Colors.orange),
           const SizedBox(height: 12),
           _buildLegendItem(
-              'Inprogress',
+              l10n.inprogress,
               calculatePercentage(inprogress, totalBookings),
               Colors.blueAccent),
         ],

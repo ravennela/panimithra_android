@@ -9,6 +9,8 @@ import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
 import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
+import 'package:panimithra/src/presentation/cubit/locale/locale_cubit.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -50,6 +52,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
           }
 
           if (state is UserProfileLoaded) {
+            final l10n = AppLocalizations.of(context)!;
             final user = state.userProfileModel;
             return CustomScrollView(
               physics: const BouncingScrollPhysics(),
@@ -124,7 +127,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              user.fullName ?? "User Name",
+                              user.fullName ?? l10n.userName,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -163,12 +166,12 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                           children: [
                             _buildSection(
                               context,
-                              title: "Account Settings",
+                              title: l10n.accountSettings,
                               items: [
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.person_rounded,
-                                  title: "About Us",
+                                  title: l10n.aboutUs,
                                   color: Colors.blue,
                                   onTap: () => context
                                       .push(AppRoutes.ABOUT_US_SCREEN_PATH),
@@ -176,22 +179,29 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.lock_rounded,
-                                  title: "Change Password",
+                                  title: l10n.changePassword,
                                   color: Colors.orange,
                                   onTap: () => context
                                       .push(AppRoutes.RESET_PASSWORD_SCREEN),
+                                ),
+                                _buildProfileMenuItem(
+                                  context,
+                                  icon: Icons.language_rounded,
+                                  title: l10n.changeLanguage,
+                                  color: Colors.green,
+                                  onTap: () => _showLanguageDialog(context),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 24),
                             _buildSection(
                               context,
-                              title: "Support & Legal",
+                              title: l10n.supportLegal,
                               items: [
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.help_center_rounded,
-                                  title: "Help & Support",
+                                  title: l10n.helpSupport,
                                   color: Colors.teal,
                                   onTap: () => context
                                       .push(AppRoutes.HELP_SUPPORT_SCREEN_PATH),
@@ -199,7 +209,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.description_rounded,
-                                  title: "Terms & Conditions",
+                                  title: l10n.termsConditions,
                                   color: Colors.purple,
                                   onTap: () => UrlLauncherHelper.launchWebUrl(
                                       'https://dynamic-lolly-961756.netlify.app/',
@@ -208,7 +218,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.shield_rounded,
-                                  title: "Privacy Policy",
+                                  title: l10n.privacyPolicy,
                                   color: Colors.indigo,
                                   onTap: () => UrlLauncherHelper.launchWebUrl(
                                       'https://694bb0de96fad848212f7f2b--sprightly-sunshine-aac8ce.netlify.app/',
@@ -219,12 +229,12 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                             const SizedBox(height: 24),
                             _buildSection(
                               context,
-                              title: "Login",
+                              title: l10n.login,
                               items: [
                                 _buildProfileMenuItem(
                                   context,
                                   icon: Icons.logout_rounded,
-                                  title: "Sign Out",
+                                  title: l10n.signOut,
                                   color: Colors.red,
                                   isLast: true,
                                   onTap: () => _showLogoutDialog(context),
@@ -236,7 +246,7 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "App Version 1.0.0",
+                                    "${l10n.appVersion} 1.0.0",
                                     style: TextStyle(
                                       color: Colors.grey[400],
                                       fontSize: 12,
@@ -341,38 +351,161 @@ class _ProfileScreenState extends State<UserProfileScreen> {
   }
 
   Widget _buildErrorState(String message, Color primaryColor) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(40),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline_rounded, size: 60, color: Colors.red[300]),
-            const SizedBox(height: 16),
-            const Text(
-              "Oops! Something went wrong",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
+            // Animated Error Icon with Gradient Background
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFEF4444).withOpacity(0.1),
+                          const Color(0xFFF97316).withOpacity(0.05),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFEF4444).withOpacity(0.2),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.error_outline_rounded,
+                      size: 64,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => context
-                  .read<FetchUsersBloc>()
-                  .add(const GetUserProfileEvent(userId: "")),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+            
+            // Error Title
+            Text(
+              l10n.oopsSomethingWentWrong,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1A1D1E),
+                letterSpacing: -0.5,
               ),
-              child: const Text("Try Again",
-                  style: TextStyle(color: Colors.white)),
+            ),
+            const SizedBox(height: 12),
+            
+            // Error Message
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFE5E7EB),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 14,
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            
+            // Retry Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context
+                      .read<FetchUsersBloc>()
+                      .add(const GetUserProfileEvent(userId: ""));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0EA5E9),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 2,
+                  shadowColor: const Color(0xFF0EA5E9).withOpacity(0.3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.refresh_rounded, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.tryAgain,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showLanguageDialog(context),
+                    icon: const Icon(Icons.language_rounded, size: 20),
+                    label: Text(l10n.changeLanguage),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: Colors.green.withOpacity(0.5)),
+                      foregroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showLogoutDialog(context),
+                    icon: const Icon(Icons.logout_rounded, size: 20),
+                    label: Text(l10n.signOut),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                      foregroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -380,18 +513,109 @@ class _ProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  void _showLanguageDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                l10n.selectLanguage,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              _buildLanguageOption(context, "English", "en", "🇺🇸"),
+              const SizedBox(height: 12),
+              _buildLanguageOption(context, "हिन्दी", "hi", "🇮🇳"),
+              const SizedBox(height: 12),
+              _buildLanguageOption(context, "తెలుగు", "te", "🇮🇳"),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLanguageOption(
+      BuildContext context, String name, String code, String flag) {
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    final isSelected = currentLocale == code;
+
+    return InkWell(
+      onTap: () {
+        context.read<LocaleCubit>().setLocale(code);
+        Navigator.pop(context);
+        ToastHelper.showToast(
+          context: context,
+          type: "success",
+          title: AppLocalizations.of(context)!.languageChanged,
+        );
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withOpacity(0.05) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? Colors.blue.withOpacity(0.5) : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 16),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? Colors.blue[700] : Colors.black87,
+              ),
+            ),
+            const Spacer(),
+            if (isSelected)
+              Icon(Icons.check_circle_rounded, color: Colors.blue[700]),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showLogoutDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Sign Out"),
-        content:
-            const Text("Are you sure you want to sign out from your account?"),
+        title: Text(l10n.signOut),
+        content: Text(l10n.signOutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            child: Text(l10n.cancel, style: const TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () async {
@@ -402,9 +626,9 @@ class _ProfileScreenState extends State<UserProfileScreen> {
                 context.go(AppRoutes.LOGIN_ROUTE_PATH);
               }
             },
-            child: const Text("Sign Out",
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: Text(l10n.signOut,
+                style: const TextStyle(
+                    color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

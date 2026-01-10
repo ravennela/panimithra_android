@@ -21,6 +21,7 @@ import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_s
 import 'package:panimithra/src/presentation/widget/helper.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class CreateServiceScreen extends StatefulWidget {
   const CreateServiceScreen({super.key});
@@ -86,7 +87,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
   }
 
   String formatTime(TimeOfDay? time) {
-    if (time == null) return "Select time";
+    if (time == null) return AppLocalizations.of(context)!.selectTime;
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
     return DateFormat('hh:mm a').format(dt);
@@ -166,9 +167,9 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
               color: Color(0xFF1A1D1E), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Create New Service',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.createNewService,
+          style: const TextStyle(
             color: Color(0xFF1A1D1E),
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -209,10 +210,10 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   color: Colors.white, size: 20),
                             ),
                             const SizedBox(width: 14),
-                            const Expanded(
+                            Expanded(
                               child: Text(
-                                'Complete details to list your service. High-quality info attracts more customers!',
-                                style: TextStyle(
+                                AppLocalizations.of(context)!.serviceCreationTip,
+                                style: const TextStyle(
                                   color: Color(0xFF1E40AF),
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -227,7 +228,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                       // ---------- Service Category ----------
                       _SectionHeader(
-                          title: 'Category', icon: Icons.category_rounded),
+                          title: AppLocalizations.of(context)!.category, icon: Icons.category_rounded),
                       const SizedBox(height: 12),
                       _sectionCard(
                         child: Column(
@@ -262,7 +263,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   children: [
                                     _buildSelectField(
                                       controller: categoryController,
-                                      hint: 'Select Category',
+                                      hint: AppLocalizations.of(context)!.selectCategory,
                                       icon: Icons.grid_view_rounded,
                                       isExpanded: showManagerDropdown,
                                       onTap: () {
@@ -306,7 +307,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                             },
                                           );
                                         },
-                                        emptyMessage: "No Category Available",
+                                        emptyMessage: AppLocalizations.of(context)!.noCategoryAvailable,
                                         isEmpty: state.totalRecords == 0,
                                       ),
                                     ]
@@ -344,7 +345,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   children: [
                                     _buildSelectField(
                                       controller: subCategoryController,
-                                      hint: 'Select SubCategory',
+                                      hint: AppLocalizations.of(context)!.selectSubCategory,
                                       icon: Icons.widgets_outlined,
                                       isExpanded: subShowManagerDropdown,
                                       onTap: () {
@@ -383,7 +384,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                           );
                                         },
                                         emptyMessage:
-                                            "No SubCategories Available",
+                                            AppLocalizations.of(context)!.noSubCategoriesAvailable,
                                         isEmpty: state.totalRecords == 0,
                                       ),
                                     ]
@@ -400,7 +401,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                       // ---------- Service Details ----------
                       _SectionHeader(
-                          title: 'Service Details',
+                          title: AppLocalizations.of(context)!.serviceDetails,
                           icon: Icons.description_rounded),
                       const SizedBox(height: 12),
                       _sectionCard(
@@ -409,26 +410,26 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               controller: _serviceNameController,
                               isMandatory: true,
-                              label: 'Service Name',
+                              label: AppLocalizations.of(context)!.serviceName,
                               maxLength: 100,
-                              hint: 'e.g., Leaky Faucet Repair',
+                              hint: AppLocalizations.of(context)!.serviceNameHint,
                             ),
                             const SizedBox(height: 20),
                             _buildTextField(
                               isMandatory: true,
                               controller: _descriptionController,
                               maxLength: 500,
-                              label: 'Description',
-                              hint: 'Describe the service you offer...',
+                              label: AppLocalizations.of(context)!.description,
+                              hint: AppLocalizations.of(context)!.descriptionHint,
                               maxLines: 4,
                             ),
                             const SizedBox(height: 20),
                             _buildTextField(
                               isMandatory: false,
                               controller: addressController,
-                              label: 'Service Location',
+                              label: AppLocalizations.of(context)!.serviceLocation,
                               maxLength: 200,
-                              hint: 'Enter service area or address',
+                              hint: AppLocalizations.of(context)!.serviceLocationHint,
                               maxLines: 2,
                               icon: Icons.location_on_outlined,
                             ),
@@ -440,7 +441,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                       // ---------- Additional Info ----------
                       _SectionHeader(
-                          title: 'Included Items',
+                          title: AppLocalizations.of(context)!.includedItems,
                           icon: Icons.check_circle_rounded),
                       const SizedBox(height: 12),
                       _sectionCard(
@@ -449,27 +450,27 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                             _buildTextField(
                               isMandatory: false,
                               controller: addInfoLine1Controller,
-                              label: 'Additional Info 1',
+                              label: AppLocalizations.of(context)!.additionalInfo1,
                               maxLength: 100,
-                              hint: 'e.g., Tools included',
+                              hint: AppLocalizations.of(context)!.additionalInfo1Hint,
                               icon: Icons.done_all_rounded,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               isMandatory: false,
                               controller: addInfoLine2Controller,
-                              label: 'Additional Info 2',
+                              label: AppLocalizations.of(context)!.additionalInfo2,
                               maxLength: 100,
-                              hint: 'e.g., 30 days warranty',
+                              hint: AppLocalizations.of(context)!.additionalInfo2Hint,
                               icon: Icons.done_all_rounded,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               isMandatory: false,
                               controller: addInfoLine3Controller,
-                              label: 'Additional Info 3',
+                              label: AppLocalizations.of(context)!.additionalInfo3,
                               maxLength: 100,
-                              hint: 'e.g., Free consultation',
+                              hint: AppLocalizations.of(context)!.additionalInfo3Hint,
                               icon: Icons.done_all_rounded,
                             ),
                           ],
@@ -480,7 +481,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                       // ---------- Pricing & Duration ----------
                       _SectionHeader(
-                          title: 'Pricing & Time', icon: Icons.currency_rupee),
+                          title: AppLocalizations.of(context)!.pricingAndTime, icon: Icons.currency_rupee),
                       const SizedBox(height: 12),
                       _sectionCard(
                         child: Column(
@@ -492,8 +493,8 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   child: _buildTextField(
                                     isMandatory: true,
                                     controller: _priceController,
-                                    label: 'Price (₹)',
-                                    hint: '500',
+                                    label: AppLocalizations.of(context)!.price,
+                                    hint: AppLocalizations.of(context)!.priceHint,
                                     keyboardType: TextInputType.number,
                                     prefixIcon: const Icon(Icons.currency_rupee,
                                         size: 18),
@@ -502,26 +503,26 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildDropdown(
-                                    label: 'Duration',
+                                    label: AppLocalizations.of(context)!.duration,
                                     value: _selectedDuration,
-                                    hint: 'Select',
+                                    hint: AppLocalizations.of(context)!.selectDuration,
                                     onChanged: (val) =>
                                         setState(() => _selectedDuration = val),
                                     items: [
-                                      '30 min',
-                                      '1 hour',
-                                      '2 hours',
-                                      'Half day',
-                                      'Full day'
+                                      AppLocalizations.of(context)!.duration30Min,
+                                      AppLocalizations.of(context)!.duration1Hour,
+                                      AppLocalizations.of(context)!.duration2Hours,
+                                      AppLocalizations.of(context)!.durationHalfDay,
+                                      AppLocalizations.of(context)!.durationFullDay
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 20),
-                            const Text(
-                              'Availability Window',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.availabilityWindow,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF64748B),
@@ -532,7 +533,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                               children: [
                                 Expanded(
                                   child: _buildTimePicker(
-                                    label: 'Start Time',
+                                    label: AppLocalizations.of(context)!.startTime,
                                     time: startTime,
                                     onTap: () => _selectTime(context, true),
                                   ),
@@ -540,7 +541,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildTimePicker(
-                                    label: 'End Time',
+                                    label: AppLocalizations.of(context)!.endTime,
                                     time: endTime,
                                     onTap: () => _selectTime(context, false),
                                   ),
@@ -555,7 +556,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                       // ---------- Available Days ----------
                       _SectionHeader(
-                          title: 'Available Days',
+                          title: AppLocalizations.of(context)!.availableDays,
                           icon: Icons.calendar_month_rounded),
                       const SizedBox(height: 12),
                       _sectionCard(
@@ -563,13 +564,13 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                           spacing: 10,
                           runSpacing: 10,
                           children: [
-                            'Mon',
-                            'Tue',
-                            'Wed',
-                            'Thu',
-                            'Fri',
-                            'Sat',
-                            'Sun'
+                            AppLocalizations.of(context)!.monday,
+                            AppLocalizations.of(context)!.tuesday,
+                            AppLocalizations.of(context)!.wednesday,
+                            AppLocalizations.of(context)!.thursday,
+                            AppLocalizations.of(context)!.friday,
+                            AppLocalizations.of(context)!.saturday,
+                            AppLocalizations.of(context)!.sunday
                           ].map((day) => _buildDayChip(day)).toList(),
                         ),
                       ),
@@ -578,7 +579,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                       // ---------- Service Images ----------
                       _SectionHeader(
-                          title: 'Gallery', icon: Icons.photo_library_rounded),
+                          title: AppLocalizations.of(context)!.gallery, icon: Icons.photo_library_rounded),
                       const SizedBox(height: 12),
                       _sectionCard(
                         child: Column(
@@ -615,9 +616,9 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                         ),
                                       ),
                                       const SizedBox(height: 12),
-                                      const Text(
-                                        'Click to upload cover image',
-                                        style: TextStyle(
+                                      Text(
+                                        AppLocalizations.of(context)!.clickToUploadCoverImage,
+                                        style: const TextStyle(
                                           color: Color(0xFF64748B),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -700,7 +701,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                       ToastHelper.showToast(
                           context: context,
                           type: 'success',
-                          title: "Service Created Successfully");
+                          title: AppLocalizations.of(context)!.serviceCreatedSuccessfully);
                       context
                           .read<ServiceBloc>()
                           .add(FetchServicesEvent(page: 0));
@@ -729,28 +730,28 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Category');
+                                      title: AppLocalizations.of(context)!.pleaseSelectCategory);
                                   return;
                                 }
                                 if (_selectedSubcategory == null) {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Sub Category');
+                                      title: AppLocalizations.of(context)!.pleaseSelectSubCategory);
                                   return;
                                 }
                                 if (_selectedDuration == null) {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Duration');
+                                      title: AppLocalizations.of(context)!.pleaseSelectDuration);
                                   return;
                                 }
                                 if (startTime == null || endTime == null) {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: 'error',
-                                      title: 'Please Select Timings');
+                                      title: AppLocalizations.of(context)!.pleaseSelectTimings);
                                   return;
                                 }
                                 if (startTime!.isAfter(endTime!)) {
@@ -758,7 +759,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                       context: context,
                                       type: 'error',
                                       title:
-                                          'Start Time must be before End Time');
+                                          AppLocalizations.of(context)!.startTimeBeforeEndTime);
                                   return;
                                 }
 
@@ -838,9 +839,9 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                                   strokeWidth: 2.5,
                                 ),
                               )
-                            : const Text(
-                                'Create Service',
-                                style: TextStyle(
+                            : Text(
+                                AppLocalizations.of(context)!.createService,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -1191,14 +1192,17 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  formatTime(time),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: time != null
-                        ? const Color(0xFF1F2937)
-                        : Colors.grey.shade400,
+                Expanded(
+                  child: Text(
+                    formatTime(time),
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: time != null
+                          ? const Color(0xFF1F2937)
+                          : Colors.grey.shade400,
+                    ),
                   ),
                 ),
                 Icon(Icons.access_time_rounded,

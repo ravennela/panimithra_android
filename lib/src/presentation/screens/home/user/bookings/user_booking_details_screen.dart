@@ -8,6 +8,7 @@ import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_event.dart
 import 'package:panimithra/src/presentation/bloc/booking_bloc/booking_state.dart';
 import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class UserBookingDetailsScreen extends StatefulWidget {
   final String bookingId;
@@ -38,9 +39,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Contact Provider',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.contactProvider,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -55,7 +56,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                   ),
                   child: const Icon(Icons.message, color: Color(0xFF2196F3)),
                 ),
-                title: const Text('Send Message'),
+                title: Text(AppLocalizations.of(context)!.sendMessage),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Navigator.pop(context);
@@ -71,7 +72,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                   ),
                   child: const Icon(Icons.phone, color: Color(0xFF2196F3)),
                 ),
-                title: const Text('Call Provider'),
+                title: Text(AppLocalizations.of(context)!.callProvider),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   UrlLauncherHelper.launchPhone("9347573451", context: context);
@@ -96,9 +97,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Booking Details',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.bookingDetails,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -125,23 +126,25 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                     ToastHelper.showToast(
                         context: context,
                         type: "success",
-                        title: "Booking Cancelled Successfully");
+                        title: AppLocalizations.of(context)!.bookingCancelledSuccess);
                     context.read<BookingBloc>().add(FetchBookingsEvent(0));
                     context.pop();
                   }
                 },
                 builder: (context, state) {
                   if (state is BookingDetailsError) {
-                    return const Text("Retry");
+                    return Text(AppLocalizations.of(context)!.retry);
                   }
                   if (state is BookingDetailsLoading) {
                     return _buildShimmerLoading();
                   }
                   if (state is BookingDetailsLoaded) {
+                    final l10n = AppLocalizations.of(context)!;
                     return Column(
                       children: [
                         // Booking Summary Card
                         _buildBookingSummary(
+                            l10n,
                             state.bookingDetails.bookingId,
                             state.bookingDetails.bookingStatus,
                             state.bookingDetails.serviceName,
@@ -152,6 +155,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
 
                         // Provider Info Card
                         _buildProviderInfo(
+                            l10n,
                             state.bookingDetails.providerName,
                             state.bookingDetails.category,
                             state.bookingDetails.employeeContact),
@@ -159,6 +163,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
 
                         // Service Details Card
                         _buildServiceDetails(
+                            l10n,
                             state.bookingDetails.serviceDescription,
                             state.bookingDetails.addInfoOne,
                             state.bookingDetails.addInfoTwo,
@@ -167,12 +172,12 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                         const SizedBox(height: 16),
 
                         // Payment Details Card
-                        _buildPaymentDetails(state.bookingDetails.paymentStatus,
+                        _buildPaymentDetails(l10n, state.bookingDetails.paymentStatus,
                             state.bookingDetails.price),
                         const SizedBox(height: 24),
 
                         // Action Buttons
-                        _buildActionButtons(state.bookingDetails.bookingStatus),
+                        _buildActionButtons(l10n, state.bookingDetails.bookingStatus),
                         const SizedBox(height: 16),
                       ],
                     );
@@ -195,6 +200,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
   }
 
   Widget _buildBookingSummary(
+      AppLocalizations l10n,
       String bookingId,
       String bbokingStatus,
       String serviceaName,
@@ -210,32 +216,33 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Booking Summary',
-            style: TextStyle(
+          Text(
+            l10n.bookingSummary,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 20),
-          _buildInfoRow('Booking ID', bookingId, isId: true),
+          _buildInfoRow(l10n, l10n.bookingId, bookingId, isId: true),
           const SizedBox(height: 16),
-          _buildInfoRow('Status', bbokingStatus),
+          _buildInfoRow(l10n, l10n.status, bbokingStatus),
           const SizedBox(height: 16),
-          _buildInfoRow('Service', serviceaName),
+          _buildInfoRow(l10n, l10n.service, serviceaName),
           const SizedBox(height: 16),
-          _buildInfoRow('Provider', providerName),
+          _buildInfoRow(l10n, l10n.provider, providerName),
           const SizedBox(height: 16),
           _buildInfoRow(
-              'Date & Time', DateFormat("dd/MM/yyyy").format(bookingDate)),
+              l10n,
+              l10n.dateTime, DateFormat("dd/MM/yyyy").format(bookingDate)),
           const SizedBox(height: 16),
-          _buildInfoRow('Total Price', '\$$price', isPrice: true),
+          _buildInfoRow(l10n, l10n.totalPrice, '\$$price', isPrice: true),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value,
+  Widget _buildInfoRow(AppLocalizations l10n, String label, String value,
       {bool isId = false, bool isPending = false, bool isPrice = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -254,9 +261,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
               color: const Color(0xFFFFF3E0),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Text(
-              'Pending',
-              style: TextStyle(
+            child: Text(
+              l10n.pending,
+              style: const TextStyle(
                 color: Color(0xFFF57C00),
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
@@ -282,7 +289,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
     );
   }
 
-  Widget _buildProviderInfo(
+  Widget _buildProviderInfo(AppLocalizations l10n,
       String providerName, String categoryName, String contactNumber) {
     return Container(
       decoration: BoxDecoration(
@@ -293,9 +300,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Provider Info',
-            style: TextStyle(
+          Text(
+            l10n.providerInfo,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -377,7 +384,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
     );
   }
 
-  Widget _buildServiceDetails(String serviceDescription, String addInfoOne,
+  Widget _buildServiceDetails(AppLocalizations l10n, String serviceDescription, String addInfoOne,
       String addInfoTwo, String addInfoThree, String iconUrl) {
     return Container(
       decoration: BoxDecoration(
@@ -388,17 +395,17 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Service Details',
-            style: TextStyle(
+          Text(
+            l10n.serviceDetails,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Service Items',
-            style: TextStyle(
+          Text(
+            l10n.serviceItems,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -408,9 +415,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
           if (addInfoTwo.isNotEmpty) _buildServiceItem(addInfoTwo),
           if (addInfoThree.isNotEmpty) _buildServiceItem(addInfoThree),
           const SizedBox(height: 20),
-          const Text(
-            'Description',
-            style: TextStyle(
+          Text(
+            l10n.description,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -425,9 +432,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Service Images',
-            style: TextStyle(
+          Text(
+            l10n.serviceImages,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -439,7 +446,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                 onTap: () {
                   print(iconUrl);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening image 1...')),
+                    SnackBar(content: Text(l10n.openingImage)),
                   );
                 },
                 child: ClipRRect(
@@ -491,7 +498,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
     );
   }
 
-  Widget _buildPaymentDetails(String paymentStatus, double price) {
+  Widget _buildPaymentDetails(AppLocalizations l10n, String paymentStatus, double price) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -501,9 +508,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Payment Details',
-            style: TextStyle(
+          Text(
+            l10n.paymentDetails,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -513,7 +520,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Payment Status',
+                l10n.paymentStatus,
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.grey[600],
@@ -527,8 +534,8 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  paymentStatus ?? "",
-                  style: TextStyle(
+                  paymentStatus,
+                  style: const TextStyle(
                     color: Color(0xFF4CAF50),
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -538,11 +545,11 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildPaymentRow('Base Service', '\$$price'),
+          _buildPaymentRow(l10n.baseService, '\$$price'),
           const SizedBox(height: 12),
-          _buildPaymentRow('Service Fee', '\$0'),
+          _buildPaymentRow(l10n.serviceFee, '\$0'),
           const SizedBox(height: 12),
-          _buildPaymentRow('Taxes', '\$0'),
+          _buildPaymentRow(l10n.taxes, '\$0'),
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
@@ -550,15 +557,15 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total',
-                style: TextStyle(
+                l10n.total,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 '\$$price',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2196F3),
@@ -594,7 +601,7 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
     );
   }
 
-  Widget _buildActionButtons(String bookingStatus) {
+  Widget _buildActionButtons(AppLocalizations l10n, String bookingStatus) {
     return Column(
       children: [
         bookingStatus != "CANCELLED" && bookingStatus != "COMPLETED"
@@ -613,16 +620,16 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Cancel Booking',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.cancelBooking,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               )
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
@@ -637,9 +644,9 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Contact Provider',
-              style: TextStyle(
+            child: Text(
+              l10n.contactProvider,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -656,30 +663,31 @@ class _BookingDetailsScreenState extends State<UserBookingDetailsScreen> {
       barrierDismissible:
           false, // Prevent dismissing by tapping outside to ensure explicit choice
       builder: (BuildContext dialogContext) {
+        final l10n = AppLocalizations.of(context)!;
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text(
-            "Cancel Booking",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            l10n.cancelBooking,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: const Text("Are you sure want to cancel booking?"),
+          content: Text(l10n.cancelBookingConfirmation),
           actions: [
             TextButton(
-              child: const Text(
-                "No",
+              child: Text(
+                l10n.no,
                 style:
-                    TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
+                    const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
               ),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
-              child: const Text(
-                "Yes",
+              child: Text(
+                l10n.yes,
                 style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
+                    const TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
               ),
               onPressed: () {
                 // Determine if we need to prevent double execution here.

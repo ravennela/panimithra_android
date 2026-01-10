@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -42,6 +43,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   Timer? _searchDebounce;
   bool isLoading = false;
   final List<String> categories = [
+    'All',
     'Pest Control',
     'Painter',
     'Mobile Repair',
@@ -130,18 +132,19 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FD),
       body: Column(
         children: [
           // Header
-          _buildHeader(),
+          _buildHeader(l10n),
           // Content
           Expanded(
             child: Stack(
               children: [
-                _buildServiceList(),
-                if (showFilters) _buildFilterSheet(),
+                _buildServiceList(l10n),
+                if (showFilters) _buildFilterSheet(l10n),
               ],
             ),
           ),
@@ -150,7 +153,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     final primaryColor = Theme.of(context).primaryColor;
     return Container(
       decoration: BoxDecoration(
@@ -178,8 +181,8 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Explore Services',
-                          style: TextStyle(
+                          l10n.exploreServices,
+                          style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
                             color: const Color(0xFF0F172A),
@@ -193,7 +196,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                                 size: 14, color: primaryColor),
                             const SizedBox(width: 4),
                             Text(
-                              'Near your location',
+                              l10n.nearLocation,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[500],
@@ -225,7 +228,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                   style: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 15),
                   decoration: InputDecoration(
-                    hintText: "Search for services (e.g. Plumber)",
+                    hintText: l10n.searchServices,
                     hintStyle: TextStyle(
                       color: Colors.grey[400],
                       fontSize: 14,
@@ -251,7 +254,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
                   _buildFilterChip(
-                    'Filters',
+                    l10n.filters,
                     Icons.tune_rounded,
                     showFilters,
                     () => setState(() => showFilters = !showFilters),
@@ -259,14 +262,14 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                   ),
                   const SizedBox(width: 10),
                   _buildFilterChip(
-                    'Sort: $sortBy',
+                    '${l10n.sortBy}: ${sortBy == 'Price: Low to High' ? l10n.priceLowToHigh : (sortBy == 'Price: High to Low' ? l10n.priceHighToLow : sortBy)}',
                     Icons.sort_rounded,
                     false,
-                    () => _showSortBottomSheet(),
+                    () => _showSortBottomSheet(l10n),
                   ),
                   const SizedBox(width: 10),
                   _buildFilterChip(
-                    'Category',
+                    l10n.category,
                     Icons.grid_view_rounded,
                     false,
                     () => _showCategoryBottomSheet(),
@@ -348,7 +351,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     );
   }
 
-  Widget _buildServiceList() {
+  Widget _buildServiceList(AppLocalizations l10n) {
     return BlocConsumer<ServiceBloc, ServiceState>(
       buildWhen: (previous, current) => ((current is SearchServiceLoadedState ||
               current is SearchServiceErrorState) ||
@@ -377,32 +380,126 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
         }
         if (state is SearchServiceErrorState) {
           return Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
-                const Text(
-                  'Error loading Service',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  state.error,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<ServiceBloc>().add(const SearchServiceEvent(
-                          page: 0,
-                        ));
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Animated Error Icon with Gradient Background
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.elasticOut,
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                const Color(0xFFEF4444).withOpacity(0.1),
+                                const Color(0xFFF97316).withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFEF4444).withOpacity(0.2),
+                                blurRadius: 24,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.error_outline_rounded,
+                            size: 64,
+                            color: Color(0xFFEF4444),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Error Title
+                  Text(
+                    l10n.oopsSomethingWentWrong,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1A1D1E),
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Error Message
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFE5E7EB),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      state.error,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 14,
+                        height: 1.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Retry Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.read<ServiceBloc>().add(const SearchServiceEvent(
+                              page: 0,
+                            ));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0EA5E9),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 2,
+                        shadowColor: const Color(0xFF0EA5E9).withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.refresh_rounded, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.tryAgain,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -448,7 +545,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.12,
                     ),
-                    Center(child: _buildNoServicesFound()),
+                    Center(child: _buildNoServicesFound(l10n)),
                   ],
                 );
         }
@@ -457,7 +554,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     );
   }
 
-  Widget _buildNoServicesFound() {
+  Widget _buildNoServicesFound(AppLocalizations l10n) {
     final primaryColor = Theme.of(context).primaryColor;
     return Container(
       padding: const EdgeInsets.all(40),
@@ -474,9 +571,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                 size: 72, color: primaryColor.withOpacity(0.2)),
           ),
           const SizedBox(height: 32),
-          const Text(
-            'No Services Found',
-            style: TextStyle(
+          Text(
+            l10n.noServicesFound,
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
               color: Color(0xFF1E293B),
@@ -485,7 +582,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'We couldn\'t find anything matching your filters.\nTry broadening your search criteria.',
+            l10n.noServicesMessage,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey[500],
@@ -511,15 +608,15 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                   borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
-            child: const Text("Clear All Filters",
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            child: Text(l10n.clearAllFilters,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterSheet() {
+  Widget _buildFilterSheet(AppLocalizations l10n) {
     return Positioned.fill(
       child: GestureDetector(
         onTap: () {
@@ -556,11 +653,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                                 minRating = 0;
                               });
                             },
-                            child: const Text('Clear All'),
+                            child: Text(l10n.clearAll),
                           ),
-                          const Text(
-                            'Filters',
-                            style: TextStyle(
+                          Text(
+                            l10n.filters,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -584,9 +681,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                         padding: const EdgeInsets.all(16),
                         children: [
                           // Category
-                          const Text(
-                            'Category',
-                            style: TextStyle(
+                          Text(
+                            l10n.category,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -615,7 +712,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
-                                    category,
+                                    category == 'All' ? l10n.all : category,
                                     style: TextStyle(
                                       color: isSelected
                                           ? Colors.white
@@ -633,9 +730,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                           const SizedBox(height: 24),
 
                           // Price Range
-                          const Text(
-                            'Price Range',
-                            style: TextStyle(
+                          Text(
+                            l10n.priceRange,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -676,9 +773,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                           const SizedBox(height: 24),
 
                           // Rating
-                          const Text(
-                            'Minimum Rating',
-                            style: TextStyle(
+                          Text(
+                            l10n.minRating,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -748,9 +845,9 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
-                            'Apply Filters',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.applyFilters,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -768,7 +865,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
     );
   }
 
-  void _showSortBottomSheet() {
+  void _showSortBottomSheet(AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -780,11 +877,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
-                  'Sort By',
-                  style: TextStyle(
+                  l10n.sortBy,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -793,7 +890,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
               const Divider(),
               ...sortOptions.map((option) {
                 return ListTile(
-                  title: Text(option),
+                  title: Text(option == 'Price: Low to High'
+                      ? l10n.priceLowToHigh
+                      : option == 'Price: High to Low'
+                          ? l10n.priceHighToLow
+                          : option),
                   trailing: sortBy == option
                       ? const Icon(Icons.check, color: Colors.blue)
                       : null,
@@ -823,6 +924,7 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
   }
 
   void _showCategoryBottomSheet() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -834,11 +936,11 @@ class _FindServicesScreenState extends State<FindServicesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
-                  'Select Category',
-                  style: TextStyle(
+                  l10n.selectCategory,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1028,6 +1130,7 @@ class _ServiceCardState extends State<ServiceCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
@@ -1183,7 +1286,7 @@ class _ServiceCardState extends State<ServiceCard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'FAIR ESTIMATE',
+                                  l10n.fairEstimate,
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.grey[400],
@@ -1219,9 +1322,9 @@ class _ServiceCardState extends State<ServiceCard> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 14),
                             ),
-                            child: const Text(
-                              'Book Now',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.bookNow,
+                              style: const TextStyle(
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.2),
                             ),

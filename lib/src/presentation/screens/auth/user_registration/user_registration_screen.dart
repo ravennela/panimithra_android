@@ -11,6 +11,8 @@ import 'package:panimithra/src/presentation/bloc/registration_bloc/registration_
 import 'package:panimithra/src/presentation/widget/url_launcher.dart';
 import 'package:panimithra/src/utilities/location_fetch.dart';
 
+import 'package:panimithra/l10n/app_localizations.dart';
+
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
 
@@ -79,6 +81,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -89,9 +92,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               color: Color(0xFF1E293B), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Create Account',
-          style: TextStyle(
+        title: Text(
+          l10n.createAccount,
+          style: const TextStyle(
             color: Color(0xFF1E293B),
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -108,22 +111,22 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
+                 Center(
                   child: Column(
                     children: [
                       Text(
-                        "Join Panimithra",
-                        style: TextStyle(
+                        l10n.joinPanimithra,
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF1E293B),
                           letterSpacing: -0.5,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
-                        "Fill in your details to get started",
-                        style: TextStyle(
+                        l10n.fillDetailsToStart,
+                        style: const TextStyle(
                           fontSize: 15,
                           color: Color(0xFF64748B),
                           fontWeight: FontWeight.w500,
@@ -135,33 +138,33 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 const SizedBox(height: 32),
 
                 // Personal Info Section
-                _buildSectionHeader("Personal Information"),
+                _buildSectionHeader(l10n.personalInformation),
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: _fullNameController,
-                  label: "Full Name",
-                  hintText: 'Enter your full name',
+                  label: l10n.fullName,
+                  hintText: l10n.enterFullName,
                   icon: Icons.person_outline_rounded,
                   isRequired: true,
                   validator: (value) =>
-                      value!.isEmpty ? "Please enter your name" : null,
+                      value!.isEmpty ? l10n.fieldCannotBeEmpty : null,
                 ),
                 const SizedBox(height: 20),
                 _buildTextField(
                   controller: _emailController,
-                  label: "Email Address",
+                  label: l10n.emailAddress,
                   hintText: 'john.doe@example.com',
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return l10n.fieldCannotBeEmpty;
                     }
                     final emailRegex =
                         RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                     if (!emailRegex.hasMatch(value)) {
-                      return 'Please enter a valid email address';
+                      return l10n.invalidEmail;
                     }
                     return null;
                   },
@@ -169,18 +172,18 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 const SizedBox(height: 20),
                 _buildTextField(
                   controller: _phoneController,
-                  label: "Phone Number",
-                  hintText: 'Enter your phone number',
+                  label: l10n.phoneNumber,
+                  hintText: l10n.enterPhoneNumber,
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your mobile number';
+                      return l10n.fieldCannotBeEmpty;
                     }
                     final mobileRegex = RegExp(r'^[0-9]{10}$');
                     if (!mobileRegex.hasMatch(value)) {
-                      return 'Please enter a valid 10-digit mobile number';
+                      return l10n.invalidPhoneNumber;
                     }
                     return null;
                   },
@@ -188,16 +191,16 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 const SizedBox(height: 32),
 
                 // Address Section
-                _buildSectionHeader("Address Details"),
+                _buildSectionHeader(l10n.addressDetails),
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: _addressLine1Controller,
-                  label: "Address Line 1",
-                  hintText: 'e.g., 123 Main St',
+                  label: l10n.addressLine1,
+                  hintText: l10n.addressHint,
                   icon: Icons.location_on_outlined,
                   isRequired: true,
                   validator: (value) =>
-                      value!.isEmpty ? "Please enter Address" : null,
+                      value!.isEmpty ? l10n.fieldCannotBeEmpty : null,
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -205,25 +208,25 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     Expanded(
                       child: _buildTextField(
                         controller: _cityController,
-                        label: "City",
-                        hintText: 'Anytown',
+                        label: l10n.city,
+                        hintText: l10n.cityHint,
                         icon: Icons.location_city_rounded,
                         isRequired: true,
                         validator: (value) =>
-                            value!.isEmpty ? "Required" : null,
+                            value!.isEmpty ? "!" : null,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildTextField(
                         controller: _zipCodeController,
-                        label: "Pincode",
-                        hintText: '500001',
+                        label: l10n.pincode,
+                        hintText: l10n.pincodeHint,
                         icon: Icons.pin_drop_outlined,
                         keyboardType: TextInputType.number,
                         isRequired: true,
                         validator: (value) =>
-                            value!.isEmpty ? "Required" : null,
+                            value!.isEmpty ? "!" : null,
                       ),
                     ),
                   ],
@@ -233,16 +236,16 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: const [
+                      children:  [
                         Text(
-                          "State",
-                          style: TextStyle(
+                          l10n.state,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF334155),
                           ),
                         ),
-                        Text(' *',
+                        const Text(' *',
                             style: TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.bold)),
@@ -273,7 +276,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         ),
                       ),
                       hint: Text(
-                        'Select State',
+                        l10n.selectState,
                         style: TextStyle(
                             color: Colors.grey.shade400, fontSize: 15),
                       ),
@@ -290,7 +293,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         });
                       },
                       validator: (value) =>
-                          value == null ? "Please select a state" : null,
+                          value == null ? "!" : null,
                     ),
                   ],
                 ),
@@ -298,12 +301,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 const SizedBox(height: 32),
 
                 // Security Section
-                _buildSectionHeader("Security"),
+                _buildSectionHeader(l10n.security),
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: _passwordController,
-                  label: "Password",
-                  hintText: 'Enter your password',
+                  label: l10n.password,
+                  hintText: l10n.enterPassword,
                   icon: Icons.lock_outline_rounded,
                   isRequired: true,
                   obscureText: !_isPasswordVisible,
@@ -321,13 +324,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     },
                   ),
                   validator: (value) =>
-                      value!.isEmpty ? "Please enter Password" : null,
+                      value!.isEmpty ? l10n.fieldCannotBeEmpty : null,
                 ),
                 const SizedBox(height: 20),
                 _buildTextField(
                   controller: _confirmPasswordController,
-                  label: "Confirm Password",
-                  hintText: 'Confirm your password',
+                  label: l10n.confirmPassword,
+                  hintText: l10n.confirmPassword,
                   icon: Icons.lock_reset_rounded,
                   isRequired: true,
                   obscureText: !_isConfirmPasswordVisible,
@@ -345,7 +348,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     },
                   ),
                   validator: (value) =>
-                      value!.isEmpty ? "Please confirm password" : null,
+                      value!.isEmpty ? l10n.fieldCannotBeEmpty : null,
                 ),
 
                 const SizedBox(height: 32),
@@ -361,10 +364,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         height: 1.5,
                       ),
                       children: [
-                        const TextSpan(
-                            text: 'By creating an account, you agree to our '),
+                         TextSpan(
+                            text: l10n.agreeToTerms + ' '),
                         TextSpan(
-                          text: 'Terms of Service',
+                          text: l10n.termsOfService,
                           style: const TextStyle(
                             color: Color(0xFF2563EB),
                             fontWeight: FontWeight.w600,
@@ -376,9 +379,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                   context: context);
                             },
                         ),
-                        const TextSpan(text: ' and '),
+                         TextSpan(text: ' ' + l10n.and + ' '),
                         TextSpan(
-                          text: 'Privacy Policy',
+                          text: l10n.privacyPolicy,
                           style: const TextStyle(
                             color: Color(0xFF2563EB),
                             fontWeight: FontWeight.w600,
@@ -406,7 +409,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       ToastHelper.showToast(
                           context: context,
                           type: "success",
-                          title: "Registration Successful");
+                          title: l10n.registrationSuccessful);
                     }
                     if (regState is ProviderRegistrationError) {
                       ToastHelper.showToast(
@@ -432,8 +435,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                   ToastHelper.showToast(
                                       context: context,
                                       type: "error",
-                                      title:
-                                          "Password and Confirm Password not matched");
+                                      title: l10n.passwordsMismatch);
                                   return;
                                 }
                                 double latitude = 0.0;
@@ -488,9 +490,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                   strokeWidth: 2.5,
                                 ),
                               )
-                            : const Text(
-                                'Create Account',
-                                style: TextStyle(
+                            :  Text(
+                                l10n.createAccount,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -511,9 +513,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         color: Color(0xFF64748B),
                       ),
                       children: [
-                        const TextSpan(text: 'Already have an account? '),
+                         TextSpan(text: l10n.alreadyHaveAccount + ' '),
                         TextSpan(
-                          text: 'Log In',
+                          text: l10n.logIn,
                           style: const TextStyle(
                             color: Color(0xFF2563EB),
                             fontWeight: FontWeight.w700,

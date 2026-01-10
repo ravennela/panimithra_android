@@ -2,6 +2,8 @@ part of 'authenticator_watcher_bloc.dart';
 
 abstract class AuthenticatorWatcherState {
   const AuthenticatorWatcherState();
+  bool get isAuthenticated => this is AuthenticatorWatcherAuthenticated;
+  bool get isSessionExpired => this is AuthenticatorWatcherSessionExpired;
 }
 
 class AuthenticatorWatcherInitial extends AuthenticatorWatcherState {
@@ -22,4 +24,8 @@ class AuthenticatorWatcherUnauthenticated extends AuthenticatorWatcherState {
 
 class AuthenticatorWatcherIsFirstTime extends AuthenticatorWatcherState {
   const AuthenticatorWatcherIsFirstTime();
+}
+
+class AuthenticatorWatcherSessionExpired extends AuthenticatorWatcherState {
+  const AuthenticatorWatcherSessionExpired();
 }

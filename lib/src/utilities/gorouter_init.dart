@@ -1,5 +1,10 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:panimithra/src/common/routes.dart';
+import 'package:panimithra/src/injection.dart' as di;
+import 'package:panimithra/src/presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:panimithra/src/presentation/screens/auth/forgot_password/forgot_password_email_screen.dart';
 import 'package:panimithra/src/presentation/screens/auth/forgot_password/otp_verification_screen.dart';
 import 'package:panimithra/src/presentation/screens/auth/forgot_password/reset_password_screen.dart';
@@ -35,9 +40,70 @@ import 'package:panimithra/src/presentation/screens/home/user/profile/reset_pass
 import 'package:panimithra/src/presentation/screens/home_screen.dart';
 import 'package:panimithra/src/presentation/screens/splash/splash_screen.dart';
 
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+          (dynamic _) => notifyListeners(),
+        );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
 final router = GoRouter(
   initialLocation: '/',
+  refreshListenable: GoRouterRefreshStream(di.sl<AuthenticatorWatcherBloc>().stream),
   errorBuilder: (context, state) => const ErrorScreen(),
+  redirect: (context, state) {
+    final authBloc = di.sl<AuthenticatorWatcherBloc>();
+    final authState = authBloc.state;
+
+    final bool isAuthenticated = authState.isAuthenticated;
+    final bool isSessionExpired = authState.isSessionExpired;
+
+    final String loginLocation = AppRoutes.LOGIN_ROUTE_PATH;
+    final String homeLocation = AppRoutes.HOME_SCREEN_PATH;
+    final String welcomeLocation = AppRoutes.WELCOME_ROUTE_PATH;
+
+    final bool isLoggingIn = state.matchedLocation == loginLocation;
+    final bool isWelcomeScreen = state.matchedLocation == welcomeLocation;
+    final bool isSplashScreen = state.matchedLocation == '/';
+    
+    // Auth routes that are allowed when unauthenticated
+    final bool isAuthRoute = isLoggingIn || isWelcomeScreen || isSplashScreen ||
+        state.matchedLocation == AppRoutes.USER_REGISTRATION_PATH ||
+        state.matchedLocation == AppRoutes.PROVIDER_BASE_REGISTRATION_PATH ||
+        state.matchedLocation == AppRoutes.PROVIDER_ADDRESS_REGISTRATION_PATH ||
+        state.matchedLocation == AppRoutes.PROVIDER_SERVICE_REGISTRATION_PATH ||
+        state.matchedLocation == AppRoutes.PROVIDER_ACCOUNT_REGISTRATION_PATH ||
+        state.matchedLocation == AppRoutes.FORGOT_PASSWORD_EMAIL ||
+        state.matchedLocation == AppRoutes.VERIFY_OTP_SCREEN ||
+        state.matchedLocation == AppRoutes.RESET_BEFORE_AUTH;
+
+    // 1. Session Expired logic (MANDATORY)
+    if (isSessionExpired && !isLoggingIn) {
+      return '$loginLocation?reason=sessionExpired';
+    }
+
+    // 2. Unauthenticated user
+    if (!isAuthenticated && !isAuthRoute) {
+      return welcomeLocation;
+    }
+
+    // 3. Authenticated user trying to access auth pages
+    if (isAuthenticated && isAuthRoute && !isSplashScreen) {
+      return homeLocation;
+    }
+
+    return null; // No redirect needed
+  },
   routes: [
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     GoRoute(
@@ -285,8 +351,6 @@ final router = GoRouter(
       },
     ),
   ],
-  redirect: (context, state) {
-    return null;
-  },
+  
   debugLogDiagnostics: true,
 );

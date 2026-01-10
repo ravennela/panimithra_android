@@ -33,6 +33,8 @@ class LoginRepositoryImpl implements LoginRepository {
       return Right(model);
     } on SocketException {
       return const Left("No Internet Connection");
+    } on UnauthorizedException catch (e) {
+      return Left(e.message);
     } on ServerException catch (e) {
       return Left(e.message);
     } on DioException catch (e) {

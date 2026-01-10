@@ -10,6 +10,7 @@ import 'package:panimithra/src/domain/usecase/search_service_usecase.dart';
 import 'package:panimithra/src/domain/usecase/update_service_usecase.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_event.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_state.dart';
+import 'package:panimithra/src/core/error/exceptions.dart';
 
 class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
   final FetchServicesUseCase fetchServicesUseCase;
@@ -40,29 +41,38 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
       emit(const ServiceLoading());
     }
 
-    final result = await fetchServicesUseCase(event.page);
+    try {
+      final result = await fetchServicesUseCase(event.page);
 
-    result.fold(
-      (error) {
-        emit(ServiceError(message: error));
-      },
-      (fetchServiceModel) {
-        List<ServiceItem> newData = fetchServiceModel.data ?? [];
-        // Handle pagination: append data if not first page
-        if (event.page > 0 && state is ServiceLoaded) {
-          final currentState = state as ServiceLoaded;
-          final existingData = currentState.data ?? [];
-          newData = [...existingData, ...newData];
-        }
+      result.fold(
+        (error) {
+          emit(ServiceError(message: error));
+        },
+        (fetchServiceModel) {
+          List<ServiceItem> newData = fetchServiceModel.data ?? [];
+          // Handle pagination: append data if not first page
+          if (event.page > 0 && state is ServiceLoaded) {
+            final currentState = state as ServiceLoaded;
+            final existingData = currentState.data ?? [];
+            newData = [...existingData, ...newData];
+          }
 
-        emit(ServiceLoaded(
-          page: event.page,
-          totalRecords: fetchServiceModel.totalItems ?? 0,
-          fetchServiceModel: fetchServiceModel,
-          data: newData,
-        ));
-      },
-    );
+          emit(ServiceLoaded(
+            page: event.page,
+            totalRecords: fetchServiceModel.totalItems ?? 0,
+            fetchServiceModel: fetchServiceModel,
+            data: newData,
+          ));
+        },
+      );
+    } on UnauthorizedException {
+      // Notification is handled globally by Dio Interceptor, 
+      // but we could also add(AuthenticatorWatcherSessionExpiredEvent()) here if desired.
+      // For now, just ensure we don't crash and maybe emit an error state.
+      emit(const ServiceError(message: 'Session Expired'));
+    } catch (e) {
+      emit(ServiceError(message: e.toString()));
+    }
   }
 
   FutureOr<void> _onCreateServiceUsecase(

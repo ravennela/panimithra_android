@@ -7,6 +7,7 @@ import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_event.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -51,6 +52,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(
@@ -70,9 +72,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
-              title: const Text(
-                'Change Password',
-                style: TextStyle(
+              title: Text(
+                l10n.changePassword,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -124,7 +126,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          "Secure Your Account",
+                          l10n.secureYourAccount,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -132,7 +134,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Reset your password regularly to keep your account safe.",
+                          l10n.resetRegularlyMessage,
                           style:
                               TextStyle(color: Colors.grey[600], fontSize: 13),
                         ),
@@ -141,8 +143,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         /// Current Password
                         _buildPasswordField(
                           controller: _currentPasswordController,
-                          label: "Current Password",
-                          hint: "Enter current password",
+                          label: l10n.currentPassword,
+                          hint: l10n.enterCurrentPassword,
                           icon: Icons.lock_outline_rounded,
                           obscure: _currentObscure,
                           toggle: () {
@@ -152,10 +154,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Enter current password";
+                              return l10n.enterCurrentPassword;
                             }
                             if (value.length < 6) {
-                              return "Password must be at least 6 characters";
+                              return l10n.passwordLengthError;
                             }
                             return null;
                           },
@@ -166,7 +168,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         /// New Password
                         _buildPasswordField(
                           controller: _newPasswordController,
-                          label: "New Password",
+                          label: l10n.newPassword,
                           hint: "Enter 8+ characters",
                           icon: Icons.vpn_key_outlined,
                           obscure: _newObscure,
@@ -177,13 +179,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Enter new password";
+                              return l10n.enterNewPassword;
                             }
                             if (value.length < 8) {
-                              return "Minimum 8 characters required";
+                              return l10n.min8Chars;
                             }
                             if (!RegExp(r'[0-9]').hasMatch(value)) {
-                              return "Must contain at least one number";
+                              return l10n.atLeastOneNumber;
                             }
                             return null;
                           },
@@ -194,8 +196,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         /// Confirm Password
                         _buildPasswordField(
                           controller: _confirmPasswordController,
-                          label: "Confirm Password",
-                          hint: "Re-enter new password",
+                          label: l10n.confirmPassword,
+                          hint: l10n.reEnterNewPassword,
                           icon: Icons.check_circle_outline_rounded,
                           obscure: _confirmObscure,
                           toggle: () {
@@ -205,10 +207,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Confirm your password";
+                              return l10n.confirmYourPassword;
                             }
                             if (value != _newPasswordController.text) {
-                              return "Passwords do not match";
+                              return l10n.passwordsDoNotMatch;
                             }
                             return null;
                           },
@@ -258,9 +260,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                                 Colors.white),
                                       ),
                                     )
-                                  : const Text(
-                                      "Update Password",
-                                      style: TextStyle(
+                                  : Text(
+                                      l10n.updatePassword,
+                                      style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white),

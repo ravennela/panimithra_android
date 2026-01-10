@@ -9,6 +9,16 @@ class AuthenticatorWatcherBloc
   AuthenticatorWatcherBloc() : super(AuthenticatorWatcherInitial()) {
     on<AuthenticatorWatcherAuthCheckRequest>(_onAuthCheckRequest);
     on<AuthenticatorWatcherSignOut>(_onSignOut);
+    on<AuthenticatorWatcherSessionExpiredEvent>(_onSessionExpired);
+  }
+
+  Future<void> _onSessionExpired(
+    AuthenticatorWatcherSessionExpiredEvent event,
+    Emitter<AuthenticatorWatcherState> emit,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear everything on session expiry
+    emit(const AuthenticatorWatcherSessionExpired());
   }
 
   Future<void> _onAuthCheckRequest(

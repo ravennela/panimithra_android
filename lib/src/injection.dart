@@ -84,6 +84,7 @@ import 'package:panimithra/src/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/service/service_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/subcategory_bloc/sub_category_bloc.dart';
 import 'package:panimithra/src/presentation/bloc/users_bloc/user_bloc.dart';
+import 'package:panimithra/src/presentation/cubit/locale/locale_cubit.dart';
 import 'package:panimithra/src/presentation/cubit/provider_registration/provider_registration_cubit.dart';
 import 'package:panimithra/src/domain/usecase/fetch_faq_usecase.dart';
 
@@ -92,11 +93,12 @@ final sl = GetIt.instance;
 Future<void> init() async {
   sl.registerLazySingleton(() => DioClient());
   // Bloc
+  sl.registerLazySingleton(() => LocaleCubit());
   sl.registerFactory(
     () => LoginBloc(createloginLogin: sl()),
   );
   sl.registerFactory(() => ProviderRegistrationCubit());
-  sl.registerFactory(() => AuthenticatorWatcherBloc());
+  sl.registerLazySingleton(() => AuthenticatorWatcherBloc());
   sl.registerFactory(() => PlanBloc(
       createPlanUseCase: sl(),
       fetchPlansUseCase: sl(),

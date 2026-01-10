@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../error/exceptions.dart';
+import '../../presentation/bloc/authenticator_watcher/authenticator_watcher_bloc.dart';
+import '../../injection.dart' as di;
 
 class DioClient {
   late Dio _dio;
@@ -24,6 +26,25 @@ class DioClient {
       error: true,
       requestHeader: true,
       responseHeader: false,
+    ));
+
+    // Add Auth Interceptor
+    _dio.interceptors.add(InterceptorsWrapper(
+      onError: (e, handler) {
+        if (e.response?.statusCode == 401) {
+          // Skip for login requests to avoid showing session expired on wrong credentials
+          if (e.requestOptions.path.contains(ApiConstants.login)) {
+            return handler.next(e);
+          }
+          
+          // Notify Auth Bloc about session expiry
+          final authBloc = di.sl<AuthenticatorWatcherBloc>();
+          if (!authBloc.state.isSessionExpired) {
+            authBloc.add(const AuthenticatorWatcherSessionExpiredEvent());
+          }
+        }
+        return handler.next(e);
+      },
     ));
   }
 
@@ -227,6 +248,10 @@ class DioClient {
               responseData['data']?.toString();
         } else if (responseData is String && responseData.isNotEmpty) {
           errorMessage = responseData;
+        }
+
+        if (statusCode == 401) {
+          return UnauthorizedException(errorMessage ?? 'Session expired');
         }
 
         // Return just the error message if available, otherwise include status code

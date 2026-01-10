@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 import 'package:panimithra/src/core/constants/api_constants.dart';
 import 'package:panimithra/src/presentation/screens/custom_navbar.dart';
 import 'package:panimithra/src/presentation/screens/home/admin/bookings/admin_booking_screen.dart';
@@ -100,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return employeeScreens;
     } else {
       // Default fallback
-      return [const Center(child: Text('Home'))];
+      return [Center(child: Text(AppLocalizations.of(context)!.home))];
     }
   }
 

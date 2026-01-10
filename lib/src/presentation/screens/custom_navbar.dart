@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:panimithra/l10n/app_localizations.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -29,38 +30,39 @@ class CustomBottomNavBar extends StatelessWidget {
         ],
       ),
       child: Row(
-        children: _getNavItems(),
+        children: _getNavItems(context),
       ),
     );
   }
 
-  List<Widget> _getNavItems() {
+  List<Widget> _getNavItems(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (userRole == 'ADMIN') {
       // Director navigation items - 5 tabs
       return [
         _buildNavItem(
           icon: Icons.home_outlined,
-          label: 'Dashboard',
+          label: l10n.dashboard,
           index: 0,
         ),
         _buildNavItem(
           icon: Icons.person_2_outlined,
-          label: 'Users',
+          label: l10n.users,
           index: 1,
         ),
         _buildNavItem(
           icon: Icons.add_box_rounded,
-          label: 'Employees',
+          label: l10n.employees,
           index: 2,
         ),
         _buildNavItem(
           icon: Icons.calendar_view_day_outlined,
-          label: 'Bookings',
+          label: l10n.bookings,
           index: 3,
         ),
         _buildNavItem(
           icon: Icons.settings_outlined,
-          label: 'Settings',
+          label: l10n.settings,
           index: 4,
         ),
       ];
@@ -69,27 +71,27 @@ class CustomBottomNavBar extends StatelessWidget {
       return [
         _buildNavItem(
           icon: Icons.home_outlined,
-          label: 'Home',
+          label: l10n.home,
           index: 0,
         ),
         _buildNavItem(
           icon: Icons.book_online,
-          label: 'Bookings',
+          label: l10n.bookings,
           index: 1,
         ),
         _buildNavItem(
           icon: Icons.payment,
-          label: 'Payments',
+          label: l10n.payments,
           index: 2,
         ),
         _buildNavItem(
           icon: Icons.local_shipping_outlined,
-          label: 'My Service',
+          label: l10n.myService,
           index: 3,
         ),
         _buildNavItem(
           icon: Icons.person_outline_outlined,
-          label: 'Profile',
+          label: l10n.profile,
           index: 4,
         ),
       ];
@@ -97,17 +99,17 @@ class CustomBottomNavBar extends StatelessWidget {
       return [
         _buildNavItem(
           icon: Icons.home_outlined,
-          label: 'Home',
+          label: l10n.home,
           index: 0,
         ),
         _buildNavItem(
           icon: Icons.book_online,
-          label: 'Bookings',
+          label: l10n.bookings,
           index: 1,
         ),
         _buildNavItem(
           icon: Icons.person,
-          label: 'Profile',
+          label: l10n.profile,
           index: 2,
         ),
       ];
@@ -116,7 +118,7 @@ class CustomBottomNavBar extends StatelessWidget {
       return [
         _buildNavItem(
           icon: Icons.home_outlined,
-          label: 'Home',
+          label: l10n.home,
           index: 0,
         ),
       ];
